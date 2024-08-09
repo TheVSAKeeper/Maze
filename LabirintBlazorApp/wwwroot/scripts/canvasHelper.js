@@ -5,7 +5,8 @@ const commandTypes = {
     3: 'stroke',
     4: 'drawImage',
     5: 'strokeStyle',
-    6: 'lineWidth'
+    6: 'lineWidth',
+    7: 'clearRect',
 };
 
 window.canvasHelper = {
@@ -33,6 +34,8 @@ window.canvasHelper = {
                     contextRef.strokeStyle = command.color;
                 } else if (commandTypes[command.type] === "lineWidth") {
                     contextRef.lineWidth = command.size;
+                } else if (commandTypes[command.type] === "clearRect") {
+                    contextRef.clearRect(command.x, command.y, command.width, command.height);
                 } else if (commandTypes[command.type] === "drawImage") {
                     const img = new Image();
                     img.src = command.source;

@@ -39,7 +39,6 @@ public partial class Maze
 
     private int _sandCost;
     private int _score;
-    private Vision _vision;
     private int _speed;
 
     private int n;
@@ -55,6 +54,7 @@ public partial class Maze
     private road? _way;
 
     private string? _seed;
+    private Vision _vision;
 
     protected override void OnInitialized()
     {
@@ -175,7 +175,6 @@ public partial class Maze
         }
 
         _sand[_myPositionY, _myPositionX] = 1;
-        _mazeSands?.UpdateAsync(_myPositionX, _myPositionY);
         _score += _sandCost;
 
         if (_mazeSands != null)
@@ -196,8 +195,8 @@ public partial class Maze
         StateHasChanged();
         await Task.Delay(1);
 
-        _random = string.IsNullOrWhiteSpace(_seed) == false 
-            ? new Random(GetSeed(_seed)) 
+        _random = string.IsNullOrWhiteSpace(_seed) == false
+            ? new Random(GetSeed(_seed))
             : new Random();
 
         _myPositionX = 1;
@@ -208,8 +207,8 @@ public partial class Maze
         _originalSize = ClampSize(_originalSize);
         _originalSizeDisplay = _originalSize;
         n = _originalSize * 2 + 1;
-        var mazeWidth = n;
-        var mazeHeight = n;
+        int mazeWidth = n;
+        int mazeHeight = n;
         lab = new int[n, n];
         _labSize = n;
         _maxScore = 0;
@@ -217,9 +216,9 @@ public partial class Maze
         _bombaCount = MaxBombaCount;
         _score = 0;
 
-
         _vision = new Vision(mazeWidth, mazeHeight);
         _vision.SetPosition(_myPositionX, _myPositionY);
+
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < n; j++)
@@ -239,8 +238,7 @@ public partial class Maze
                     lab[i, j] = 2;
                 }
 
-                if ((i > 0 && i % 2 == 0 && i < n - 1 && j > 0 && j % 2 == 1 && j < n - 1) || 
-                    (i > 0 && i % 2 == 1 && i < n - 1 && j > 0 && j % 2 == 0 && j < n - 1))
+                if (i > 0 && i % 2 == 0 && i < n - 1 && j > 0 && j % 2 == 1 && j < n - 1 || i > 0 && i % 2 == 1 && i < n - 1 && j > 0 && j % 2 == 0 && j < n - 1)
                 {
                     lab[i, j] = _random.Next(0, _density);
                 }
@@ -265,6 +263,7 @@ public partial class Maze
 
         _sand[3, 3] = 0;
         _sand[5, 5] = 0;
+
         for (int i = 1; i < _labSize; i++)
         {
             int x = _random.Next(1, n / 2 + 1) * 2 - 1;

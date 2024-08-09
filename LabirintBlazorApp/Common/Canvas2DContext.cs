@@ -14,9 +14,9 @@ public class Canvas2DContext(IJSObjectReference context, IJSRuntime jsRuntime)
         return jsRuntime.InvokeVoidAsync("canvasHelper.setLineWidth", context, wallWidth);
     }
 
-    public ValueTask DrawCommandsAsync(List<DrawCommand> commands)
+    public ValueTask DrawSequenceAsync(DrawSequence sequence)
     {
-        return jsRuntime.InvokeVoidAsync("canvasHelper.drawCommands", context, commands);
+        return jsRuntime.InvokeVoidAsync("canvasHelper.drawCommands", context, sequence.ToList());
     }
 
     public ValueTask BeginPathAsync()
