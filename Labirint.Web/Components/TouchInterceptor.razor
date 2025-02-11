@@ -1,3 +1,6 @@
-﻿<MudSwipeArea OnSwipeEnd="OnSwipeEnd" PreventDefault @onclick="OnFieldClicked">
+﻿<MudSwipeArea OnSwipeEnd="OnSwipeEnd"
+              PreventDefault
+              @onclick="OnFieldClicked"
+              @ontouchenter="OnFieldTouched">
     @ChildContent
 </MudSwipeArea>
