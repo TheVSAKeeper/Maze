@@ -4,7 +4,7 @@ using Labirint.Core.Interfaces;
 namespace Labirint.Core;
 
 /// <summary>
-///     Лабиринт.
+/// Лабиринт.
 /// </summary>
 public class Labyrinth
 {
@@ -15,49 +15,49 @@ public class Labyrinth
     {
         _seeder = seeder;
 
-        _itemPlacer = new ItemPlacer(_seeder, (x, y, item) =>
+        _itemPlacer = new(_seeder, (x, y, item) =>
         {
             this[x, y].AddFeature(item);
             item.AfterPlace?.Invoke((x, y), this);
         });
 
-        Runner = new Runner((0, 0), this, new Inventory());
+        Runner = new((0, 0), this, new());
     }
 
     /// <summary>
-    ///     Событие, которое вызывается, когда игрок находит выход из лабиринта.
+    /// Событие, которое вызывается, когда игрок находит выход из лабиринта.
     /// </summary>
     public event EventHandler? ExitFound;
 
     /// <summary>
-    ///     Событие, которое вызывается, когда игрок подбирает предмет.
+    /// Событие, которое вызывается, когда игрок подбирает предмет.
     /// </summary>
     public event EventHandler<TileFeature>? ItemPickedUp;
 
     /// <summary>
-    ///     Событие, которое вызывается, когда игрок успешно перемещается.
+    /// Событие, которое вызывается, когда игрок успешно перемещается.
     /// </summary>
     public event EventHandler<Position>? RunnerMoved;
 
     /// <summary>
-    ///     Ширина лабиринта.
+    /// Ширина лабиринта.
     /// </summary>
     public int Width { get; private set; }
 
     /// <summary>
-    ///     Высота лабиринта.
+    /// Высота лабиринта.
     /// </summary>
     public int Height { get; private set; }
 
     /// <summary>
-    ///     Бегущий.
+    /// Бегущий.
     /// </summary>
     public Runner Runner { get; }
 
     private Tile[,] Tiles { get; set; } = null!;
 
     /// <summary>
-    ///     Клетка лабиринта по координатам.
+    /// Клетка лабиринта по координатам.
     /// </summary>
     public Tile this[int x, int y]
     {
@@ -66,7 +66,7 @@ public class Labyrinth
     }
 
     /// <summary>
-    ///     Клетка лабиринта по позиции.
+    /// Клетка лабиринта по позиции.
     /// </summary>
     public Tile this[Position position]
     {
@@ -75,7 +75,7 @@ public class Labyrinth
     }
 
     /// <summary>
-    ///     Инициализировать лабиринт с заданными параметрами.
+    /// Инициализировать лабиринт с заданными параметрами.
     /// </summary>
     /// <param name="width">Ширина лабиринта</param>
     /// <param name="height">Высота лабиринта</param>
@@ -92,11 +92,11 @@ public class Labyrinth
 
         Tiles = new Tile[width, height];
 
-        for (int x = 0; x < width; x++)
+        for (var x = 0; x < width; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (var y = 0; y < height; y++)
             {
-                Tile tile = AddTile((x, y));
+                var tile = AddTile((x, y));
 
                 AddBorderWalls(x, y, tile);
 
@@ -112,7 +112,7 @@ public class Labyrinth
     }
 
     /// <summary>
-    ///     Переместить игрока в указанном направлении.
+    /// Переместить игрока в указанном направлении.
     /// </summary>
     /// <param name="direction">Направление перемещения</param>
     public void Move(Direction direction)
@@ -124,21 +124,21 @@ public class Labyrinth
 
         RunnerMoved?.Invoke(this, Runner.Position);
 
-        Tile tile = this[Runner.Position];
+        var tile = this[Runner.Position];
 
         if (tile.IsExit)
         {
             ExitFound?.Invoke(this, EventArgs.Empty);
         }
 
-        if (tile.TryPickUp(out TileFeature? item))
+        if (tile.TryPickUp(out var item))
         {
             ItemPickedUp?.Invoke(this, item!);
         }
     }
 
     /// <summary>
-    ///     Разрушить стену в текущей позиции игрока в указанном направлении.
+    /// Разрушить стену в текущей позиции игрока в указанном направлении.
     /// </summary>
     /// <param name="direction">Направление, в котором нужно разрушить стену</param>
     public void BreakWall(Direction direction)
@@ -147,20 +147,20 @@ public class Labyrinth
     }
 
     /// <summary>
-    ///     Разрушить стены в указанной позиции в указанных направлениях.
+    /// Разрушить стены в указанной позиции в указанных направлениях.
     /// </summary>
     /// <param name="position">Позиция, в которой нужно разрушить стены</param>
     /// <param name="directions">Направления, в которых нужно разрушить стены</param>
     public void BreakWall(Position position, params Direction[] directions)
     {
-        foreach (Direction direction in directions)
+        foreach (var direction in directions)
         {
             BreakWall(position, direction);
         }
     }
 
     /// <summary>
-    ///     Разрушить стену в указанной позиции в указанном направлении.
+    /// Разрушить стену в указанной позиции в указанном направлении.
     /// </summary>
     /// <param name="position">Позиция, в которой нужно разрушить стену</param>
     /// <param name="direction">Направление, в котором нужно разрушить стену</param>
@@ -188,21 +188,21 @@ public class Labyrinth
     }
 
     /// <summary>
-    ///     Создать стену в указанной позиции в указанных направлениях.
+    /// Создать стену в указанной позиции в указанных направлениях.
     /// </summary>
     /// <param name="position">Позиция, в которой нужно создать стены</param>
     /// <param name="density">Плотность стены (вероятность ее создания)</param>
     /// <param name="directions">Направления, в которых нужно создать стены</param>
     public void CreateWall(Position position, int density = 100, params Direction[] directions)
     {
-        foreach (Direction direction in directions)
+        foreach (var direction in directions)
         {
             CreateWall(position, direction, density);
         }
     }
 
     /// <summary>
-    ///     Создать стену в указанной позиции в указанном направлении с заданной плотностью.
+    /// Создать стену в указанной позиции в указанном направлении с заданной плотностью.
     /// </summary>
     /// <param name="position">Позиция, в которой нужно создать стену</param>
     /// <param name="wallDirection">Направление, в котором нужно создать стену</param>
@@ -244,7 +244,7 @@ public class Labyrinth
     }
 
     /// <summary>
-    ///     Проверяет, является ли указанная позиция корректной внутри лабиринта.
+    /// Проверяет, является ли указанная позиция корректной внутри лабиринта.
     /// </summary>
     /// <param name="position">Позиция для проверки</param>
     /// <returns>True, если позиция корректна, иначе False</returns>
@@ -255,17 +255,17 @@ public class Labyrinth
 
     private bool CanAddWithoutLoop(Position position, Direction direction)
     {
-        Tile tile = this[position];
+        var tile = this[position];
 
         if (tile.CanAddWall(direction) == false)
         {
             return false;
         }
 
-        Position adjacentPosition = direction.GetAdjacentPosition(position);
-        Direction oppositeDirection = direction.GetOppositeDirection();
+        var adjacentPosition = direction.GetAdjacentPosition(position);
+        var oppositeDirection = direction.GetOppositeDirection();
 
-        Tile adjacentTile = this[adjacentPosition];
+        var adjacentTile = this[adjacentPosition];
 
         return adjacentTile.CanAddWall(oppositeDirection);
     }
@@ -303,8 +303,8 @@ public class Labyrinth
 
     private void PerformActionForAdjacent(Position position, Direction wallDirection, Action<Tile, Direction> action)
     {
-        Position adjacentPosition = wallDirection.GetAdjacentPosition(position);
-        Direction oppositeDirection = wallDirection.GetOppositeDirection();
+        var adjacentPosition = wallDirection.GetAdjacentPosition(position);
+        var oppositeDirection = wallDirection.GetOppositeDirection();
         action.Invoke(this[adjacentPosition], oppositeDirection);
     }
 
@@ -316,7 +316,7 @@ public class Labyrinth
             Direction.Top => position.Y > 0,
             Direction.Right => position.X < Width - 1,
             Direction.Bottom => position.Y < Height - 1,
-            var _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null),
         };
     }
 }

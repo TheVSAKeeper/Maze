@@ -98,7 +98,7 @@ public partial class Maze : IAsyncDisposable
             return;
         }
 
-        _labyrinth = new Labyrinth(_seeder);
+        _labyrinth = new(_seeder);
         _labyrinth.RunnerMoved += OnRunnerMoved;
         _labyrinth.ExitFound += OnExitFound;
         _labyrinth.ItemPickedUp += OnItemPickedUp;
@@ -146,10 +146,10 @@ public partial class Maze : IAsyncDisposable
         DialogParameters<WinDialog> parameters = new()
         {
             { dialog => dialog.OnRestart, GenerateAsync },
-            { dialog => dialog.Seeder, _seeder }
+            { dialog => dialog.Seeder, _seeder },
         };
 
-        IDialogReference reference = await DialogService.ShowAsync<WinDialog>("Вот и конец", parameters);
+        var reference = await DialogService.ShowAsync<WinDialog>("Вот и конец", parameters);
         _isContinueGame = await reference.GetReturnValueAsync<bool>();
 
         if (_isContinueGame)
@@ -180,7 +180,7 @@ public partial class Maze : IAsyncDisposable
             return;
         }
 
-        Item? item = args.Item;
+        var item = args.Item;
 
         if (item != null)
         {
@@ -211,10 +211,10 @@ public partial class Maze : IAsyncDisposable
 
         _labyrinth.Init(_originalSize, _originalSize, _density);
 
-        _vision = new Vision(_originalSize, _originalSize);
+        _vision = new(_originalSize, _originalSize);
         _vision.SetPosition(_labyrinth.Runner.Position);
 
-        _renderParameter = new MazeRenderParameters(_labyrinth, _boxSize, _wallWidth, _vision);
+        _renderParameter = new(_labyrinth, _boxSize, _wallWidth, _vision);
 
         StateHasChanged();
 

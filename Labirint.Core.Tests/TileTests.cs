@@ -9,19 +9,19 @@ public class TileTests : LabyrinthTestsBase
         {
             Direction[] directions = [Direction.None, Direction.Left, Direction.Top, Direction.Right, Direction.Bottom];
 
-            IEnumerable<(Direction direction, int count)> combinedDirections = directions.Where(direction => direction != Direction.None).GetCombinedDirections();
+            var combinedDirections = directions.Where(direction => direction != Direction.None).GetCombinedDirections();
 
-            foreach ((Direction direction, int count) in combinedDirections)
+            foreach (var (direction, count) in combinedDirections)
             {
-                foreach (Direction directionToAdd in directions)
+                foreach (var directionToAdd in directions)
                 {
-                    bool expected = direction != Direction.All
-                                    && direction != Direction.None
-                                    && direction != directionToAdd
-                                    && direction.HasFlag(directionToAdd) == false
-                                    && count < 3;
+                    var expected = direction != Direction.All
+                                   && direction != Direction.None
+                                   && direction != directionToAdd
+                                   && direction.HasFlag(directionToAdd) == false
+                                   && count < 3;
 
-                    yield return new TestCaseData(direction, directionToAdd, expected);
+                    yield return new(direction, directionToAdd, expected);
                 }
             }
         }
@@ -32,10 +32,10 @@ public class TileTests : LabyrinthTestsBase
     {
         Tile tile = new(Labyrinth)
         {
-            Walls = existingWalls
+            Walls = existingWalls,
         };
 
-        bool result = tile.CanAddWall(directionToAdd);
+        var result = tile.CanAddWall(directionToAdd);
 
         Assert.That(result, Is.EqualTo(expectedResult));
     }

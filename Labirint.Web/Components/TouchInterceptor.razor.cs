@@ -1,9 +1,9 @@
-﻿using System.Drawing;
-using Labirint.Web.Common.Extensions;
+﻿using Labirint.Web.Common.Extensions;
 using Labirint.Web.Parameters;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
+using System.Drawing;
 
 namespace Labirint.Web.Components;
 
@@ -32,14 +32,14 @@ public partial class TouchInterceptor
             return;
         }
 
-        int renderRange = RenderParameters.Vision.Range * 2 * RenderParameters.BoxSize + RenderParameters.BoxSize + RenderParameters.WallWidth;
-        int xStep = renderRange / 4;
-        int yStep = renderRange / 4;
+        var renderRange = RenderParameters.Vision.Range * 2 * RenderParameters.BoxSize + RenderParameters.BoxSize + RenderParameters.WallWidth;
+        var xStep = renderRange / 4;
+        var yStep = renderRange / 4;
 
-        _left = new Rectangle(0, yStep, xStep, yStep * 2);
-        _top = new Rectangle(xStep, 0, xStep * 2, yStep);
-        _right = new Rectangle(xStep * 3, yStep, xStep, yStep * 2);
-        _bottom = new Rectangle(xStep, yStep * 3, xStep * 2, yStep);
+        _left = new(0, yStep, xStep, yStep * 2);
+        _top = new(xStep, 0, xStep * 2, yStep);
+        _right = new(xStep * 3, yStep, xStep, yStep * 2);
+        _bottom = new(xStep, yStep * 3, xStep * 2, yStep);
 
         _xStep = xStep;
         _yStep = yStep;
@@ -47,7 +47,7 @@ public partial class TouchInterceptor
 
     private void OnFieldClicked(MouseEventArgs args)
     {
-        Direction direction = GetDirection((int)args.OffsetX, (int)args.OffsetY);
+        var direction = GetDirection((int)args.OffsetX, (int)args.OffsetY);
 
         if (direction != Direction.None)
         {
@@ -57,7 +57,7 @@ public partial class TouchInterceptor
 
     private void OnFieldTouched(TouchEventArgs args)
     {
-        Direction direction = GetDirection((int)args.Touches.First().ClientX, (int)args.Touches.First().ClientY);
+        var direction = GetDirection((int)args.Touches.First().ClientX, (int)args.Touches.First().ClientY);
 
         if (direction != Direction.None)
         {

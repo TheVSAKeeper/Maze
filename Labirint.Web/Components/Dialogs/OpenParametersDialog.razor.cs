@@ -39,7 +39,7 @@ public partial class OpenParametersDialog
 
     private void Reset()
     {
-        GlobalParameters.Labyrinth = new LabyrinthParameters();
+        GlobalParameters.Labyrinth = new();
         _controlScheme.ControlSchemeService.Reset();
     }
 

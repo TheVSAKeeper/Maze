@@ -1,9 +1,11 @@
-﻿<MudStack Row Spacing="3">
-    @foreach (RunnerAbility ability in Abilities.Where(ability => ability.Active))
+﻿<MudStack Row
+          Spacing="3">
+    @foreach (var ability in Abilities.Where(ability => ability.Active))
     {
         <div class="runner-ability-container">
             <div class="runner-ability">
-                <img src="@ability.Properties.Icon" alt="@ability.Properties.DisplayName">
+                <img alt="@ability.Properties.DisplayName"
+                     src="@ability.Properties.Icon">
                 <div class="ability-name">@ability.Properties.DisplayName</div>
                 @if (ability.Properties.IsUnlimitedMoveCount == false)
                 {

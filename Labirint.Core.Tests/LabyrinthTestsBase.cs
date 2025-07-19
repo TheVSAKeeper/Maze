@@ -13,8 +13,8 @@ public abstract class LabyrinthTestsBase
     public void SetUp()
     {
         Random = new TestRandom();
-        Labyrinth = new Labyrinth(Random);
-        Inventory = new Inventory();
+        Labyrinth = new(Random);
+        Inventory = new();
         Labyrinth.Init(DefaultWidth, DefaultHeight, 40, Inventory.AllItems);
     }
 

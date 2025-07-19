@@ -21,8 +21,8 @@ public partial class MazeWalls : MazeComponent
         // поэтому нужны были смешение в половину ширины линии.
         // Теперь для упрощения понимания рисуются не линии, а просто прямоугольники.
 
-        Position topLeft = Vision.GetDraw((x, y)) * BoxSize;
-        Position bottomRight = topLeft + BoxSize;
+        var topLeft = Vision.GetDraw((x, y)) * BoxSize;
+        var bottomRight = topLeft + BoxSize;
 
         if (Maze[x, y].ContainsWall(Direction.Left))
         {

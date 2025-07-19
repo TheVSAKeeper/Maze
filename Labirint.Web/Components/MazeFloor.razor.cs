@@ -8,20 +8,20 @@ public partial class MazeFloor : MazeComponent
 
     protected override void DrawInner(int x, int y, DrawSequence sequence)
     {
-        Position topLeft = Vision.GetDraw((x, y)) * BoxSize;
+        var topLeft = Vision.GetDraw((x, y)) * BoxSize;
 
         sequence.DrawRect(topLeft.X, topLeft.Y, BoxSize + WallWidth, BoxSize + WallWidth);
 
-        int tileSize = BoxSize / 2;
+        var tileSize = BoxSize / 2;
 
-        int[,] tile = GetTile(x, y);
+        var tile = GetTile(x, y);
 
-        for (int i = 0; i < 2; i++)
+        for (var i = 0; i < 2; i++)
         {
-            for (int j = 0; j < 2; j++)
+            for (var j = 0; j < 2; j++)
             {
-                int left = topLeft.X + i * tileSize;
-                int top = topLeft.Y + j * tileSize;
+                var left = topLeft.X + i * tileSize;
+                var top = topLeft.Y + j * tileSize;
 
                 sequence.DrawSprite("images/tiles/floor.png", tile[i, j] / 6, tile[i, j] % 6, left, top, tileSize);
             }
@@ -119,7 +119,7 @@ public partial class MazeFloor : MazeComponent
             bottomLeft ??= bottomRight - 1;
         }
 
-        int[,] tile = new int[2, 2];
+        var tile = new int[2, 2];
 
         tile[0, 0] = topLeft ?? 14;
         tile[1, 0] = topRight ?? 15;

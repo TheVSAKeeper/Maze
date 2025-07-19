@@ -6,50 +6,48 @@ public class DrawSequence
 {
     private readonly List<Command> _commands = [];
 
-    public int Count => _commands.Count;
-
     public void StrokeStyle(string color)
     {
-        _commands.Add(new Command(Command.StrokeStyle)
+        _commands.Add(new(Command.StrokeStyle)
         {
-            Color = color
+            Color = color,
         });
     }
 
     public void LineWidth(double width)
     {
-        _commands.Add(new Command(Command.LineWidth)
+        _commands.Add(new(Command.LineWidth)
         {
-            Width = width
+            Width = width,
         });
     }
 
     public void BeginPath()
     {
-        _commands.Add(new Command(Command.BeginPath));
+        _commands.Add(new(Command.BeginPath));
     }
 
     public void MoveTo(double x, double y)
     {
-        _commands.Add(new Command(Command.MoveTo)
+        _commands.Add(new(Command.MoveTo)
         {
             X = x,
-            Y = y
+            Y = y,
         });
     }
 
     public void LineTo(double x, double y)
     {
-        _commands.Add(new Command(Command.LineTo)
+        _commands.Add(new(Command.LineTo)
         {
             X = x,
-            Y = y
+            Y = y,
         });
     }
 
     public void Stroke()
     {
-        _commands.Add(new Command(Command.Stroke));
+        _commands.Add(new(Command.Stroke));
     }
 
     public void DrawLine(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY)
@@ -60,40 +58,40 @@ public class DrawSequence
 
     public void DrawRect(double x, double y, double width, double height)
     {
-        _commands.Add(new Command(Command.StrokeRect)
+        _commands.Add(new(Command.StrokeRect)
         {
             X = x,
             Y = y,
             Width = width,
-            Height = height
+            Height = height,
         });
     }
 
     public void DrawImage(string source, double left, double top, double width, double height)
     {
-        _commands.Add(new Command(Command.DrawImage)
+        _commands.Add(new(Command.DrawImage)
         {
             X = left,
             Y = top,
             Source = source,
             Width = width,
-            Height = height
+            Height = height,
         });
     }
 
     public void ClearRect(double x, double y, double width, double height)
     {
-        _commands.Add(new Command(Command.ClearRect)
+        _commands.Add(new(Command.ClearRect)
         {
             X = x,
             Y = y,
             Width = width,
-            Height = height
+            Height = height,
         });
     }
 
     /// <summary>
-    ///     Нарисовать спрайт на экране.
+    /// Нарисовать спрайт на экране.
     /// </summary>
     /// <param name="source">Путь к файлу изображения, содержащего спрайт.</param>
     /// <param name="sX">Координата X спрайта в файле изображения.</param>
@@ -106,7 +104,7 @@ public class DrawSequence
     /// <param name="dHeight">Высота, в которую будет отображен спрайт.</param>
     public void DrawSprite(string source, double sX, double sY, double sWidth, double sHeight, double dX, double dY, double dWidth, double dHeight)
     {
-        _commands.Add(new Command(Command.DrawSprite)
+        _commands.Add(new(Command.DrawSprite)
         {
             Source = source,
             SourceX = sX,
@@ -116,12 +114,12 @@ public class DrawSequence
             X = dX,
             Y = dY,
             Width = dWidth,
-            Height = dHeight
+            Height = dHeight,
         });
     }
 
     /// <summary>
-    ///     Нарисовать спрайт на экране.
+    /// Нарисовать спрайт на экране.
     /// </summary>
     /// <param name="source">Путь к файлу изображения, содержащего спрайт.</param>
     /// <param name="row">Номер строки спрайта в файле изображения.</param>
@@ -139,7 +137,7 @@ public class DrawSequence
     }
 
     /// <summary>
-    ///     Нарисовать спрайт на экране с одинаковыми размерами источника и назначения.
+    /// Нарисовать спрайт на экране с одинаковыми размерами источника и назначения.
     /// </summary>
     /// <param name="source">Путь к файлу изображения, содержащего спрайт.</param>
     /// <param name="row">Номер строки спрайта в файле изображения.</param>

@@ -1,6 +1,6 @@
 ﻿namespace Labirint.Web.Services;
 
-public class ClipboardService(IJSRuntime jsRuntime) : IClipboardService
+public class ClipboardService(IJSRuntime jsRuntime)
 {
     public ValueTask CopyToClipboard(string text)
     {

@@ -1,7 +1,7 @@
 ﻿namespace Labirint.Core;
 
 /// <summary>
-///     Бегущий по лабиринту.
+/// Бегущий по лабиринту.
 /// </summary>
 public class Runner : IDisposable
 {
@@ -26,13 +26,13 @@ public class Runner : IDisposable
     public IReadOnlyList<RunnerAbility> Abilities => _abilities;
 
     /// <summary>
-    ///     Последний ход в лабиринте.
+    /// Последний ход в лабиринте.
     /// </summary>
     public Direction LastDirection { get; private set; }
 
     public void AddAbility(Ability ability)
     {
-        RunnerAbility? currentAbility = _abilities.SingleOrDefault(runnerAbility => runnerAbility.Properties.Name == ability.Name);
+        var currentAbility = _abilities.SingleOrDefault(runnerAbility => runnerAbility.Properties.Name == ability.Name);
 
         if (currentAbility != null)
         {
@@ -40,7 +40,7 @@ public class Runner : IDisposable
         }
         else
         {
-            _abilities.Add(new RunnerAbility(ability));
+            _abilities.Add(new(ability));
         }
     }
 
@@ -57,7 +57,7 @@ public class Runner : IDisposable
         LastDirection = direction;
         Position += direction;
 
-        foreach (RunnerAbility ability in _abilities)
+        foreach (var ability in _abilities)
         {
             ability.Hit(_labyrinth[Position], direction);
         }

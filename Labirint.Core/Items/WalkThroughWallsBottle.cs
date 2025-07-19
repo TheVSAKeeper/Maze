@@ -4,7 +4,7 @@ using Labirint.Core.TileFeatures;
 namespace Labirint.Core.Items;
 
 /// <summary>
-///     Зелье прохождения сквозь стены.
+/// Зелье прохождения сквозь стены.
 /// </summary>
 public class WalkThroughWallsBottle : Item
 {
@@ -28,7 +28,7 @@ public class WalkThroughWallsBottle : Item
 
     protected override WorldItem GetWorldItem(WorldItemParameters parameters)
     {
-        return new WorldItem(this, Image, Alignment.BottomCenter, 0.5);
+        return new(this, Image, Alignment.BottomCenter, 0.5);
     }
 
     protected override void AfterUse(Position position, Direction? direction, Labyrinth labyrinth)

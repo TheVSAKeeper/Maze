@@ -11,7 +11,7 @@ public class AnimationService
         Effect.Tada,
         Effect.Wobble,
         Effect.Jello,
-        Effect.RubberBand
+        Effect.RubberBand,
     ];
 
     public AnimationEffect AnimationEffect { get; set; } = Effect.FlipInY;

@@ -5,6 +5,11 @@ namespace Labirint.Web.Components.Dialogs;
 
 public partial class WinDialog
 {
+    private readonly DialogOptions _options = new()
+    {
+        BackdropClick = false,
+    };
+
     [Parameter]
     public required Func<Task> OnRestart { get; set; }
 

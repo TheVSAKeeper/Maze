@@ -6,7 +6,7 @@ namespace Labirint.Web.Components;
 public partial class ControlSchemeSwitcher : IDisposable
 {
     [Inject]
-    public required IControlSchemeService ControlSchemeService { get; set; }
+    public required ControlSchemeService ControlSchemeService { get; set; }
 
     public void Dispose()
     {

@@ -1,24 +1,43 @@
 ﻿<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        <RouteView DefaultLayout="@typeof(MainLayout)"
+                   RouteData="@routeData" />
+        <FocusOnNavigate RouteData="@routeData"
+                         Selector="h1" />
     </Found>
 
     <Navigating>
         <LayoutView Layout="@typeof(MainLayout)">
-            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            <MudProgressCircular Color="Color.Primary"
+                                 Indeterminate />
         </LayoutView>
     </Navigating>
 
     <NotFound>
         <PageTitle>Нот фоунд</PageTitle>
         <LayoutView Layout="@typeof(MainLayout)">
-            <MudAlert Severity="Severity.Warning" ContentAlignment="HorizontalAlignment.Center">Братан, видать адресочком ошибся</MudAlert>
-            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
-                <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-4">Ну, бывает такое</MudText>
-                <MudText Typo="Typo.body1" Align="Align.Center" Class="mb-6">Не расстраивайся, давай попробуем найти то, что ты искал?</MudText>
+            <MudAlert ContentAlignment="HorizontalAlignment.Center"
+                      Severity="Severity.Warning">
+                Братан, видать адресочком ошибся
+            </MudAlert>
+            <MudContainer Class="mt-8"
+                          MaxWidth="MaxWidth.Medium">
+                <MudText Align="Align.Center"
+                         Class="mb-4"
+                         Typo="Typo.h4">
+                    Ну, бывает такое
+                </MudText>
+                <MudText Align="Align.Center"
+                         Class="mb-6"
+                         Typo="Typo.body1">
+                    Не расстраивайся, давай попробуем найти то, что ты искал?
+                </MudText>
                 <MudNavLink Href=@("./")>
-                    <MudText Typo="Typo.body2" Align="Align.Center" Class="mb-6">Вернуться на главную </MudText>
+                    <MudText Align="Align.Center"
+                             Class="mb-6"
+                             Typo="Typo.body2">
+                        Вернуться на главную
+                    </MudText>
                 </MudNavLink>
             </MudContainer>
         </LayoutView>

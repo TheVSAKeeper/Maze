@@ -25,9 +25,9 @@ internal class TestItem(int count) : Item
 public class LabyrinthTests : LabyrinthTestsBase
 {
     /// <summary>
-    ///     Тестирует правильное распределение остатков предметов в лабиринте.
-    ///     Проверяет, что количество размещенных предметов соответствует ожидаемому количеству,
-    ///     учитывая ограничения по ширине и высоте лабиринта.
+    /// Тестирует правильное распределение остатков предметов в лабиринте.
+    /// Проверяет, что количество размещенных предметов соответствует ожидаемому количеству,
+    /// учитывая ограничения по ширине и высоте лабиринта.
     /// </summary>
     /// <param name="width">Ширина лабиринта</param>
     /// <param name="height">Высота лабиринта</param>
@@ -40,17 +40,17 @@ public class LabyrinthTests : LabyrinthTestsBase
     [TestCase(2, 2, 2, 0, 1, 1)]
     public void DistributionOfRemainderTest(int width, int height, params int[] counts)
     {
-        int allCount = counts.Sum();
-        int placedCount = 0;
+        var allCount = counts.Sum();
+        var placedCount = 0;
 
-        List<TestItem> items = counts.Select(x => new TestItem(x)).ToList();
+        var items = counts.Select(x => new TestItem(x)).ToList();
         Labyrinth.Init(width, height, 40, items);
 
-        foreach (TestItem item in items)
+        foreach (var item in items)
         {
-            int expectedCount = Math.Min(item.Count, Math.Min(placedCount + item.Count, width * height - 1 - placedCount));
+            var expectedCount = Math.Min(item.Count, Math.Min(placedCount + item.Count, width * height - 1 - placedCount));
 
-            int count = Labyrinth.GetInMazeCount(item);
+            var count = Labyrinth.GetInMazeCount(item);
 
             placedCount += count;
 
@@ -62,8 +62,8 @@ public class LabyrinthTests : LabyrinthTestsBase
     }
 
     /// <summary>
-    ///     Тестирует, что класс Labyrinth размещает правильное количество предметов в лабиринте.
-    ///     Проверяет, что количество размещенных предметов соответствует нужному количеству.
+    /// Тестирует, что класс Labyrinth размещает правильное количество предметов в лабиринте.
+    /// Проверяет, что количество размещенных предметов соответствует нужному количеству.
     /// </summary>
     /// <param name="width">Ширина лабиринта</param>
     /// <param name="height">Высота лабиринта</param>
@@ -77,12 +77,12 @@ public class LabyrinthTests : LabyrinthTestsBase
     {
         Labyrinth.Init(width, height, density, Inventory.AllItems);
 
-        foreach (ItemStack itemStack in Inventory.Stacks)
+        foreach (var itemStack in Inventory.Stacks)
         {
-            Item item = itemStack.Item;
-            int expectedCount = itemStack.Item.CalculateCountInMaze(width, height, density);
+            var item = itemStack.Item;
+            var expectedCount = itemStack.Item.CalculateCountInMaze(width, height, density);
 
-            int count = Labyrinth.GetInMazeCount(item);
+            var count = Labyrinth.GetInMazeCount(item);
 
             Console.WriteLine($"{item.Name}: {count}/{expectedCount}");
             Assert.That(count, Is.EqualTo(expectedCount));
@@ -90,8 +90,8 @@ public class LabyrinthTests : LabyrinthTestsBase
     }
 
     /// <summary>
-    ///     Тестирует, что класс Labyrinth не создает и не разрушает стены с некорректными координатами.
-    ///     Проверяет, что вызов методов CreateWall и BreakWall с отрицательными координатами не вызывает исключений.
+    /// Тестирует, что класс Labyrinth не создает и не разрушает стены с некорректными координатами.
+    /// Проверяет, что вызов методов CreateWall и BreakWall с отрицательными координатами не вызывает исключений.
     /// </summary>
     /// <param name="x">Позиция X клетки</param>
     /// <param name="y">Позиция Y клетки</param>
@@ -106,7 +106,7 @@ public class LabyrinthTests : LabyrinthTestsBase
     [TestCase(-11, -11)]
     public void DontCreateOrBreakIncorrectWallsTest(int x, int y)
     {
-        foreach (Direction direction in DirectionExtensions.GetAll())
+        foreach (var direction in DirectionExtensions.GetAll())
         {
             Assert.DoesNotThrow(() => Labyrinth.CreateWall((x, y), direction));
             Assert.DoesNotThrow(() => Labyrinth.BreakWall((x, y), direction));
@@ -120,8 +120,8 @@ public class LabyrinthTests : LabyrinthTestsBase
     }
 
     /// <summary>
-    ///     Тестирует, что класс Labyrinth корректно определяет, является ли позиция корректной внутри лабиринта.
-    ///     Проверяет, что метод IsCorrectPosition возвращает ожидаемый результат для различных координат.
+    /// Тестирует, что класс Labyrinth корректно определяет, является ли позиция корректной внутри лабиринта.
+    /// Проверяет, что метод IsCorrectPosition возвращает ожидаемый результат для различных координат.
     /// </summary>
     /// <param name="x">Позиция X клетки</param>
     /// <param name="y">Позиция Y клетки</param>
@@ -144,7 +144,7 @@ public class LabyrinthTests : LabyrinthTestsBase
     {
         Position position = (x, y);
 
-        bool result = Labyrinth.IsCorrectPosition(position);
+        var result = Labyrinth.IsCorrectPosition(position);
 
         Assert.That(result, Is.EqualTo(expectedResult));
     }
