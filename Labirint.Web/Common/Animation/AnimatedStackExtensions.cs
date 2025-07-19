@@ -12,7 +12,7 @@ public static class AnimatedStackExtensions
             AnimatedStack.State.Waiting => "waiting-animate",
             AnimatedStack.State.Removed => string.Empty,
             AnimatedStack.State.None => string.Empty,
-            var _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(state), state, null),
         };
     }
 }

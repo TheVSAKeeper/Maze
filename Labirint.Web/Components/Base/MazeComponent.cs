@@ -12,9 +12,6 @@ public abstract class MazeComponent : RenderComponent
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
 
-    [Inject]
-    public required ILogger<MazeComponent> Logger { get; set; }
-
     [CascadingParameter]
     public required MazeRenderParameters RenderParameters { get; set; }
 
@@ -51,7 +48,7 @@ public abstract class MazeComponent : RenderComponent
         // + BoxSize -> клетка с игроком.
         // + WallWidth -> для того, чтобы видеть стенки у клеток на границе обзора.
 
-        int renderRange = Vision.Range * 2 * BoxSize + BoxSize + WallWidth;
+        var renderRange = Vision.Range * 2 * BoxSize + BoxSize + WallWidth;
         CanvasWidth = renderRange;
         CanvasHeight = renderRange;
 
@@ -64,9 +61,9 @@ public abstract class MazeComponent : RenderComponent
         drawSequence.ClearRect(0, 0, CanvasWidth, CanvasHeight);
         drawSequence.StrokeStyle(StrokeStyle);
 
-        for (int x = Vision.Start.X; x <= Vision.Finish.X; x++)
+        for (var x = Vision.Start.X; x <= Vision.Finish.X; x++)
         {
-            for (int y = Vision.Start.Y; y <= Vision.Finish.Y; y++)
+            for (var y = Vision.Start.Y; y <= Vision.Finish.Y; y++)
             {
                 DrawInner(x, y, drawSequence);
             }
@@ -77,8 +74,8 @@ public abstract class MazeComponent : RenderComponent
 
     protected override async Task OnFirstRenderAsyncInner()
     {
-        IJSObjectReference contextRef = await JSRuntime.InvokeAsync<IJSObjectReference>("canvasHelper.getContext2D", CanvasRef);
-        _context = new Canvas2DContext(contextRef, JSRuntime);
+        var contextRef = await JSRuntime.InvokeAsync<IJSObjectReference>("canvasHelper.getContext2D", CanvasRef);
+        _context = new(contextRef, JSRuntime);
     }
 
     protected abstract void DrawInner(int x, int y, DrawSequence sequence);

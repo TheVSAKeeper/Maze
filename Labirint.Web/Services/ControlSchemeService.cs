@@ -3,7 +3,7 @@ using Labirint.Web.Common.Control.Schemes;
 
 namespace Labirint.Web.Services;
 
-public class ControlSchemeService : IControlSchemeService
+public class ControlSchemeService
 {
     private const string LocalStorageKey = nameof(ControlSchemeService);
 
@@ -18,7 +18,7 @@ public class ControlSchemeService : IControlSchemeService
         _controlSchemes =
         [
             new ClassicScheme(),
-            new AlternativeScheme()
+            new AlternativeScheme(),
         ];
 
         _currentScheme = _controlSchemes.First();
@@ -81,14 +81,14 @@ public class ControlSchemeService : IControlSchemeService
 
     private async Task LoadCurrentSchemeAsync()
     {
-        string? schemeName = await _localStorage.GetItemAsync<string>(LocalStorageKey);
+        var schemeName = await _localStorage.GetItemAsync<string>(LocalStorageKey);
 
         if (schemeName == null)
         {
             return;
         }
 
-        IControlScheme? scheme = _controlSchemes.FirstOrDefault(controlScheme => controlScheme.Name == schemeName);
+        var scheme = _controlSchemes.FirstOrDefault(controlScheme => controlScheme.Name == schemeName);
 
         if (scheme == null)
         {

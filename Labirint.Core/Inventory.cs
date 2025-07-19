@@ -20,23 +20,23 @@ public class Inventory
     public event EventHandler<int>? ScoreIncreased;
 
     /// <summary>
-    ///     Все доступные предметы.
+    /// Все доступные предметы.
     /// </summary>
     public IEnumerable<Item> AllItems => _items.Keys;
 
     /// <summary>
-    ///     Все стеки предметов в инвентаре.
+    /// Все стеки предметов в инвентаре.
     /// </summary>
     public IEnumerable<ItemStack> Stacks => _items.Values;
 
     public bool CanUse(Item item)
     {
-        return _items.TryGetValue(item, out ItemStack? stack) && stack.CanUse();
+        return _items.TryGetValue(item, out var stack) && stack.CanUse();
     }
 
     public void Use(Item item, Position position, Direction? direction, Labyrinth labyrinth)
     {
-        if (_items.TryGetValue(item, out ItemStack? stack) == false)
+        if (_items.TryGetValue(item, out var stack) == false)
         {
             return;
         }
@@ -53,7 +53,7 @@ public class Inventory
 
     public bool TryAdd(Item item, int count = 1)
     {
-        if (_items.TryGetValue(item, out ItemStack? stack) == false)
+        if (_items.TryGetValue(item, out var stack) == false)
         {
             return false;
         }
@@ -76,11 +76,11 @@ public class Inventory
     }
 
     /// <summary>
-    ///     Сбросить количество всех предметов в инвентаре к значению по умолчанию.
+    /// Сбросить количество всех предметов в инвентаре к значению по умолчанию.
     /// </summary>
     public void Clear()
     {
-        foreach (ItemStack stack in Stacks)
+        foreach (var stack in Stacks)
         {
             stack.Reset();
         }

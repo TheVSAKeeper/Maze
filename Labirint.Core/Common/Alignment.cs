@@ -11,5 +11,5 @@ public enum Alignment : byte
     BottomLeft = 6,
     BottomCenter = 7,
     BottomRight = 8,
-    Stretch = 9
+    Stretch = 9,
 }

@@ -34,7 +34,7 @@ public class RunnerAbilityTest : LabyrinthTestsBase
 
         Assert.That(ability.Active, Is.True);
 
-        for (int i = 0; i < testAbility.MoveCount; i++)
+        for (var i = 0; i < testAbility.MoveCount; i++)
         {
             ability.Hit(tile, Direction.None);
         }

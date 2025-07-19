@@ -1,8 +1,8 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using Labirint.Core.Interfaces;
+﻿using Labirint.Core.Interfaces;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Labirint.Web.Components;
 
@@ -42,7 +42,7 @@ public partial class RandomGenerator : IRandom
     private IDialogService DialogService { get; set; } = null!;
 
     [Inject]
-    private IClipboardService ClipboardService { get; set; } = null!;
+    private ClipboardService ClipboardService { get; set; } = null!;
 
     [Inject]
     private ISnackbar SnackbarService { get; set; } = null!;
@@ -61,7 +61,7 @@ public partial class RandomGenerator : IRandom
             ? int.Parse(_userSeed)
             : GenerateSeed(_userSeed);
 
-        _random = new Random(_currentSeed);
+        _random = new(_currentSeed);
         StateHasChanged();
     }
 
@@ -75,8 +75,8 @@ public partial class RandomGenerator : IRandom
 
     private static int GenerateSeed(string input)
     {
-        byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
-        int result = BitConverter.ToInt32(hashBytes, 0);
+        var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
+        var result = BitConverter.ToInt32(hashBytes, 0);
         return Math.Abs(result);
     }
 
@@ -84,7 +84,7 @@ public partial class RandomGenerator : IRandom
     {
         _userSeed = null;
         _currentSeed = Random.Shared.Next();
-        _random = new Random(_currentSeed);
+        _random = new(_currentSeed);
         StateHasChanged();
     }
 
@@ -96,12 +96,12 @@ public partial class RandomGenerator : IRandom
 
     private string GetShareLink()
     {
-        string linkWithSeed = $"{NavigationManager.BaseUri}{MazePageUrl}/{_currentSeed}";
+        var linkWithSeed = $"{NavigationManager.BaseUri}{MazePageUrl}/{_currentSeed}";
 
         return NavigationManager.GetUriWithQueryParameters(linkWithSeed, new Dictionary<string, object?>
         {
             [SizeQueryName] = Size,
-            [DensityQueryName] = Density
+            [DensityQueryName] = Density,
         });
     }
 

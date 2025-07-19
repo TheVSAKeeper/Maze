@@ -11,7 +11,7 @@ public class WorldItem(Item item, string imageSource, Alignment alignment, doubl
     public override DrawingSettings? DrawingSettings { get; } = new(imageSource, alignment, scale, 1);
 
     /// <summary>
-    ///     Попытаться подобрать предмет.
+    /// Попытаться подобрать предмет.
     /// </summary>
     /// <param name="labyrinth">Лабиринт.</param>
     /// <returns>Если предмет пропал с лабиринта, то true.</returns>

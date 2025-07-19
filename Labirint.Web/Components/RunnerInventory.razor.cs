@@ -1,5 +1,4 @@
-﻿using Labirint.Core.Items.Common;
-using Labirint.Web.Common.Animation;
+﻿using Labirint.Web.Common.Animation;
 using Labirint.Web.Common.Control.Schemes;
 using Microsoft.AspNetCore.Components;
 
@@ -20,7 +19,7 @@ public partial class RunnerInventory : RenderComponent, IAsyncDisposable
     public required KeyInterceptor Interceptor { get; set; }
 
     [Inject]
-    public required IControlSchemeService SchemeService { get; set; }
+    public required ControlSchemeService SchemeService { get; set; }
 
     private AnimatedStack? WaitItem { get; set; }
 
@@ -61,7 +60,7 @@ public partial class RunnerInventory : RenderComponent, IAsyncDisposable
             return;
         }
 
-        if (_stackCache.TryGetValue(item, out AnimatedStack? stack) == false)
+        if (_stackCache.TryGetValue(item, out var stack) == false)
         {
             return;
         }
@@ -98,7 +97,7 @@ public partial class RunnerInventory : RenderComponent, IAsyncDisposable
 
     private void OnDigitKeyDown(object? sender, DigitEventArgs args)
     {
-        ControlSettings? control = Inventory.Stacks
+        var control = Inventory.Stacks
             .Where(stack => stack.Count > 0)
             .ElementAtOrDefault(args.Digit - 1)
             ?.Item.ControlSettings;
@@ -164,7 +163,7 @@ public partial class RunnerInventory : RenderComponent, IAsyncDisposable
 
     private void AddStackAnimation(Item item, AnimatedStack.State animation)
     {
-        if (_stackCache.TryGetValue(item, out AnimatedStack? stack) == false)
+        if (_stackCache.TryGetValue(item, out var stack) == false)
         {
             return;
         }

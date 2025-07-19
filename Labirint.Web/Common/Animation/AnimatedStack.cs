@@ -16,7 +16,7 @@ public class AnimatedStack(ItemStack stack)
         Used = 2,
         CantAdd = 3,
         Waiting = 4,
-        Removed = 5
+        Removed = 5,
     }
 
     public ItemStack Stack { get; } = stack;
@@ -40,7 +40,7 @@ public class AnimatedStack(ItemStack stack)
 
     public string GetAnimation()
     {
-        if (ExecutedState is State.Removed && _stateQueue.TryDequeue(out State state))
+        if (ExecutedState is State.Removed && _stateQueue.TryDequeue(out var state))
         {
             ExecutedState = state;
         }

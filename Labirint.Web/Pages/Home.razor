@@ -4,7 +4,8 @@
 <MudStack Spacing="3">
     <MudText Typo="Typo.h4">Добро пожаловать!</MudText>
     <MudGrid Spacing="2">
-        <MudItem xs="12" md="6">
+        <MudItem xs="12"
+                 md="6">
             <MudCard Elevation="0">
                 <MudCardHeader>
                     <CardHeaderContent>
@@ -12,14 +13,19 @@
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
-                    @foreach (string fact in _facts)
+                    @foreach (var fact in _facts)
                     {
-                        <MudAlert NoIcon="true" Severity="Severity.Info" Class="my-3">@fact</MudAlert>
+                        <MudAlert NoIcon
+                                  Severity="Severity.Info"
+                                  Class="my-3">
+                            @fact
+                        </MudAlert>
                     }
                 </MudCardContent>
             </MudCard>
         </MudItem>
-        <MudItem xs="12" md="6">
+        <MudItem xs="12"
+                 md="6">
             <MudCard Elevation="0">
                 <MudCardHeader>
                     <CardHeaderContent>
@@ -27,9 +33,13 @@
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
-                    @foreach (string joke in _jokes)
+                    @foreach (var joke in _jokes)
                     {
-                        <MudAlert NoIcon="true" Severity="Severity.Warning" Class="my-3">@joke</MudAlert>
+                        <MudAlert NoIcon
+                                  Severity="Severity.Warning"
+                                  Class="my-3">
+                            @joke
+                        </MudAlert>
                     }
                 </MudCardContent>
             </MudCard>

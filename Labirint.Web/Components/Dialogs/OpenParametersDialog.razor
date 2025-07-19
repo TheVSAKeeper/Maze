@@ -9,8 +9,12 @@
         <MudStack Spacing="2">
             <ControlSchemeSwitcher @ref="_controlScheme" />
 
-            <MudStack AlignItems="AlignItems.Center" Row>
-                <MudSwitch @bind-Value="@GlobalParameters.Labyrinth.IsSoundOn" Color="Color.Success" Label="Звук" UncheckedColor="Color.Error" />
+            <MudStack AlignItems="AlignItems.Center"
+                      Row>
+                <MudSwitch @bind-Value="@GlobalParameters.Labyrinth.IsSoundOn"
+                           Color="Color.Success"
+                           Label="Звук"
+                           UncheckedColor="Color.Error" />
                 @if (GlobalParameters.Labyrinth.IsSoundOn)
                 {
                     <MudSlider @bind-Value="@GlobalParameters.Labyrinth.SoundVolume"
@@ -42,11 +46,18 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Отмена</MudButton>
-        <MudButton Color="Color.Warning" Disabled="@_isProcessing" OnClick="Reset">Сбросить</MudButton>
-        <MudButton Color="Color.Success" Disabled="@_isProcessing" OnClick="UpdateAsync">
+        <MudButton Color="Color.Warning"
+                   Disabled="@_isProcessing"
+                   OnClick="Reset">Сбросить
+        </MudButton>
+        <MudButton Color="Color.Success"
+                   Disabled="@_isProcessing"
+                   OnClick="UpdateAsync">
             @if (_isProcessing)
             {
-                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudProgressCircular Class="ms-n1"
+                                     Indeterminate="true"
+                                     Size="Size.Small" />
             }
             else
             {

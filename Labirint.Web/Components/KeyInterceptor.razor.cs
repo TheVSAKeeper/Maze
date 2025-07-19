@@ -5,7 +5,7 @@ namespace Labirint.Web.Components;
 
 public partial class KeyInterceptor : IAsyncDisposable
 {
-    private bool _isPause = false;
+    private bool _isPause;
 
     private Dictionary<string, Direction> _moveDirections = new();
     private Dictionary<string, Item> _itemUsed = new();
@@ -22,7 +22,7 @@ public partial class KeyInterceptor : IAsyncDisposable
     public required Inventory? Inventory { get; set; }
 
     [Inject]
-    public required IControlSchemeService SchemeService { get; set; }
+    public required ControlSchemeService SchemeService { get; set; }
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
@@ -57,17 +57,17 @@ public partial class KeyInterceptor : IAsyncDisposable
             return;
         }
 
-        if (_waitItem == null && PerformItemUse(code, out AttackEventArgs? attack) && attack != null)
+        if (_waitItem == null && PerformItemUse(code, out var attack) && attack != null)
         {
             AttackKeyDown?.Invoke(this, attack);
         }
 
-        if (PerformMove(code, out MoveEventArgs? move) && move != null)
+        if (PerformMove(code, out var move) && move != null)
         {
             PerformMove(move);
         }
 
-        if (PerformDigitKey(code, out DigitEventArgs? digit) && digit != null)
+        if (PerformDigitKey(code, out var digit) && digit != null)
         {
             DigitKeyDown?.Invoke(this, digit);
         }
@@ -75,9 +75,9 @@ public partial class KeyInterceptor : IAsyncDisposable
 
     public void OnKeyDown(Direction direction)
     {
-        PerformMove(new MoveEventArgs
+        PerformMove(new()
         {
-            Direction = direction
+            Direction = direction,
         });
     }
 
@@ -112,10 +112,10 @@ public partial class KeyInterceptor : IAsyncDisposable
     {
         if (_waitItem != null)
         {
-            AttackKeyDown?.Invoke(this, new AttackEventArgs
+            AttackKeyDown?.Invoke(this, new()
             {
                 Item = _waitItem,
-                Direction = move.Direction
+                Direction = move.Direction,
             });
 
             ChangeWaitItem(null);
@@ -128,12 +128,12 @@ public partial class KeyInterceptor : IAsyncDisposable
     {
         InitializeItems();
 
-        _moveDirections = new Dictionary<string, Direction>
+        _moveDirections = new()
         {
             [ControlScheme.MoveLeft] = Direction.Left,
             [ControlScheme.MoveUp] = Direction.Top,
             [ControlScheme.MoveRight] = Direction.Right,
-            [ControlScheme.MoveDown] = Direction.Bottom
+            [ControlScheme.MoveDown] = Direction.Bottom,
         };
     }
 
@@ -147,7 +147,7 @@ public partial class KeyInterceptor : IAsyncDisposable
     {
         args = null;
 
-        if ((_itemUsed.TryGetValue(code, out Item? item) && (Inventory?.CanUse(item) ?? false)) == false)
+        if ((_itemUsed.TryGetValue(code, out var item) && (Inventory?.CanUse(item) ?? false)) == false)
         {
             return false;
         }
@@ -158,9 +158,9 @@ public partial class KeyInterceptor : IAsyncDisposable
             return false;
         }
 
-        args = new AttackEventArgs
+        args = new()
         {
-            Item = item
+            Item = item,
         };
 
         return true;
@@ -170,14 +170,14 @@ public partial class KeyInterceptor : IAsyncDisposable
     {
         args = null;
 
-        if (_moveDirections.TryGetValue(code, out Direction direction) == false)
+        if (_moveDirections.TryGetValue(code, out var direction) == false)
         {
             return false;
         }
 
-        args = new MoveEventArgs
+        args = new()
         {
-            Direction = direction
+            Direction = direction,
         };
 
         return true;
@@ -192,9 +192,9 @@ public partial class KeyInterceptor : IAsyncDisposable
             return false;
         }
 
-        args = new DigitEventArgs
+        args = new()
         {
-            Digit = code[^1] - '0'
+            Digit = code[^1] - '0',
         };
 
         return true;

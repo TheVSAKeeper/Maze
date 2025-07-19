@@ -12,11 +12,11 @@ public class Vision(int mazeWidth, int mazeHeight, int visionRange = 3)
     {
         Runner = position;
 
-        int startX = Math.Max(0, position.X - Range);
-        int finishX = Math.Min(mazeWidth - 1, position.X + Range);
+        var startX = Math.Max(0, position.X - Range);
+        var finishX = Math.Min(mazeWidth - 1, position.X + Range);
 
-        int startY = Math.Max(0, position.Y - Range);
-        int finishY = Math.Min(mazeHeight - 1, position.Y + Range);
+        var startY = Math.Max(0, position.Y - Range);
+        var finishY = Math.Min(mazeHeight - 1, position.Y + Range);
 
         Start = (startX, startY);
         Finish = (finishX, finishY);

@@ -1,5 +1,4 @@
 ﻿@using Blazored.LocalStorage
-@using Labirint.Web.Parameters
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService LocalStorage
@@ -12,45 +11,45 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="0"
-               Class="docs-appbar-filter mud-appbar mud-appbar-fixed-top mud-elevation-0 mud-theme-transparent">
-        <MudIconButton Icon="@Icons.Material.Rounded.Notes"
-                       Color="Color.Inherit"
+    <MudAppBar Class="docs-appbar-filter mud-appbar mud-appbar-fixed-top mud-elevation-0 mud-theme-transparent"
+               Elevation="0">
+        <MudIconButton Color="Color.Inherit"
                        Edge="Edge.Start"
+                       Icon="@Icons.Material.Rounded.Notes"
                        OnClick="DrawerToggle" />
         <MudSpacer />
-        <MudStack Row
-                  AlignItems="AlignItems.Center">
+        <MudStack AlignItems="AlignItems.Center"
+                  Row>
             @if (NavigationManager.ToBaseRelativePath(NavigationManager.Uri).Contains("labirint") == false)
             {
-                <MudFab OnClick="@(() => NavigationManager.NavigateTo("labirint"))"
+                <MudFab Color="Color.Info"
                         DropShadow
+                        Label="Играть"
+                        OnClick="@(() => NavigationManager.NavigateTo("labirint"))"
                         Size="Size.Small"
-                        Color="Color.Info"
-                        StartIcon="@Icons.Material.Rounded.Games"
-                        Label="Играть" />
+                        StartIcon="@Icons.Material.Rounded.Games" />
             }
-            <MudIconButton Size="Size.Medium"
-                           OnClick="@DarkMode"
+            <MudIconButton Color="Color.Inherit"
                            Icon="@Icons.Material.Rounded.Brightness4"
-                           Color="Color.Inherit" />
-            <MudIconButton Size="Size.Medium"
-                           OnClick="@OpenParameters"
+                           OnClick="@DarkMode"
+                           Size="Size.Medium" />
+            <MudIconButton Color="Color.Inherit"
                            Icon="@Icons.Material.Rounded.Settings"
-                           Color="Color.Inherit" />
+                           OnClick="@OpenParameters"
+                           Size="Size.Medium" />
         </MudStack>
     </MudAppBar>
-    <MudDrawer Variant="@DrawerVariant.Temporary"
-               @bind-Open="@_drawerOpen">
-        <MudStack Style="height:auto"
-                  AlignItems="AlignItems.Center"
-                  Justify="Justify.Center">
+    <MudDrawer @bind-Open="@_drawerOpen"
+               Variant="@DrawerVariant.Temporary">
+        <MudStack AlignItems="AlignItems.Center"
+                  Justify="Justify.Center"
+                  Style="height:auto">
             <MudImage Class="pa-1"
-                      Style="width:100%;"
                       Fluid="true"
-                      ObjectPosition="ObjectPosition.Center"
                       ObjectFit="ObjectFit.Cover"
-                      Src="./icon-512.png" />
+                      ObjectPosition="ObjectPosition.Center"
+                      Src="./icon-512.png"
+                      Style="width:100%;" />
         </MudStack>
         <NavMenu />
     </MudDrawer>
@@ -62,8 +61,8 @@
                     @Body
                 </ChildContent>
                 <ErrorContent Context="exception">
-                    <MudAlert Severity="Severity.Error"
-                              Icon="@Icons.Material.Rounded.Error">Произошла ошибка.
+                    <MudAlert Icon="@Icons.Material.Rounded.Error"
+                              Severity="Severity.Error">Произошла ошибка.
                     </MudAlert>
                     <pre>@exception.ToString()</pre>
                 </ErrorContent>
@@ -71,89 +70,3 @@
         </MudContainer>
     </MudMainContent>
 </MudLayout>
-
-@code {
-
-    private readonly DialogOptions _maxWidthS = new()
-    {
-        CloseButton = true,
-        MaxWidth = MaxWidth.Small,
-    };
-
-    private readonly MudTheme _defaultTheme = new()
-    {
-        PaletteLight = new PaletteLight
-        {
-            Black = "#272c34",
-            HoverOpacity = 0.10,
-            TableHover = "#66a1fa4d",
-            Background = "#f5f5f5",
-            DrawerBackground = "#f5f5f5",
-        },
-        PaletteDark = new PaletteDark
-        {
-            Primary = "#776be7",
-            PrimaryContrastText = "rgba(255,255,255, 0.90)",
-            PrimaryDarken = "rgb(90,71,255)",
-            PrimaryLighten = "rgb(163,153,255)",
-            HoverOpacity = 0.10,
-            TableHover = "#66a1fa4d",
-            Black = "#1a1a27",
-            Background = "#1a1a27ff",
-            BackgroundGray = "#151521ff",
-            Surface = "#1e1e2dff",
-            DrawerBackground = "#1a1a27ff",
-            DrawerText = "rgba(255,255,255, 0.50)",
-            DrawerIcon = "rgba(255,255,255, 0.50)",
-            AppbarBackground = "#1a1a27cc",
-            AppbarText = "rgba(255,255,255, 0.70)",
-            TextPrimary = "rgba(255,255,255, 0.70)",
-            TextSecondary = "rgba(255,255,255, 0.50)",
-            ActionDefault = "#74718eff",
-            ActionDisabled = "#9999994d",
-            ActionDisabledBackground = "#605f6d4d",
-            Divider = "#292838ff",
-            DividerLight = "#000000cc",
-            TableLines = "#33323eff",
-            TableStriped = "#00000005",
-            LinesDefault = "#33323eff",
-            LinesInputs = "#bdbdbdff",
-            TextDisabled = "rgba(255,255,255, 0.2)",
-            Info = "#4a86ffff",
-            Success = "#3dcb6cff",
-            Warning = "#ffb545ff",
-            Error = "#ff3f5fff",
-            Dark = "#424242ff",
-        },
-    };
-
-    private bool _drawerOpen;
-
-    private bool IsDarkMod { get; set; } = true;
-
-    protected override async Task OnInitializedAsync()
-    {
-        bool? isDarkMod = await LocalStorage.GetItemAsync<bool?>("IsDarkMod");
-        IsDarkMod = isDarkMod ?? true;
-
-        LabyrinthParameters? labyrinthParameters = await LocalStorage.GetItemAsync<LabyrinthParameters>("LabyrinthParameters");
-        GlobalParameters.Labyrinth = labyrinthParameters ?? new LabyrinthParameters();
-    }
-
-    private void OpenParameters()
-    {
-        DialogService.Show<OpenParametersDialog>("Параметры", _maxWidthS);
-    }
-
-    private void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
-
-    private async Task DarkMode()
-    {
-        IsDarkMod = !IsDarkMod;
-        await LocalStorage.SetItemAsync("IsDarkMod", IsDarkMod);
-    }
-
-}

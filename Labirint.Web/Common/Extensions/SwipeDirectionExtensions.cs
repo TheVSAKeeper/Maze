@@ -13,7 +13,7 @@ public static class SwipeDirectionExtensions
             SwipeDirection.RightToLeft => Direction.Left,
             SwipeDirection.TopToBottom => Direction.Bottom,
             SwipeDirection.BottomToTop => Direction.Top,
-            var _ => throw new ArgumentOutOfRangeException(nameof(swipeDirection), swipeDirection, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(swipeDirection), swipeDirection, null),
         };
     }
 }
