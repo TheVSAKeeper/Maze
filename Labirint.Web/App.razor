@@ -1,4 +1,5 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿<Router AppAssembly="@typeof(App).Assembly"
+        NotFoundPage="typeof(Labirint.Web.Pages.NotFound)">
     <Found Context="routeData">
         <RouteView DefaultLayout="@typeof(MainLayout)"
                    RouteData="@routeData" />
@@ -14,19 +15,4 @@
             </div>
         </LayoutView>
     </Navigating>
-
-    <NotFound>
-        <PageTitle>Нот фоунд</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <div class="ui-stack ui-stack--5">
-                <Alert Severity="UiSeverity.Warning">Братан, видать адресочком ошибся</Alert>
-                <h1 class="t-display-l">Ну, бывает такое</h1>
-                <p class="t-body">Не расстраивайся, давай попробуем найти то, что ты искал?</p>
-                <div class="ui-row">
-                    <a class="ui-btn ui-btn--outlined ui-btn--accent"
-                       href="./">Вернуться на главную</a>
-                </div>
-            </div>
-        </LayoutView>
-    </NotFound>
 </Router>

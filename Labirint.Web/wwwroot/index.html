@@ -11,6 +11,10 @@
     <title>Лабиринтик</title>
     <base href="/" />
 
+    <script type="importmap"></script>
+    <link rel="preload"
+          id="webassembly" />
+
     <link href="https://fonts.gstatic.com"
           rel="preconnect"
           crossorigin />
@@ -62,7 +66,7 @@
         <a class="dismiss">🗙</a>
     </div>
 
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
     <script src="_content/BlazorAnimation/blazorAnimationInterop.js"></script>
 
     <script>navigator.serviceWorker.register('service-worker.js');</script>

@@ -20,10 +20,5 @@ builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<ThemeService>();
 
-builder.Services.AddScoped(_ => new HttpClient
-{
-    BaseAddress = new(builder.HostEnvironment.BaseAddress),
-});
-
 var host = builder.Build();
 await host.RunAsync();
