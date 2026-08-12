@@ -5,8 +5,4 @@
     <Nullable>enable</Nullable>
     <LangVersion>default</LangVersion>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'!='DEBUG'">
-    <RunAOTCompilation>true</RunAOTCompilation>
-  </PropertyGroup>
 </Project>
