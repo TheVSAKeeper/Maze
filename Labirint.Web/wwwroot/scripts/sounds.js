@@ -21,5 +21,5 @@
             break;
     }
 
-    await audio.play();
+    await audio.play().catch(() => { });
 }

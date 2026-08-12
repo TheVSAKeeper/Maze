@@ -1,8 +1,6 @@
-﻿using Labirint.Web.Common.Extensions;
-using Labirint.Web.Parameters;
+﻿using Labirint.Web.Parameters;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using MudBlazor;
 using System.Drawing;
 
 namespace Labirint.Web.Components;
@@ -65,11 +63,11 @@ public partial class TouchInterceptor
         }
     }
 
-    private void OnSwipeEnd(SwipeEventArgs args)
+    private void OnSwipe(Direction direction)
     {
-        if (args.SwipeDirection != SwipeDirection.None)
+        if (direction != Direction.None)
         {
-            Moved?.Invoke(this, args.SwipeDirection.ToDirection());
+            Moved?.Invoke(this, direction);
         }
     }
 

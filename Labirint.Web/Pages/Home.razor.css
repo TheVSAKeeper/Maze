@@ -1,51 +1,66 @@
-﻿.content-section {
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.content-section h2 {
-    color: #2c3e50;
-}
-
-.content-section ul {
-    padding: 0;
-    list-style-type: none;
-}
-
-.content-section ul li {
+﻿.home {
     display: flex;
-    align-items: center;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #e8f0fe;
+    flex-direction: column;
+    gap: var(--s-7);
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: var(--s-6) var(--s-4) var(--s-8);
 }
 
-.content-section ul li::before {
-    font-family: "Font Awesome 5 Free", serif;
-    font-weight: 900;
-    margin-right: 10px;
-    content: "\f00c";
-    color: #3498db;
+.hero {
+    padding-bottom: var(--s-5);
+    border-bottom: 1px solid var(--border);
 }
 
-.content-section p.joke {
+.hero__standfirst {
+    max-width: 46ch;
+    margin: 0;
+}
+
+.sections {
+    display: grid;
+    gap: var(--s-7);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.section {
     display: flex;
-    align-items: center;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #fff3cd;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    gap: var(--s-4);
+    min-width: 0;
 }
 
-.content-section p.joke::before {
-    font-family: "Font Awesome 5 Free", serif;
-    font-weight: 900;
-    margin-right: 10px;
-    content: "\f118";
-    color: #ffc107;
+.section__eyebrow {
+    margin: 0;
+}
+
+.fact {
+    margin: 0;
+}
+
+.facts > hr:last-child {
+    display: none;
+}
+
+.joke {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin: 0;
+    padding-left: var(--s-4);
+    color: var(--text-dim);
+    border-left: 2px solid var(--gold);
+}
+
+@media (max-width: 820px) {
+    .sections {
+        gap: var(--s-6);
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .home {
+        gap: var(--s-6);
+        padding: var(--s-5) var(--s-3) var(--s-7);
+    }
 }

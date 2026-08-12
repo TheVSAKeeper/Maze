@@ -1,6 +1,6 @@
-﻿<MudSwipeArea @onclick="OnFieldClicked"
-              OnSwipeEnd="OnSwipeEnd"
-              @ontouchenter="OnFieldTouched"
-              PreventDefault>
-    @ChildContent
-</MudSwipeArea>
+﻿<div @onclick="OnFieldClicked"
+     @ontouchenter="OnFieldTouched">
+    <SwipeArea OnSwipe="OnSwipe">
+        @ChildContent
+    </SwipeArea>
+</div>

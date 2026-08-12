@@ -1,9 +1,12 @@
 ﻿using Labirint.Core.TileFeatures.Base;
+using Labirint.Web.Common.Ui;
 using Labirint.Web.Components;
 using Labirint.Web.Components.Dialogs;
+using Labirint.Web.Components.Ui;
 using Labirint.Web.Parameters;
+using Labirint.Web.Services.Dialogs;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Labirint.Web.Pages;
 
@@ -12,10 +15,26 @@ public partial class Maze : IAsyncDisposable
     private const int MinSize = 1;
     private const int MaxSize = 500;
 
+    private const int MinDensity = 0;
+    private const int MaxDensity = 100;
+
+    private const int DefaultSize = 16;
+    private const int DefaultDensity = 40;
+
     private bool _isExitFound;
     private bool _isContinueGame;
     private bool _isInit;
-    private bool _isSettingsHidden = true;
+    private bool _isSettingsOpen;
+    private bool _isSettingsFocusPending;
+    private bool _isSettingsButtonFocusPending;
+    private bool _isRegenerationPending;
+
+    private string? _appliedSeed;
+    private int? _appliedSize;
+    private int? _appliedDensity;
+
+    private ElementReference _settingsSheet;
+    private IconButton? _settingsButton;
 
     private int _originalSize;
     private int _density;
@@ -52,24 +71,28 @@ public partial class Maze : IAsyncDisposable
     private AnimationService AnimationService { get; set; } = null!;
 
     [Inject]
-    private IDialogService DialogService { get; set; } = null!;
+    private DialogService DialogService { get; set; } = null!;
 
     // Проверка на null и инициализацию (дополнительная проверка, если флаг выставили в true, а значение у не null полей не выставили)
     private bool IsInit => _isInit && _labyrinth != null && _seeder != null && _vision != null && _renderParameter != null;
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
+        GlobalParameters.LabyrinthChanged -= OnLabyrinthParametersChanged;
+
         if (_keyInterceptor != null)
         {
-            await _keyInterceptor.DisposeAsync();
             _keyInterceptor.AttackKeyDown -= OnAttackKeyDown;
             _keyInterceptor.MoveKeyDown -= OnMoveKeyDown;
         }
 
-        _labyrinth.RunnerMoved -= OnRunnerMoved;
-        _labyrinth.ExitFound -= OnExitFound;
-        _labyrinth.ItemPickedUp -= OnItemPickedUp;
-        _labyrinth.Runner.Inventory.ItemUsed -= OnItemUsed;
+        if (_labyrinth != null)
+        {
+            _labyrinth.RunnerMoved -= OnRunnerMoved;
+            _labyrinth.ExitFound -= OnExitFound;
+            _labyrinth.ItemPickedUp -= OnItemPickedUp;
+            _labyrinth.Runner.Inventory.ItemUsed -= OnItemUsed;
+        }
 
         if (_touchInterceptor != null)
         {
@@ -77,24 +100,56 @@ public partial class Maze : IAsyncDisposable
         }
 
         GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
     }
 
     protected override void OnInitialized()
     {
         _boxSize = 64;
         _wallWidth = Math.Max(1, _boxSize / 10);
+
+        GlobalParameters.LabyrinthChanged += OnLabyrinthParametersChanged;
     }
 
     protected override void OnParametersSet()
     {
-        _originalSize = MazeSize ?? 16;
-        _density = MazeDensity ?? 40;
+        var isRouteChanged = Seed != _appliedSeed || MazeSize != _appliedSize || MazeDensity != _appliedDensity;
+
+        _appliedSeed = Seed;
+        _appliedSize = MazeSize;
+        _appliedDensity = MazeDensity;
+
+        _originalSize = MazeSize ?? DefaultSize;
+        _density = MazeDensity ?? DefaultDensity;
+
+        if (isRouteChanged && _isInit)
+        {
+            _isRegenerationPending = true;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender == false)
         {
+            if (_isSettingsFocusPending)
+            {
+                _isSettingsFocusPending = false;
+                await _settingsSheet.FocusAsync();
+            }
+
+            if (_isSettingsButtonFocusPending && _settingsButton != null)
+            {
+                _isSettingsButtonFocusPending = false;
+                await _settingsButton.Element.FocusAsync();
+            }
+
+            if (_isRegenerationPending)
+            {
+                _isRegenerationPending = false;
+                await GenerateAsync();
+            }
+
             return;
         }
 
@@ -119,22 +174,61 @@ public partial class Maze : IAsyncDisposable
         }
     }
 
+    private void OpenSettings()
+    {
+        _isSettingsOpen = true;
+        _isSettingsFocusPending = true;
+    }
+
+    private void CloseSettings()
+    {
+        if (_isSettingsOpen == false)
+        {
+            return;
+        }
+
+        _isSettingsOpen = false;
+        _isSettingsFocusPending = false;
+        _isSettingsButtonFocusPending = true;
+    }
+
+    private void OnSettingsKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape")
+        {
+            CloseSettings();
+        }
+    }
+
     private void OnMoved(object? sender, Direction args)
     {
         _keyInterceptor?.OnKeyDown(args);
     }
 
-    private async void OnRunnerMoved(object? sender, Position args)
+    private void OnLabyrinthParametersChanged(object? sender, EventArgs args)
+    {
+        if (IsInit == false)
+        {
+            return;
+        }
+
+        RunSafe(ForceRender);
+    }
+
+    private void OnRunnerMoved(object? sender, Position args)
     {
         _vision.SetPosition(_labyrinth.Runner.Position);
 
-        // TODO подумать как вынести строку
-        await SoundService.PlayAsync("step");
+        RunSafe(async () =>
+        {
+            // TODO подумать как вынести строку
+            await SoundService.PlayAsync("step");
 
-        await ForceRender();
+            await ForceRender();
+        });
     }
 
-    private async void OnExitFound(object? sender, EventArgs args)
+    private void OnExitFound(object? sender, EventArgs args)
     {
         if (_isContinueGame)
         {
@@ -143,14 +237,26 @@ public partial class Maze : IAsyncDisposable
 
         _isExitFound = true;
 
-        DialogParameters<WinDialog> parameters = new()
+        RunSafe(ShowWinDialogAsync);
+    }
+
+    private async Task ShowWinDialogAsync()
+    {
+        DialogParameters parameters = new()
         {
-            { dialog => dialog.OnRestart, GenerateAsync },
-            { dialog => dialog.Seeder, _seeder },
+            [nameof(WinDialog.OnRestart)] = (Func<Task>)GenerateAsync,
+            [nameof(WinDialog.Seeder)] = _seeder,
         };
 
-        var reference = await DialogService.ShowAsync<WinDialog>("Вот и конец", parameters);
-        _isContinueGame = await reference.GetReturnValueAsync<bool>();
+        var result = await DialogService.ShowAsync<WinDialog>("Финал Лабиринта", parameters, new DialogOptions
+        {
+            CloseButton = false,
+            CloseOnBackdropClick = false,
+            CloseOnEscape = false,
+            Width = DialogWidth.Large,
+        });
+
+        _isContinueGame = result.GetValue<bool>();
 
         if (_isContinueGame)
         {
@@ -158,9 +264,9 @@ public partial class Maze : IAsyncDisposable
         }
     }
 
-    private async void OnItemPickedUp(object? sender, TileFeature args)
+    private void OnItemPickedUp(object? sender, TileFeature args)
     {
-        await SoundService.PlayAsync(args.PickUpSound);
+        RunSafe(() => SoundService.PlayAsync(args.PickUpSound).AsTask());
     }
 
     private void OnMoveKeyDown(object? sender, MoveEventArgs args)
@@ -188,19 +294,18 @@ public partial class Maze : IAsyncDisposable
         }
     }
 
-    private async void OnItemUsed(object? sender, Item item)
+    private void OnItemUsed(object? sender, Item item)
     {
-        await SoundService.PlayAsync(item.SoundSettings?.UseSound);
-        await ForceRender();
+        RunSafe(async () =>
+        {
+            await SoundService.PlayAsync(item.SoundSettings?.UseSound);
+            await ForceRender();
+        });
     }
 
     private async Task GenerateAsync()
     {
         AnimationService.StartRandomAnimationEffect();
-        // todo Костыль чтоб цвет обновлялся, надо больше времени подумать.
-        // (Не перерисовывает если стена осталась на прежнем месте)
-        // Но в принципе то работает)))))) 
-        await Task.Delay(1);
 
         _seeder.Reload();
 
@@ -208,6 +313,7 @@ public partial class Maze : IAsyncDisposable
         _isContinueGame = false;
 
         _originalSize = Math.Max(MinSize, Math.Min(MaxSize, _originalSize));
+        _density = Math.Max(MinDensity, Math.Min(MaxDensity, _density));
 
         _labyrinth.Init(_originalSize, _originalSize, _density);
 
@@ -227,9 +333,9 @@ public partial class Maze : IAsyncDisposable
     private async Task ForceRender()
     {
         await Task.WhenAll(_mazeFloor?.ForceRenderAsync() ?? Task.CompletedTask,
-                _mazeWalls?.ForceRenderAsync() ?? Task.CompletedTask,
-                _mazeEntities?.ForceRenderAsync() ?? Task.CompletedTask)
-            .ContinueWith(_ => StateHasChanged())
-            .ConfigureAwait(false);
+            _mazeWalls?.ForceRenderAsync() ?? Task.CompletedTask,
+            _mazeEntities?.ForceRenderAsync() ?? Task.CompletedTask);
+
+        StateHasChanged();
     }
 }

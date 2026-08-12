@@ -1,21 +1,16 @@
-﻿<MudNavMenu Bordered="false"
-            Color="Color.Info"
-            Rounded="true">
-    <MudText Class="px-4"
-             Typo="Typo.h6">Лабиринт
-    </MudText>
-    <MudText Class="mud-text-secondary px-4"
-             Typo="Typo.body2">MaxNagibator эдишен
-    </MudText>
-    <MudDivider Class="mb-3 mt-3"
-                DividerType="DividerType.Middle" />
-
-    <MudNavLink Href=@("./")
-                Icon="@MaterialDesignIcons.Outline.HomeLightbulb"
-                Match="NavLinkMatch.All">Главная
-    </MudNavLink>
-    <MudNavLink Href=@("./labirint")
-                Icon="@Icons.Material.Filled.VideogameAsset"
-                Match="NavLinkMatch.All">Лабиринт
-    </MudNavLink>
-</MudNavMenu>
+﻿<div class="nav">
+    <NavLink class="nav__link"
+             ActiveClass="nav__link--active"
+             href="./"
+             Match="NavLinkMatch.All">
+        <Icon Name="@IconCatalog.Home" />
+        <span class="t-label nav__label">Главная</span>
+    </NavLink>
+    <NavLink class="nav__link"
+             ActiveClass="nav__link--active"
+             href="./labirint"
+             Match="NavLinkMatch.Prefix">
+        <Icon Name="@IconCatalog.Maze" />
+        <span class="t-label nav__label">Лабиринт</span>
+    </NavLink>
+</div>

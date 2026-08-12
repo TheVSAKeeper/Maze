@@ -3,6 +3,7 @@ global using Labirint.Core.Common;
 global using Labirint.Core.Items.Base;
 global using Labirint.Web.Common.Control;
 global using Labirint.Web.Common.Drawing;
+global using Labirint.Web.Common.Ui;
 global using Labirint.Web.Components.Base;
 global using Labirint.Web.Services;
 global using Microsoft.JSInterop;

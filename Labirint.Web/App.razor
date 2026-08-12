@@ -8,38 +8,25 @@
 
     <Navigating>
         <LayoutView Layout="@typeof(MainLayout)">
-            <MudProgressCircular Color="Color.Primary"
-                                 Indeterminate />
+            <div class="ui-row">
+                <Spinner />
+                <span class="t-body-s">Загрузка..</span>
+            </div>
         </LayoutView>
     </Navigating>
 
     <NotFound>
         <PageTitle>Нот фоунд</PageTitle>
         <LayoutView Layout="@typeof(MainLayout)">
-            <MudAlert ContentAlignment="HorizontalAlignment.Center"
-                      Severity="Severity.Warning">
-                Братан, видать адресочком ошибся
-            </MudAlert>
-            <MudContainer Class="mt-8"
-                          MaxWidth="MaxWidth.Medium">
-                <MudText Align="Align.Center"
-                         Class="mb-4"
-                         Typo="Typo.h4">
-                    Ну, бывает такое
-                </MudText>
-                <MudText Align="Align.Center"
-                         Class="mb-6"
-                         Typo="Typo.body1">
-                    Не расстраивайся, давай попробуем найти то, что ты искал?
-                </MudText>
-                <MudNavLink Href=@("./")>
-                    <MudText Align="Align.Center"
-                             Class="mb-6"
-                             Typo="Typo.body2">
-                        Вернуться на главную
-                    </MudText>
-                </MudNavLink>
-            </MudContainer>
+            <div class="ui-stack ui-stack--5">
+                <Alert Severity="UiSeverity.Warning">Братан, видать адресочком ошибся</Alert>
+                <h1 class="t-display-l">Ну, бывает такое</h1>
+                <p class="t-body">Не расстраивайся, давай попробуем найти то, что ты искал?</p>
+                <div class="ui-row">
+                    <a class="ui-btn ui-btn--outlined ui-btn--accent"
+                       href="./">Вернуться на главную</a>
+                </div>
+            </div>
         </LayoutView>
     </NotFound>
 </Router>

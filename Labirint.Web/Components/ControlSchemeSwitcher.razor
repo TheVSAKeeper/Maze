@@ -1,13 +1,10 @@
-﻿<MudText>Схемы управления:</MudText>
+﻿<div class="t-label">Схемы управления:</div>
 
-<MudRadioGroup @bind-Value="ControlSchemeService.CurrentScheme">
-    <MudStack Spacing="0">
+<RadioGroup @bind-Value="ControlSchemeService.CurrentScheme">
+    <div class="ui-stack ui-stack--1">
         @foreach (var scheme in ControlSchemeService.AvailableSchemes)
         {
-            <MudRadio Color="Color.Primary"
-                      Value="scheme">
-                @scheme.Name
-            </MudRadio>
+            <Radio Value="scheme">@scheme.Name</Radio>
         }
-    </MudStack>
-</MudRadioGroup>
+    </div>
+</RadioGroup>

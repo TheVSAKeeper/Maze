@@ -1,42 +1,39 @@
-@page "/labirint/{seed?}"
+﻿@page "/labirint/{seed?}"
+@inherits SafeComponent
 
 <PageTitle>Labirint</PageTitle>
 
 @if (IsInit == false)
 {
-    <MudStack AlignItems="AlignItems.Center"
-              Row>
-        <MudProgressCircular Indeterminate />
-        <MudText Typo="Typo.body1">Загрузка..</MudText>
-    </MudStack>
+    <div class="loading ui-row ui-row--2">
+        <Spinner />
+        <span class="t-body">Загрузка..</span>
+    </div>
 }
 
 <div class="workspace"
-     hidden="@(!IsInit)">
+     hidden="@(IsInit == false)">
     <div class="header-panel">
         @if (IsInit)
         {
-            <div class="score-panel">
-                <MudStack AlignItems="AlignItems.Center"
-                          Row>
-                    <MudIcon Color="Color.Warning"
-                             Icon="@MaterialDesignIcons.Normal.Bitcoin"
-                             Size="Size.Large" />
-                    <MudText Color="Color.Warning"
-                             Typo="Typo.h4">
-                        @_labyrinth.Runner.Score.ToString("N0")
-                    </MudText>
-                </MudStack>
+            <div class="score">
+                <span class="t-label">Счёт</span>
+                <span class="score__value ui-row ui-row--2">
+                    <Icon Name="@IconCatalog.Coin"
+                          Size="26" />
+                    <span class="t-data score__number">@_labyrinth.Runner.Score.ToString("N0")</span>
+                </span>
             </div>
         }
 
-        <MudButton EndIcon="@(_isSettingsHidden ? MaterialDesignIcons.Normal.ArrowExpandDown : MaterialDesignIcons.Normal.ArrowExpandUp)"
-                   OnClick="() => _isSettingsHidden = !_isSettingsHidden"
-                   Size="Size.Large"
-                   StartIcon="@MaterialDesignIcons.Normal.Cog"
-                   Variant="Variant.Outlined">
-            Параметры
-        </MudButton>
+        <div class="ui-spacer"></div>
+
+        <IconButton Icon="@IconCatalog.Settings"
+                    OnClick="OpenSettings"
+                    @ref="_settingsButton"
+                    Size="22"
+                    Title="Параметры"
+                    Variant="UiVariant.Outlined" />
     </div>
 
     @if (IsInit)
@@ -73,19 +70,17 @@
                                 _ => _runnerScaleX,
                             };
 
-                            <div style="position:absolute;
+                            <div class="coord t-data"
+                                 style="position:absolute;
                                 z-index: 100;
                                 left: @(-30)px;
-                            top: @(drawPosition.Y - 4)px;">
-                                <MudText Typo="Typo.h6">@(runner.Position.Y + 1)</MudText>
-                            </div>
+                            top: @(drawPosition.Y - 4)px;">@(runner.Position.Y + 1)</div>
 
-                            <div style="position:absolute;
+                            <div class="coord t-data"
+                                 style="position:absolute;
                                 z-index: 100;
                                 left: @(drawPosition.X + 4)px;
-                            top: @(-30)px;">
-                                <MudText Typo="Typo.h6">@(runner.Position.X + 1)</MudText>
-                            </div>
+                            top: @(-30)px;">@(runner.Position.X + 1)</div>
 
                             <img alt="Бегун"
                                  src="images/runner.png"
@@ -107,48 +102,65 @@
             </div>
         </div>
     }
+</div>
 
-    <div class="control-panel"
-         hidden="@_isSettingsHidden">
-        <MudStack Spacing="3">
-            <MudText Typo="Typo.h5">Параметры:</MudText>
-            <RandomGenerator Density="@_density"
-                             IsExitFound="@_isExitFound"
-                             @ref="_seeder"
-                             Seed="@Seed"
-                             Size="@_originalSize" />
-            <MudStack>
-                <MudNumericField @bind-Value="_originalSize"
-                                 DebounceInterval="300"
-                                 Label="Размер"
-                                 Max="@MaxSize"
-                                 Min="@MinSize" />
-                <MudSlider @bind-Value="_originalSize"
-                           Color="Color.Info"
-                           Max="@MaxSize"
-                           Min="@MinSize"
-                           Size="Size.Medium" />
-            </MudStack>
-            <MudStack>
-                <MudNumericField @bind-Value="_density"
-                                 DebounceInterval="300"
-                                 Label="Плотность"
-                                 Max="100"
-                                 Min="0" />
-                <MudSlider @bind-Value="_density"
-                           Color="Color.Info"
-                           Max="100"
-                           Min="0"
-                           Size="Size.Medium" />
-            </MudStack>
+@if (_isSettingsOpen)
+{
+    <div class="sheet-scrim"
+         @onclick="CloseSettings"></div>
+}
 
-            <MudButton Color="Color.Info"
-                       FullWidth
-                       OnClick="GenerateAsync"
-                       Variant="Variant.Outlined">Генерировать
-            </MudButton>
-            <KeyInterceptor Inventory="_labyrinth?.Runner.Inventory"
-                            @ref="_keyInterceptor" />
-        </MudStack>
+<div aria-hidden="@(_isSettingsOpen == false)"
+     aria-label="Параметры"
+     class="sheet @(_isSettingsOpen ? "sheet--open" : null)"
+     @onkeydown="OnSettingsKeyDown"
+     @ref="_settingsSheet"
+     role="dialog"
+     tabindex="-1">
+    <div class="sheet__head ui-row ui-row--between">
+        <span class="t-display-m">Параметры:</span>
+        <IconButton Icon="@IconCatalog.Close"
+                    OnClick="CloseSettings"
+                    Title="Закрыть параметры" />
+    </div>
+
+    <div class="sheet__body ui-stack ui-stack--5">
+        <RandomGenerator Density="@_density"
+                         IsExitFound="@_isExitFound"
+                         @ref="_seeder"
+                         Seed="@Seed"
+                         Size="@_originalSize" />
+
+        <div class="ui-stack ui-stack--1">
+            <NumberField @bind-Value="_originalSize"
+                         Label="Размер"
+                         Max="MaxSize"
+                         Min="MinSize" />
+            <Slider @bind-Value="_originalSize"
+                    Max="MaxSize"
+                    Min="MinSize"
+                    Step="1" />
+        </div>
+
+        <div class="ui-stack ui-stack--1">
+            <NumberField @bind-Value="_density"
+                         Label="Плотность"
+                         Max="MaxDensity"
+                         Min="MinDensity" />
+            <Slider @bind-Value="_density"
+                    Max="MaxDensity"
+                    Min="MinDensity"
+                    Step="1" />
+        </div>
+
+        <Button FullWidth
+                OnClick="GenerateAsync"
+                StartIcon="@IconCatalog.Refresh"
+                Tone="UiTone.Accent">
+            Генерировать
+        </Button>
+
+        <KeyInterceptor Inventory="_labyrinth?.Runner.Inventory"
+                        @ref="_keyInterceptor" />
     </div>
 </div>
