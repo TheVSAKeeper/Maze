@@ -25,9 +25,13 @@
         <ChildContent>
             @Body
         </ChildContent>
-        <ErrorContent Context="exception">
-            <Alert Severity="UiSeverity.Error">Произошла ошибка.</Alert>
-            <pre>@exception</pre>
+        <ErrorContent>
+            <div class="ui-stack ui-stack--4">
+                <Alert Severity="UiSeverity.Error">Что-то сломалось. Подробности в консоли браузера.</Alert>
+                <div class="ui-row">
+                    <Button OnClick="@Reload">Перезагрузить</Button>
+                </div>
+            </div>
         </ErrorContent>
     </ErrorBoundary>
 </main>

@@ -10,7 +10,7 @@ public sealed class ToastService
 
     public event Action? Changed;
 
-    public IReadOnlyList<Toast> Toasts => _toasts;
+    public IReadOnlyList<Toast> Toasts => [.. _toasts];
 
     public void Show(string message, UiSeverity severity = UiSeverity.Info)
     {

@@ -34,7 +34,12 @@ public partial class ShareDialog
 
     private async Task CopyLinkAsync()
     {
-        await ClipboardService.CopyToClipboard(Link);
-        ToastService.Show("Ссылка скопирована!", UiSeverity.Success);
+        if (await ClipboardService.CopyToClipboardAsync(Link))
+        {
+            ToastService.Show("Ссылка скопирована!", UiSeverity.Success);
+            return;
+        }
+
+        ToastService.Show("Не вышло скопировать, выдели ссылку и скопируй вручную", UiSeverity.Warning);
     }
 }

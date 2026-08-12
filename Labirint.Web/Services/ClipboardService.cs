@@ -2,8 +2,16 @@
 
 public class ClipboardService(IJSRuntime jsRuntime)
 {
-    public ValueTask CopyToClipboard(string text)
+    public async ValueTask<bool> CopyToClipboardAsync(string text)
     {
-        return jsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+            return true;
+        }
+        catch (JSException)
+        {
+            return false;
+        }
     }
 }
