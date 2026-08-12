@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace Labirint.Web.Components;
 
-public partial class RunnerInventory : RenderComponent, IAsyncDisposable
+public partial class RunnerInventory : RenderComponent, IDisposable
 {
     private Dictionary<Item, AnimatedStack> _stackCache = new();
     private bool _showDescription;
@@ -25,11 +25,9 @@ public partial class RunnerInventory : RenderComponent, IAsyncDisposable
 
     private IControlScheme ControlScheme => SchemeService.CurrentScheme;
 
-    public async ValueTask DisposeAsync()
+    public void Dispose()
     {
         UnsubscribeEvents();
-        await Interceptor.DisposeAsync();
-
         GC.SuppressFinalize(this);
     }
 
@@ -46,9 +44,9 @@ public partial class RunnerInventory : RenderComponent, IAsyncDisposable
         return Task.CompletedTask;
     }
 
-    private async void OnSchemeChanged(object? sender, IControlScheme scheme)
+    private void OnSchemeChanged(object? sender, IControlScheme scheme)
     {
-        await ForceRenderAsync();
+        RunSafe(ForceRenderAsync);
     }
 
     private void OnChangedWaitItem(object? sender, Item? item)
@@ -84,15 +82,15 @@ public partial class RunnerInventory : RenderComponent, IAsyncDisposable
         AddStackAnimation(item, AnimatedStack.State.Used);
     }
 
-    private async void OnInventoryCleared(object? sender, EventArgs e)
+    private void OnInventoryCleared(object? sender, EventArgs e)
     {
         InitializeItems();
-        await ForceRenderAsync();
+        RunSafe(ForceRenderAsync);
     }
 
-    private async void OnAnimateStateChanged(AnimatedStack.State state)
+    private void OnAnimateStateChanged(AnimatedStack.State state)
     {
-        await ForceRenderAsync();
+        RunSafe(ForceRenderAsync);
     }
 
     private void OnDigitKeyDown(object? sender, DigitEventArgs args)

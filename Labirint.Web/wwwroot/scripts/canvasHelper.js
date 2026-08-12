@@ -1,4 +1,4 @@
-const commandTypes = {
+﻿const commandTypes = {
     0: 'beginPath',
     1: 'moveTo',
     2: 'lineTo',
@@ -37,6 +37,8 @@ const commandHandlers = {
 
 const imageCache = {};
 
+const drawGenerations = new WeakMap();
+
 const loadImage = source =>
     new Promise((resolve, reject) => {
         if (imageCache[source]) {
@@ -57,6 +59,9 @@ window.canvasHelper = {
         return canvas.getContext('2d');
     },
     drawCommands(context, drawCommands) {
+        const generation = (drawGenerations.get(context) ?? 0) + 1;
+        drawGenerations.set(context, generation);
+
         const offScreenCanvas = document.createElement('canvas');
         offScreenCanvas.width = context.canvas.width;
         offScreenCanvas.height = context.canvas.height;
@@ -70,6 +75,10 @@ window.canvasHelper = {
                 } else {
                     console.warn(`Неизвестный тип команды: ${command.type}`);
                 }
+            }
+
+            if (drawGenerations.get(context) !== generation) {
+                return;
             }
 
             context.clearRect(0, 0, context.canvas.width, context.canvas.height);

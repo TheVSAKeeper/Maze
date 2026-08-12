@@ -1,0 +1,17 @@
+﻿.share-motivation {
+    display: inline-flex;
+    padding: 0;
+    cursor: pointer;
+    border: 0;
+    border-radius: var(--r-2);
+    background: transparent;
+}
+
+.share-motivation img {
+    display: block;
+    height: 40px;
+}
+
+.share-row ::deep .share-link {
+    flex: 1 1 auto;
+}

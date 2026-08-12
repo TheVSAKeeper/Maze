@@ -1,7 +1,6 @@
 ﻿@inherits RenderComponent
 
-<MudStack Row
-          Spacing="3">
+<div class="ui-row ui-row--wrap">
     @foreach (var animatedStack in _stackCache.Values)
     {
         var stack = animatedStack.Stack;
@@ -27,9 +26,9 @@
                      @onmouseover="() => ShowDescription(item)">
                     @item.DisplayName
                 </div>
-                <div class="count"
+                <div class="count t-data"
                      title="Текущие количество в инвентаре">@stack.Count</div>
-                <div class="max-count"
+                <div class="max-count t-data"
                      title="Максимальной количество в инвентаре">@(stack.IsInfinite ? "∞" : stack.MaxCount)</div>
             </div>
 
@@ -47,34 +46,23 @@
                     </div>
                 }
             }
+
+            @if (_showDescription && _currentItem == item)
+            {
+                <div class="item-description">
+                    @foreach (var paragraph in item.Description.Split("\n"))
+                    {
+                        if (paragraph.StartsWith("---", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            <div class="ui-hairline"></div>
+                        }
+                        else
+                        {
+                            <p class="t-body">@paragraph</p>
+                        }
+                    }
+                </div>
+            }
         </div>
     }
-</MudStack>
-
-@if (_showDescription && _currentItem != null)
-{
-    <MudPopover AnchorOrigin="Origin.BottomCenter"
-                Open="@_showDescription"
-                Paper
-                Style="max-width: 600px"
-                TransformOrigin="Origin.TopCenter">
-        <MudCard Outlined>
-            <MudCardContent>
-                @foreach (var paragraph in _currentItem.Description.Split("\n"))
-                {
-                    if (paragraph.StartsWith("---", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        <MudDivider Class="my-2"
-                                    DividerType="DividerType.FullWidth"
-                                    Light
-                                    Style="height: 2px;" />
-                    }
-                    else
-                    {
-                        <MudText Align="Align.Justify">@paragraph</MudText>
-                    }
-                }
-            </MudCardContent>
-        </MudCard>
-    </MudPopover>
-}
+</div>

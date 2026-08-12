@@ -1,0 +1,14 @@
+﻿.win-text {
+    max-width: 62ch;
+    margin: 0;
+}
+
+.win-text--left {
+    margin-right: auto;
+    text-align: left;
+}
+
+.win-text--right {
+    margin-left: auto;
+    text-align: right;
+}

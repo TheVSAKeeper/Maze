@@ -1,5 +1,4 @@
-﻿<MudStack Row
-          Spacing="3">
+﻿<div class="ui-row ui-row--wrap">
     @foreach (var ability in Abilities.Where(ability => ability.Active))
     {
         <div class="runner-ability-container">
@@ -9,9 +8,9 @@
                 <div class="ability-name">@ability.Properties.DisplayName</div>
                 @if (ability.Properties.IsUnlimitedMoveCount == false)
                 {
-                    <div class="ability-lost-count">@ability.LostCount</div>
+                    <div class="ability-lost-count t-data">@ability.LostCount</div>
                 }
             </div>
         </div>
     }
-</MudStack>
+</div>

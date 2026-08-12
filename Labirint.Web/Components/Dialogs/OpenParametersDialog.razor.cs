@@ -1,7 +1,8 @@
 ﻿using Blazored.LocalStorage;
 using Labirint.Web.Parameters;
+using Labirint.Web.Services.Dialogs;
+using Labirint.Web.Services.Toasts;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace Labirint.Web.Components.Dialogs;
 
@@ -9,15 +10,21 @@ public partial class OpenParametersDialog
 {
     private bool _isProcessing;
     private ControlSchemeSwitcher _controlScheme = null!;
+    private LabyrinthParameters _parameters = new();
 
     [CascadingParameter]
-    public required MudDialogInstance MudDialog { get; set; }
+    public required DialogInstance Instance { get; set; }
 
     [Inject]
-    public required ISnackbar SnackbarService { get; set; }
+    public required ToastService ToastService { get; set; }
 
     [Inject]
     public required ILocalStorageService LocalStorage { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _parameters = GlobalParameters.Labyrinth.Clone();
+    }
 
     private async Task UpdateAsync()
     {
@@ -25,13 +32,14 @@ public partial class OpenParametersDialog
 
         try
         {
-            await LocalStorage.SetItemAsync(LabyrinthParameters.LocalStorageKey, GlobalParameters.Labyrinth);
-            SnackbarService.Add("Сохранено!", Severity.Success);
-            MudDialog.Close();
+            await LocalStorage.SetItemAsync(LabyrinthParameters.LocalStorageKey, _parameters);
+            GlobalParameters.Labyrinth = _parameters;
+            ToastService.Show("Сохранено!", UiSeverity.Success);
+            Instance.Close();
         }
         catch
         {
-            SnackbarService.Add("Не удалось сохранить", Severity.Error);
+            ToastService.Show("Не удалось сохранить", UiSeverity.Error);
         }
 
         _isProcessing = false;
@@ -39,12 +47,12 @@ public partial class OpenParametersDialog
 
     private void Reset()
     {
-        GlobalParameters.Labyrinth = new();
+        _parameters = new();
         _controlScheme.ControlSchemeService.Reset();
     }
 
     private void Cancel()
     {
-        MudDialog.Cancel();
+        Instance.Cancel();
     }
 }

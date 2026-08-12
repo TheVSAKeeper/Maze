@@ -1,0 +1,20 @@
+﻿@if (ToastService.Toasts.Count > 0)
+{
+    <div class="ui-toasts">
+        @foreach (Toast toast in ToastService.Toasts)
+        {
+            <div @key="toast.Id"
+                 class="ui-alert @GetSeverityClass(toast) ui-toast"
+                 role="status"
+                 @onclick="@(() => ToastService.Remove(toast))">
+                <Icon Name="@GetIcon(toast)" />
+                <span class="t-body-s ui-toast__message">@toast.Message</span>
+                <IconButton Class="ui-toast__close"
+                            Icon="@IconCatalog.Close"
+                            OnClick="@(() => ToastService.Remove(toast))"
+                            Size="16"
+                            Title="Закрыть" />
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,13 @@
+﻿<span class="@CssClass" style="--spinner-size: @(Size)px" role="status" aria-label="Загрузка"></span>
+
+@code {
+
+    [Parameter]
+    public int Size { get; set; } = 24;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string CssClass => string.IsNullOrWhiteSpace(Class) ? "ui-spinner" : $"ui-spinner {Class}";
+
+}

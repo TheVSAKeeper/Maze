@@ -1,0 +1,75 @@
+﻿<Dialog>
+    <ChildContent>
+        <div class="ui-row ui-row--between">
+            <div class="ui-spacer"></div>
+            <button aria-label="Мотивация"
+                    class="share-motivation"
+                    @onclick="ToggleMotivation"
+                    title="Мотивация"
+                    type="button">
+                <img alt="Мотивация"
+                     src="images/motivation.png">
+            </button>
+        </div>
+
+        @if (_isShowMotivation)
+        {
+            if (IsExitFound)
+            {
+                <p class="t-body">
+                    Думал, что смог пройти этот лабиринт, как ты думаешь - быстро и совершенно?
+                </p>
+
+                <p class="t-body">
+                    Хочешь рискнуть и узнать, настолько ли ты хорош, как считаешь?
+                </p>
+
+                <p class="t-body">
+                    Отправь ссылку ниже своему самому главному сопернику и узнай, действительно ли ты король лабиринтов!
+                </p>
+            }
+            else
+            {
+                <p class="t-body">
+                    И это всё? Только начал и уже сдаёшься?
+                </p>
+
+                <p class="t-body">
+                    Дойди до конца, стремись к победе и пройди этот лабиринт!
+                </p>
+
+                <p class="t-body">
+                    Если не хватает сил, желания, знаний сейчас - сохрани ссылку, распечатай и прикрепи у кровати, чтобы
+                    каждый день начинался только с одной мысли.
+                </p>
+
+                <p class="t-display-m">
+                    Нужно пройти этот чёртов лабиринт до конца!
+                </p>
+            }
+        }
+        else
+        {
+            <p class="t-body">Если вы хотите поделиться с другом лабиринтом, отправьте ему эту ссылку:</p>
+        }
+
+        <div class="ui-row ui-row--2 share-row">
+            <TextField Class="share-link"
+                       ReadOnly="true"
+                       Value="@Link" />
+            <IconButton Icon="@IconCatalog.Copy"
+                        OnClick="CopyLinkAsync"
+                        Title="Скопировать ссылку"
+                        Tone="UiTone.Accent" />
+        </div>
+
+        <p class="t-body-s">
+            Лабиринт сотворил сам @(string.IsNullOrWhiteSpace(UserSeed)
+                                        ? "Псевдослучайный Бог"
+                                        : $"пользователь благодаря кодовой фразе: {UserSeed}")
+        </p>
+    </ChildContent>
+    <Actions>
+        <Button OnClick="() => Instance.Cancel()">Закрыть</Button>
+    </Actions>
+</Dialog>

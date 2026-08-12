@@ -5,6 +5,8 @@ namespace Labirint.Web.Components;
 
 public partial class KeyInterceptor : IAsyncDisposable
 {
+    private readonly string _interceptorId = Guid.NewGuid().ToString("N");
+
     private bool _isPause;
 
     private Dictionary<string, Direction> _moveDirections = new();
@@ -31,10 +33,22 @@ public partial class KeyInterceptor : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        await JSRuntime.InvokeVoidAsync("finalizeKeyInterceptor");
-        _reference?.Dispose();
-
         SchemeService.ControlSchemeChanged -= OnSchemeChanged;
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("finalizeKeyInterceptor", _interceptorId);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (TaskCanceledException)
+        {
+        }
+
+        _reference?.Dispose();
+        _reference = null;
+
         GC.SuppressFinalize(this);
     }
 
@@ -98,7 +112,7 @@ public partial class KeyInterceptor : IAsyncDisposable
     {
         if (firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("initializeKeyInterceptor", _reference);
+            await JSRuntime.InvokeVoidAsync("initializeKeyInterceptor", _reference, _interceptorId);
         }
     }
 

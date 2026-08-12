@@ -2,5 +2,17 @@
 
 public static class GlobalParameters
 {
-    public static LabyrinthParameters Labyrinth { get; set; } = new();
+    private static LabyrinthParameters _labyrinth = new();
+
+    public static event EventHandler? LabyrinthChanged;
+
+    public static LabyrinthParameters Labyrinth
+    {
+        get => _labyrinth;
+        set
+        {
+            _labyrinth = value;
+            LabyrinthChanged?.Invoke(null, EventArgs.Empty);
+        }
+    }
 }

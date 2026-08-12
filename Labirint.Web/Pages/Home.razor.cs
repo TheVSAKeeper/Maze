@@ -1,4 +1,6 @@
-﻿namespace Labirint.Web.Pages;
+﻿using Microsoft.AspNetCore.Components;
+
+namespace Labirint.Web.Pages;
 
 public partial class Home
 {
@@ -20,4 +22,12 @@ public partial class Home
         "Почему программисты не боятся лабиринтов? Потому что они всегда найдут выход с помощью алгоритма!",
         "Мальчик сломал руку в шести местах когда показывал как пройти лабиринт!",
     ];
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
+
+    private void StartGame()
+    {
+        NavigationManager.NavigateTo("labirint");
+    }
 }

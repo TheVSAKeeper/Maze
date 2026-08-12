@@ -1,6 +1,7 @@
 ﻿using Labirint.Core.Interfaces;
+using Labirint.Web.Components.Dialogs;
+using Labirint.Web.Services.Dialogs;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -12,12 +13,11 @@ public partial class RandomGenerator : IRandom
     public const string DensityQueryName = "d";
     private const string MazePageUrl = "labirint";
 
-    private bool _isShowMotivation;
     private int _currentSeed;
 
-    private MudMessageBox? _messageBox;
     private Random? _random;
     private string? _userSeed;
+    private string? _appliedSeed;
 
     public Random Generator => _random ?? Random.Shared;
 
@@ -39,13 +39,7 @@ public partial class RandomGenerator : IRandom
     private NavigationManager NavigationManager { get; set; } = null!;
 
     [Inject]
-    private IDialogService DialogService { get; set; } = null!;
-
-    [Inject]
-    private ClipboardService ClipboardService { get; set; } = null!;
-
-    [Inject]
-    private ISnackbar SnackbarService { get; set; } = null!;
+    private DialogService DialogService { get; set; } = null!;
 
     private bool IsGenerateRequired => _currentSeed < 0;
 
@@ -57,20 +51,23 @@ public partial class RandomGenerator : IRandom
             return;
         }
 
-        _currentSeed = _userSeed.All(char.IsDigit)
-            ? int.Parse(_userSeed)
+        _currentSeed = _userSeed.All(char.IsDigit) && int.TryParse(_userSeed, out var parsedSeed)
+            ? parsedSeed
             : GenerateSeed(_userSeed);
 
         _random = new(_currentSeed);
         StateHasChanged();
     }
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        if (string.IsNullOrWhiteSpace(Seed) == false)
+        if (Seed == _appliedSeed)
         {
-            _userSeed = Seed;
+            return;
         }
+
+        _appliedSeed = Seed;
+        _userSeed = string.IsNullOrWhiteSpace(Seed) ? null : Seed;
     }
 
     private static int GenerateSeed(string input)
@@ -105,22 +102,13 @@ public partial class RandomGenerator : IRandom
         });
     }
 
-    private void ShowMessageBox()
+    private async Task ShowShareDialogAsync()
     {
-        _messageBox?.ShowAsync();
-    }
-
-    private async Task CopyLink()
-    {
-        await ClipboardService.CopyToClipboard(Link);
-        SnackbarService.Add("Ссылка скопирована!", Severity.Success);
-    }
-
-    private void ToggleMotivation()
-    {
-        _isShowMotivation = !_isShowMotivation;
-
-        _messageBox?.Close();
-        _messageBox?.ShowAsync();
+        await DialogService.ShowAsync<ShareDialog>("Поделиться лабиринтом", new DialogParameters
+        {
+            [nameof(ShareDialog.Link)] = Link,
+            [nameof(ShareDialog.UserSeed)] = _userSeed,
+            [nameof(ShareDialog.IsExitFound)] = IsExitFound,
+        }, new DialogOptions { Width = DialogWidth.Medium });
     }
 }

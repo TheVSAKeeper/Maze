@@ -1,72 +1,36 @@
-﻿@using Blazored.LocalStorage
-@inherits LayoutComponentBase
-@inject NavigationManager NavigationManager
-@inject ILocalStorageService LocalStorage
-@inject IDialogService DialogService
+﻿@inherits LayoutComponentBase
 
-<MudThemeProvider IsDarkMode="@IsDarkMod"
-                  Theme="_defaultTheme" />
-<MudPopoverProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
+<nav class="rail" aria-label="Основная навигация">
+    <img class="rail__mark"
+         src="./icon-512.png"
+         alt="Лабиринт"
+         title="Лабиринт – MaxNagibator эдишен"
+         width="34"
+         height="34" />
 
-<MudLayout>
-    <MudAppBar Class="docs-appbar-filter mud-appbar mud-appbar-fixed-top mud-elevation-0 mud-theme-transparent"
-               Elevation="0">
-        <MudIconButton Color="Color.Inherit"
-                       Edge="Edge.Start"
-                       Icon="@Icons.Material.Rounded.Notes"
-                       OnClick="DrawerToggle" />
-        <MudSpacer />
-        <MudStack AlignItems="AlignItems.Center"
-                  Row>
-            @if (NavigationManager.ToBaseRelativePath(NavigationManager.Uri).Contains("labirint") == false)
-            {
-                <MudFab Color="Color.Info"
-                        DropShadow
-                        Label="Играть"
-                        OnClick="@(() => NavigationManager.NavigateTo("labirint"))"
-                        Size="Size.Small"
-                        StartIcon="@Icons.Material.Rounded.Games" />
-            }
-            <MudIconButton Color="Color.Inherit"
-                           Icon="@Icons.Material.Rounded.Brightness4"
-                           OnClick="@DarkMode"
-                           Size="Size.Medium" />
-            <MudIconButton Color="Color.Inherit"
-                           Icon="@Icons.Material.Rounded.Settings"
-                           OnClick="@OpenParameters"
-                           Size="Size.Medium" />
-        </MudStack>
-    </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen"
-               Variant="@DrawerVariant.Temporary">
-        <MudStack AlignItems="AlignItems.Center"
-                  Justify="Justify.Center"
-                  Style="height:auto">
-            <MudImage Class="pa-1"
-                      Fluid="true"
-                      ObjectFit="ObjectFit.Cover"
-                      ObjectPosition="ObjectPosition.Center"
-                      Src="./icon-512.png"
-                      Style="width:100%;" />
-        </MudStack>
-        <NavMenu />
-    </MudDrawer>
-    <MudMainContent>
-        <MudContainer Class="pa-3"
-                      MaxWidth="MaxWidth.Large">
-            <ErrorBoundary>
-                <ChildContent>
-                    @Body
-                </ChildContent>
-                <ErrorContent Context="exception">
-                    <MudAlert Icon="@Icons.Material.Rounded.Error"
-                              Severity="Severity.Error">Произошла ошибка.
-                    </MudAlert>
-                    <pre>@exception.ToString()</pre>
-                </ErrorContent>
-            </ErrorBoundary>
-        </MudContainer>
-    </MudMainContent>
-</MudLayout>
+    <NavMenu />
+
+    <div class="ui-spacer"></div>
+
+    <IconButton Icon="@IconCatalog.Theme"
+                OnClick="@ToggleThemeAsync"
+                Title="Сменить тему" />
+    <IconButton Icon="@IconCatalog.Settings"
+                OnClick="@OpenParametersAsync"
+                Title="Параметры" />
+</nav>
+
+<main>
+    <ErrorBoundary>
+        <ChildContent>
+            @Body
+        </ChildContent>
+        <ErrorContent Context="exception">
+            <Alert Severity="UiSeverity.Error">Произошла ошибка.</Alert>
+            <pre>@exception</pre>
+        </ErrorContent>
+    </ErrorBoundary>
+</main>
+
+<DialogHost />
+<ToastHost />
