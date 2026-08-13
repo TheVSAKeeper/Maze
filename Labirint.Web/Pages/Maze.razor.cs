@@ -1,4 +1,5 @@
 ﻿using Labirint.Core.TileFeatures.Base;
+using Labirint.Web.Common.Animation;
 using Labirint.Web.Common.Ui;
 using Labirint.Web.Components;
 using Labirint.Web.Components.Dialogs;
@@ -43,6 +44,7 @@ public partial class Maze : IAsyncDisposable
     private int _wallWidth;
 
     private int _moveCount;
+    private int _displayScore;
 
     private int _runnerScaleX = 1;
 
@@ -51,6 +53,7 @@ public partial class Maze : IAsyncDisposable
     private MazeEntities? _mazeEntities;
     private MazeRenderParameters? _renderParameter;
     private KeyInterceptor? _keyInterceptor;
+    private RunnerInventory? _runnerInventory;
 
     private Labyrinth _labyrinth = null!;
     private RandomGenerator _seeder = null!;
@@ -94,6 +97,7 @@ public partial class Maze : IAsyncDisposable
             _labyrinth.ExitFound -= OnExitFound;
             _labyrinth.ItemPickedUp -= OnItemPickedUp;
             _labyrinth.Runner.Inventory.ItemUsed -= OnItemUsed;
+            _labyrinth.Runner.Inventory.ScoreIncreased -= OnScoreIncreased;
         }
 
         if (_touchInterceptor != null)
@@ -160,6 +164,7 @@ public partial class Maze : IAsyncDisposable
         _labyrinth.ExitFound += OnExitFound;
         _labyrinth.ItemPickedUp += OnItemPickedUp;
         _labyrinth.Runner.Inventory.ItemUsed += OnItemUsed;
+        _labyrinth.Runner.Inventory.ScoreIncreased += OnScoreIncreased;
 
         if (_keyInterceptor != null)
         {
@@ -276,6 +281,17 @@ public partial class Maze : IAsyncDisposable
         RunSafe(() => SoundService.PlayAsync(args.PickUpSound).AsTask());
     }
 
+    private void OnScoreIncreased(object? sender, int amount)
+    {
+        RunSafe(async () =>
+        {
+            await Task.Delay(AnimatedStackExtensions.PickupFlightDuration);
+
+            _displayScore = _labyrinth.Runner.Score;
+            StateHasChanged();
+        });
+    }
+
     private void OnMoveKeyDown(object? sender, MoveEventArgs args)
     {
         if (_isExitFound)
@@ -295,10 +311,36 @@ public partial class Maze : IAsyncDisposable
 
         var item = args.Item;
 
-        if (item != null)
+        if (item == null)
+        {
+            return;
+        }
+
+        if (_labyrinth.Runner.Inventory.CanUse(item) == false || _runnerInventory == null)
         {
             _labyrinth.Runner.UseItem(item, args.Direction);
+            return;
         }
+
+        if (_runnerInventory.TryStartCast(item) == false)
+        {
+            return;
+        }
+
+        var direction = args.Direction;
+
+        RunSafe(async () =>
+        {
+            await Task.Delay(AnimatedStackExtensions.UseFlightDuration);
+
+            if (_isExitFound)
+            {
+                _runnerInventory.CancelCast(item);
+                return;
+            }
+
+            _labyrinth.Runner.UseItem(item, direction);
+        });
     }
 
     private void OnItemUsed(object? sender, Item item)
@@ -336,6 +378,7 @@ public partial class Maze : IAsyncDisposable
         _isExitFound = false;
         _isContinueGame = false;
         _moveCount = 0;
+        _displayScore = 0;
 
         _originalSize = Math.Max(MinSize, Math.Min(MaxSize, _originalSize));
         _density = Math.Max(MinDensity, Math.Min(MaxDensity, _density));

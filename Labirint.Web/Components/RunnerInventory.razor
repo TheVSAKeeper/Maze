@@ -15,19 +15,24 @@
             <div class="inventory-item
                             @(stack.IsInfinite ? " score" : string.Empty)
                             @(animatedStack.GetAnimation())"
-                 style="--animate-duration: @(animatedStack.GetDuration())ms">
+                 data-item="@item.Name"
+                 style="--animate-duration: @(animatedStack.GetDuration())ms; --animate-delay: @(animatedStack.GetDelay())ms">
 
                 <img alt="@item.DisplayName"
                      @onclick="() => OnClicked(item)"
                      src="@item.Icon"
                      title="Использовать предмет">
+                <img alt=""
+                     aria-hidden="true"
+                     class="item-flow"
+                     src="@item.Icon">
                 <div class="item-name"
                      @onmouseout="HideDescription"
                      @onmouseover="() => ShowDescription(item)">
                     @item.DisplayName
                 </div>
                 <div class="count t-data"
-                     title="Текущие количество в инвентаре">@stack.Count</div>
+                     title="Текущие количество в инвентаре">@animatedStack.DisplayCount</div>
                 <div class="max-count t-data"
                      title="Максимальной количество в инвентаре">@(stack.IsInfinite ? "∞" : stack.MaxCount)</div>
             </div>

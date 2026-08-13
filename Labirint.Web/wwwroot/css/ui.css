@@ -288,6 +288,16 @@
     to { transform: rotate(360deg); }
 }
 
+.pickup-ghost {
+    position: fixed;
+    z-index: var(--z-toast);
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--gold) 50%, transparent));
+}
+
 *:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
