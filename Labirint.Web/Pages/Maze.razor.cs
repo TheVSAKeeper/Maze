@@ -42,6 +42,8 @@ public partial class Maze : IAsyncDisposable
     private int _boxSize;
     private int _wallWidth;
 
+    private int _moveCount;
+
     private int _runnerScaleX = 1;
 
     private MazeFloor? _mazeFloor;
@@ -217,6 +219,7 @@ public partial class Maze : IAsyncDisposable
 
     private void OnRunnerMoved(object? sender, Position args)
     {
+        _moveCount++;
         _vision.SetPosition(_labyrinth.Runner.Position);
 
         RunSafe(async () =>
@@ -245,7 +248,11 @@ public partial class Maze : IAsyncDisposable
         DialogParameters parameters = new()
         {
             [nameof(WinDialog.OnRestart)] = (Func<Task>)GenerateAsync,
+            [nameof(WinDialog.OnRepeat)] = (Func<Task>)RepeatAsync,
             [nameof(WinDialog.Seeder)] = _seeder,
+            [nameof(WinDialog.Score)] = _labyrinth.Runner.Score,
+            [nameof(WinDialog.MoveCount)] = _moveCount,
+            [nameof(WinDialog.Size)] = _originalSize,
         };
 
         var result = await DialogService.ShowAsync<WinDialog>("Финал Лабиринта", parameters, new DialogOptions
@@ -303,14 +310,32 @@ public partial class Maze : IAsyncDisposable
         });
     }
 
-    private async Task GenerateAsync()
+    private Task GenerateAsync()
+    {
+        return GenerateAsync(false);
+    }
+
+    private Task RepeatAsync()
+    {
+        return GenerateAsync(true);
+    }
+
+    private async Task GenerateAsync(bool isSeedRepeated)
     {
         AnimationService.StartRandomAnimationEffect();
 
-        _seeder.Reload();
+        if (isSeedRepeated)
+        {
+            _seeder.Repeat();
+        }
+        else
+        {
+            _seeder.Reload();
+        }
 
         _isExitFound = false;
         _isContinueGame = false;
+        _moveCount = 0;
 
         _originalSize = Math.Max(MinSize, Math.Min(MaxSize, _originalSize));
         _density = Math.Max(MinDensity, Math.Min(MaxDensity, _density));
