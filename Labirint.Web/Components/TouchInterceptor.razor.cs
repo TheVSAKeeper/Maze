@@ -53,16 +53,6 @@ public partial class TouchInterceptor
         }
     }
 
-    private void OnFieldTouched(TouchEventArgs args)
-    {
-        var direction = GetDirection((int)args.Touches.First().ClientX, (int)args.Touches.First().ClientY);
-
-        if (direction != Direction.None)
-        {
-            Moved?.Invoke(this, direction);
-        }
-    }
-
     private void OnSwipe(Direction direction)
     {
         if (direction != Direction.None)

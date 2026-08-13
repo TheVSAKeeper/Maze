@@ -15,4 +15,23 @@ public static class AnimatedStackExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(state), state, null),
         };
     }
+
+    public static int ToDuration(this AnimatedStack.State state)
+    {
+        return state switch
+        {
+            AnimatedStack.State.Added => 500,
+            AnimatedStack.State.Used => 500,
+            AnimatedStack.State.CantAdd => 1000,
+            AnimatedStack.State.Waiting => 1000,
+            AnimatedStack.State.Removed => 0,
+            AnimatedStack.State.None => 0,
+            _ => throw new ArgumentOutOfRangeException(nameof(state), state, null),
+        };
+    }
+
+    public static bool IsRepeating(this AnimatedStack.State state)
+    {
+        return state is AnimatedStack.State.Waiting;
+    }
 }

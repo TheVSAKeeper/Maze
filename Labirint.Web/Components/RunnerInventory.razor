@@ -15,7 +15,7 @@
             <div class="inventory-item
                             @(stack.IsInfinite ? " score" : string.Empty)
                             @(animatedStack.GetAnimation())"
-                 @onanimationend="() => AnimationCompleted(animatedStack)">
+                 style="--animate-duration: @(animatedStack.GetDuration())ms">
 
                 <img alt="@item.DisplayName"
                      @onclick="() => OnClicked(item)"
