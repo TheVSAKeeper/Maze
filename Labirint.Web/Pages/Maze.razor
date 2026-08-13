@@ -3,7 +3,7 @@
 
 <PageTitle>Labirint</PageTitle>
 
-@if (IsInit == false)
+@if (IsBusy)
 {
     <div class="loading ui-row ui-row--2">
         <Spinner />
@@ -12,7 +12,7 @@
 }
 
 <div class="workspace"
-     hidden="@(IsInit == false)">
+     hidden="@IsBusy">
     <div class="header-panel">
         @if (IsInit)
         {
@@ -78,7 +78,7 @@
 
                                 <img alt="Бегун"
                                      data-runner
-                                     src="images/runner.png"
+                                     src="images/runner.webp"
                                      style="position:absolute;
                                          z-index: 4;
                                          left: @(drawPosition.X)px;

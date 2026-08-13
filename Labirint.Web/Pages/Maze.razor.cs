@@ -29,6 +29,7 @@ public partial class Maze : IAsyncDisposable
     private bool _isSettingsFocusPending;
     private bool _isSettingsButtonFocusPending;
     private bool _isRegenerationPending;
+    private bool _isGenerating;
 
     private string? _appliedSeed;
     private int? _appliedSize;
@@ -80,6 +81,8 @@ public partial class Maze : IAsyncDisposable
 
     // Проверка на null и инициализацию (дополнительная проверка, если флаг выставили в true, а значение у не null полей не выставили)
     private bool IsInit => _isInit && _labyrinth != null && _seeder != null && _vision != null && _renderParameter != null;
+
+    private bool IsBusy => IsInit == false || _isGenerating;
 
     public ValueTask DisposeAsync()
     {
@@ -229,10 +232,10 @@ public partial class Maze : IAsyncDisposable
 
         RunSafe(async () =>
         {
-            // TODO подумать как вынести строку
-            await SoundService.PlayAsync("step");
-
             await ForceRender();
+
+            // TODO подумать как вынести строку
+            SoundService.Play("step");
         });
     }
 
@@ -278,7 +281,12 @@ public partial class Maze : IAsyncDisposable
 
     private void OnItemPickedUp(object? sender, TileFeature args)
     {
-        RunSafe(() => SoundService.PlayAsync(args.PickUpSound).AsTask());
+        RunSafe(async () =>
+        {
+            await ForceRender();
+
+            SoundService.Play(args.PickUpSound);
+        });
     }
 
     private void OnScoreIncreased(object? sender, int amount)
@@ -347,8 +355,8 @@ public partial class Maze : IAsyncDisposable
     {
         RunSafe(async () =>
         {
-            await SoundService.PlayAsync(item.SoundSettings?.UseSound);
             await ForceRender();
+            SoundService.Play(item.SoundSettings?.UseSound);
         });
     }
 
@@ -365,6 +373,10 @@ public partial class Maze : IAsyncDisposable
     private async Task GenerateAsync(bool isSeedRepeated)
     {
         AnimationService.StartRandomAnimationEffect();
+
+        _isGenerating = true;
+        StateHasChanged();
+        await Task.Delay(1);
 
         if (isSeedRepeated)
         {
@@ -389,6 +401,7 @@ public partial class Maze : IAsyncDisposable
         _vision.SetPosition(_labyrinth.Runner.Position);
 
         _renderParameter = new(_labyrinth, _boxSize, _wallWidth, _vision);
+        _isGenerating = false;
 
         StateHasChanged();
 
