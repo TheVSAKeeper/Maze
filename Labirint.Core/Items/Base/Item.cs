@@ -16,8 +16,8 @@ public abstract class Item
     /// </summary>
     public virtual bool UseAfterPickup => false;
 
-    public string Icon => $"images/items/{Name}-icon.png";
-    public string Image => $"images/items/{Name}.png";
+    public string Icon => $"images/items/{Name}-icon.webp";
+    public string Image => $"images/items/{Name}.webp";
 
     public virtual ControlSettings? ControlSettings => null;
     public virtual SoundSettings? SoundSettings => null;
