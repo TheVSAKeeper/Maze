@@ -27,6 +27,14 @@ public partial class MainLayout
         await ThemeService.InitializeAsync();
 
         LabyrinthParameters? labyrinthParameters = await LocalStorage.GetItemAsync<LabyrinthParameters>(LabyrinthParameters.LocalStorageKey);
+
+        // TODO: разовая миграция без версии настроек – заводить версионирование, когда сменится следующий дефолт
+        if (labyrinthParameters?.Color == LabyrinthParameters.LegacyDefaultColor)
+        {
+            labyrinthParameters.Color = LabyrinthParameters.DefaultColor;
+            await LocalStorage.SetItemAsync(LabyrinthParameters.LocalStorageKey, labyrinthParameters);
+        }
+
         GlobalParameters.Labyrinth = labyrinthParameters ?? new LabyrinthParameters();
     }
 
