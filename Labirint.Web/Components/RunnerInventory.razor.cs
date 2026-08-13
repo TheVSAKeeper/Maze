@@ -168,9 +168,4 @@ public partial class RunnerInventory : RenderComponent, IDisposable
 
         stack.AddState(animation);
     }
-
-    private void AnimationCompleted(AnimatedStack animatedStack)
-    {
-        animatedStack.RemoveState();
-    }
 }

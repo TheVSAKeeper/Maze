@@ -43,9 +43,15 @@ public class AnimatedStack(ItemStack stack)
         if (ExecutedState is State.Removed && _stateQueue.TryDequeue(out var state))
         {
             ExecutedState = state;
+            ScheduleRemove(state);
         }
 
         return ExecutedState.ToAnimation();
+    }
+
+    public int GetDuration()
+    {
+        return ExecutedState.ToDuration();
     }
 
     public void AddState(State state)
@@ -62,5 +68,25 @@ public class AnimatedStack(ItemStack stack)
     public void RemoveState()
     {
         ExecutedState = State.Removed;
+    }
+
+    private void ScheduleRemove(State state)
+    {
+        if (state.IsRepeating() || state.ToDuration() <= 0)
+        {
+            return;
+        }
+
+        _ = RemoveAfterAsync(state);
+    }
+
+    private async Task RemoveAfterAsync(State state)
+    {
+        await Task.Delay(state.ToDuration());
+
+        if (ExecutedState == state)
+        {
+            RemoveState();
+        }
     }
 }

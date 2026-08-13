@@ -26,22 +26,22 @@
 }
 
 .inventory-item.waiting-animate {
-    animation: waitingPulse 1s;
+    animation: waitingPulse var(--animate-duration);
     animation-iteration-count: infinite;
 }
 
 .inventory-item.added-animate {
-    animation: addedBounceFlash 0.5s ease-in-out;
+    animation: addedBounceFlash var(--animate-duration) ease-in-out;
     animation-iteration-count: 1;
 }
 
 .inventory-item.used-animate {
-    animation: usedShrinkRotate 0.5s ease-in-out;
+    animation: usedShrinkRotate var(--animate-duration) ease-in-out;
     animation-iteration-count: 1;
 }
 
 .inventory-item.max-count-animate {
-    animation: maxCountShakeGlow 1s ease-in-out;
+    animation: maxCountShakeGlow var(--animate-duration) ease-in-out;
     animation-iteration-count: 1;
 }
 
