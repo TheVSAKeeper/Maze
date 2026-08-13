@@ -1,6 +1,6 @@
 ﻿<div class="ui-row">
     <TextField @bind-Value="_userSeed"
-               HelperText="@(IsGenerateRequired ? "Необходима генерация" : _currentSeed.ToString())"
+               HelperText="@(IsGenerateRequired ? "Необходима генерация" : $"Число зерна: {_currentSeed}")"
                Label="Зерно генерации"
                OnBlur="ResetSeed" />
     <IconButton Disabled="IsGenerateRequired"

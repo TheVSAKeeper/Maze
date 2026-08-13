@@ -126,14 +126,14 @@ public class Labyrinth
 
         var tile = this[Runner.Position];
 
-        if (tile.IsExit)
-        {
-            ExitFound?.Invoke(this, EventArgs.Empty);
-        }
-
         if (tile.TryPickUp(out var item))
         {
             ItemPickedUp?.Invoke(this, item!);
+        }
+
+        if (tile.IsExit)
+        {
+            ExitFound?.Invoke(this, EventArgs.Empty);
         }
     }
 

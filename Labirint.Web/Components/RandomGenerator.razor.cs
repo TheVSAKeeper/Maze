@@ -43,6 +43,18 @@ public partial class RandomGenerator : IRandom
 
     private bool IsGenerateRequired => _currentSeed < 0;
 
+    public void Repeat()
+    {
+        if (IsGenerateRequired)
+        {
+            Reload();
+            return;
+        }
+
+        _random = new(_currentSeed);
+        StateHasChanged();
+    }
+
     public void Reload(bool force = false)
     {
         if (force || string.IsNullOrWhiteSpace(_userSeed))
