@@ -66,15 +66,117 @@
 
 .field {
     position: relative;
+    isolation: isolate;
     border: 1px solid var(--border-strong);
     border-radius: var(--r-1);
     background: var(--bg-sunken);
     box-shadow: var(--shadow-pit);
 }
 
+.maze-anim {
+    animation-duration: var(--dur-2);
+    animation-iteration-count: 1;
+    animation-timing-function: var(--ease);
+}
+
+.maze-anim--flip {
+    animation-name: mazeFlipIn;
+}
+
+.maze-anim--shake {
+    animation-name: mazeShake;
+}
+
+.maze-anim--tada {
+    animation-name: mazeTada;
+}
+
+.maze-anim--wobble {
+    animation-name: mazeWobble;
+}
+
+.maze-anim--jello {
+    animation-name: mazeJello;
+}
+
+.maze-anim--rubber {
+    animation-name: mazeRubberBand;
+}
+
+@keyframes mazeFlipIn {
+    0% {
+        opacity: 0;
+        transform: perspective(400px) rotateY(-90deg);
+    }
+    100% {
+        opacity: 1;
+        transform: perspective(400px) rotateY(0);
+    }
+}
+
+@keyframes mazeShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-8px);
+    }
+    75% {
+        transform: translateX(8px);
+    }
+}
+
+@keyframes mazeTada {
+    0%, 100% {
+        transform: scale(1) rotate(0);
+    }
+    30% {
+        transform: scale(0.94) rotate(-3deg);
+    }
+    70% {
+        transform: scale(1.06) rotate(3deg);
+    }
+}
+
+@keyframes mazeWobble {
+    0%, 100% {
+        transform: translateX(0) rotate(0);
+    }
+    30% {
+        transform: translateX(-4%) rotate(-3deg);
+    }
+    70% {
+        transform: translateX(3%) rotate(2deg);
+    }
+}
+
+@keyframes mazeJello {
+    0%, 100% {
+        transform: skew(0, 0);
+    }
+    35% {
+        transform: skew(-6deg, -6deg);
+    }
+    70% {
+        transform: skew(3deg, 3deg);
+    }
+}
+
+@keyframes mazeRubberBand {
+    0%, 100% {
+        transform: scale(1, 1);
+    }
+    35% {
+        transform: scale(1.12, 0.88);
+    }
+    70% {
+        transform: scale(0.92, 1.08);
+    }
+}
+
 .ruler {
     position: absolute;
-    z-index: 100;
+    z-index: 4;
     display: flex;
     font-size: 0.875rem;
     line-height: 1;
