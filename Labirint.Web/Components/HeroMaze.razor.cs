@@ -33,6 +33,9 @@ public partial class HeroMaze : IDisposable
     [Parameter]
     public int Seed { get; set; }
 
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = null!;
+
     private string RunStyle =>
         $"--route: path('{_run.TrailPath}'); --trail-length: {_run.TrailLength}; --tail-length: {TailLength}; " +
         $"--trail-delay: {_run.TrailDelay}ms; --trail-duration: {_run.TrailDuration}ms; " +
@@ -42,6 +45,7 @@ public partial class HeroMaze : IDisposable
     {
         _isDisposed = true;
         _waitTokenSource.Cancel();
+        _waitTokenSource.Dispose();
     }
 
     protected override void OnParametersSet()
@@ -188,9 +192,10 @@ public partial class HeroMaze : IDisposable
 
     private static Position? FindStep(Labyrinth labyrinth, bool[,] visited, Position current, Random random)
     {
-        Direction[] directions = [Direction.Top, Direction.Right, Direction.Bottom, Direction.Left];
+        Span<Direction> directions = [Direction.Top, Direction.Right, Direction.Bottom, Direction.Left];
+        random.Shuffle(directions);
 
-        foreach (var direction in directions.OrderBy(_ => random.Next()))
+        foreach (var direction in directions)
         {
             if (labyrinth[current.X, current.Y].ContainsWall(direction))
             {
@@ -246,9 +251,31 @@ public partial class HeroMaze : IDisposable
                 continue;
             }
 
+            if (IsPageHidden())
+            {
+                continue;
+            }
+
             ShowNext();
 
             await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private bool IsPageHidden()
+    {
+        if (JSRuntime is not IJSInProcessRuntime runtime)
+        {
+            return false;
+        }
+
+        try
+        {
+            return runtime.Invoke<bool>("labirintPage.isHidden");
+        }
+        catch (JSException)
+        {
+            return false;
         }
     }
 
@@ -259,6 +286,7 @@ public partial class HeroMaze : IDisposable
         var previous = _waitTokenSource;
         _waitTokenSource = new CancellationTokenSource();
         previous.Cancel();
+        previous.Dispose();
     }
 
     private void ShowNext()
