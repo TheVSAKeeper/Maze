@@ -9,6 +9,9 @@ public partial class RunnerInventory : RenderComponent, IDisposable
     private Dictionary<Item, AnimatedStack> _stackCache = new();
     private bool _showDescription;
     private Item? _currentItem;
+    private Item? _pendingFlight;
+    private Item? _pendingCast;
+    private Item? _castingItem;
 
     [Parameter]
     [EditorRequired]
@@ -21,6 +24,9 @@ public partial class RunnerInventory : RenderComponent, IDisposable
     [Inject]
     public required ControlSchemeService SchemeService { get; set; }
 
+    [Inject]
+    public required PickupFlightService PickupFlight { get; set; }
+
     private AnimatedStack? WaitItem { get; set; }
 
     private IControlScheme ControlScheme => SchemeService.CurrentScheme;
@@ -29,6 +35,38 @@ public partial class RunnerInventory : RenderComponent, IDisposable
     {
         UnsubscribeEvents();
         GC.SuppressFinalize(this);
+    }
+
+    public bool TryStartCast(Item item)
+    {
+        if (_castingItem != null || _stackCache.TryGetValue(item, out var stack) == false)
+        {
+            return false;
+        }
+
+        _castingItem = item;
+        _pendingCast = item;
+
+        AddStackAnimation(item, AnimatedStack.State.Used);
+        stack.ReserveCount();
+
+        RunSafe(ForceRenderAsync);
+        return true;
+    }
+
+    public void CancelCast(Item item)
+    {
+        if (_castingItem != item)
+        {
+            return;
+        }
+
+        _castingItem = null;
+
+        if (_stackCache.TryGetValue(item, out var stack))
+        {
+            stack.SyncCount();
+        }
     }
 
     protected override Task OnFirstRenderAsyncInner()
@@ -42,6 +80,25 @@ public partial class RunnerInventory : RenderComponent, IDisposable
     protected override Task OnRenderAsyncInner()
     {
         return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsyncInner(bool firstRender)
+    {
+        if (_pendingFlight != null)
+        {
+            var item = _pendingFlight;
+            _pendingFlight = null;
+
+            await PickupFlight.FlyAsync(item);
+        }
+
+        if (_pendingCast != null)
+        {
+            var item = _pendingCast;
+            _pendingCast = null;
+
+            await PickupFlight.CastAsync(item);
+        }
     }
 
     private void OnSchemeChanged(object? sender, IControlScheme scheme)
@@ -70,6 +127,9 @@ public partial class RunnerInventory : RenderComponent, IDisposable
     private void OnItemAdded(object? sender, Item item)
     {
         AddStackAnimation(item, AnimatedStack.State.Added);
+
+        _pendingFlight = item;
+        RunSafe(ForceRenderAsync);
     }
 
     private void OnItemCantAdded(object? sender, Item item)
@@ -79,7 +139,29 @@ public partial class RunnerInventory : RenderComponent, IDisposable
 
     private void OnItemUsed(object? sender, Item item)
     {
+        if (_castingItem == item)
+        {
+            _castingItem = null;
+
+            if (_stackCache.TryGetValue(item, out var casted))
+            {
+                casted.SyncCount();
+            }
+
+            RunSafe(ForceRenderAsync);
+            return;
+        }
+
         AddStackAnimation(item, AnimatedStack.State.Used);
+
+        _pendingCast = item;
+        RunSafe(ForceRenderAsync);
+    }
+
+    private void OnItemCantUsed(object? sender, Item item)
+    {
+        CancelCast(item);
+        AddStackAnimation(item, AnimatedStack.State.CantUse);
     }
 
     private void OnInventoryCleared(object? sender, EventArgs e)
@@ -143,6 +225,7 @@ public partial class RunnerInventory : RenderComponent, IDisposable
         Inventory.ItemAdded += OnItemAdded;
         Inventory.ItemCantAdded += OnItemCantAdded;
         Inventory.ItemUsed += OnItemUsed;
+        Inventory.ItemCantUsed += OnItemCantUsed;
         Inventory.InventoryCleared += OnInventoryCleared;
     }
 
@@ -156,6 +239,7 @@ public partial class RunnerInventory : RenderComponent, IDisposable
         Inventory.ItemAdded -= OnItemAdded;
         Inventory.ItemCantAdded -= OnItemCantAdded;
         Inventory.ItemUsed -= OnItemUsed;
+        Inventory.ItemCantUsed -= OnItemCantUsed;
         Inventory.InventoryCleared -= OnInventoryCleared;
     }
 

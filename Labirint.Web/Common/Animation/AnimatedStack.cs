@@ -17,9 +17,12 @@ public class AnimatedStack(ItemStack stack)
         CantAdd = 3,
         Waiting = 4,
         Removed = 5,
+        CantUse = 6,
     }
 
     public ItemStack Stack { get; } = stack;
+
+    public int DisplayCount { get; private set; } = stack.Count;
 
     public bool IsIdle => _stateQueue.IsEmpty && ExecutedState == State.Removed;
 
@@ -54,20 +57,69 @@ public class AnimatedStack(ItemStack stack)
         return ExecutedState.ToDuration();
     }
 
+    public int GetDelay()
+    {
+        return ExecutedState.ToDelay();
+    }
+
     public void AddState(State state)
     {
         if (_stateQueue.Contains(state) || ExecutedState == state)
         {
+            SyncDisplayCount(state);
             return;
         }
 
         _stateQueue.Enqueue(state);
+        SyncDisplayCount(state);
+
         StateChanged?.Invoke(_executedState);
     }
 
     public void RemoveState()
     {
         ExecutedState = State.Removed;
+    }
+
+    public void SyncCount()
+    {
+        SetDisplayCount(Stack.Count);
+    }
+
+    public void ReserveCount()
+    {
+        SetDisplayCount(Math.Max(0, Stack.Count - 1));
+    }
+
+    private void SyncDisplayCount(State state)
+    {
+        var delay = state.ToDelay();
+
+        if (delay <= 0)
+        {
+            SetDisplayCount(Stack.Count);
+            return;
+        }
+
+        _ = SyncDisplayCountAfterAsync(delay);
+    }
+
+    private async Task SyncDisplayCountAfterAsync(int delay)
+    {
+        await Task.Delay(delay);
+
+        SetDisplayCount(Stack.Count);
+    }
+
+    private void SetDisplayCount(int count)
+    {
+        if (DisplayCount == count)
+        {
+            return;
+        }
+
+        DisplayCount = count;
+        StateChanged?.Invoke(_executedState);
     }
 
     private void ScheduleRemove(State state)
@@ -82,7 +134,7 @@ public class AnimatedStack(ItemStack stack)
 
     private async Task RemoveAfterAsync(State state)
     {
-        await Task.Delay(state.ToDuration());
+        await Task.Delay(state.ToDuration() + state.ToDelay());
 
         if (ExecutedState == state)
         {

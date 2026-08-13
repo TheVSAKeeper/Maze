@@ -19,6 +19,13 @@ public abstract class RenderComponent : SafeComponent
             await OnFirstRenderAsyncInner();
             await ForceRenderAsync();
         }
+
+        await OnAfterRenderAsyncInner(firstRender);
+    }
+
+    protected virtual Task OnAfterRenderAsyncInner(bool firstRender)
+    {
+        return Task.CompletedTask;
     }
 
     protected sealed override bool ShouldRender()

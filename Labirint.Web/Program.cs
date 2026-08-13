@@ -16,6 +16,7 @@ builder.Services.AddSingleton<SoundService>();
 builder.Services.AddSingleton<AnimationService>();
 builder.Services.AddSingleton<ControlSchemeService, ControlSchemeService>();
 builder.Services.AddScoped<ClipboardService, ClipboardService>();
+builder.Services.AddScoped<PickupFlightService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<ThemeService>();

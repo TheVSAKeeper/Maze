@@ -21,7 +21,7 @@
                 <span class="stat__value ui-row ui-row--2">
                     <Icon Name="@IconCatalog.Coin"
                           Size="26" />
-                    <span class="t-data stat__number">@_labyrinth.Runner.Score.ToString("N0")</span>
+                    <span class="t-data stat__number">@_displayScore.ToString("N0")</span>
                 </span>
             </div>
 
@@ -77,6 +77,7 @@
                                 };
 
                                 <img alt="Бегун"
+                                     data-runner
                                      src="images/runner.png"
                                      style="position:absolute;
                                          z-index: 4;
@@ -98,7 +99,8 @@
 
                 <div class="inventory-panel">
                     <RunnerInventory Interceptor="_keyInterceptor"
-                                     Inventory="_labyrinth.Runner.Inventory" />
+                                     Inventory="_labyrinth.Runner.Inventory"
+                                     @ref="_runnerInventory" />
                 </div>
             </div>
         </div>
