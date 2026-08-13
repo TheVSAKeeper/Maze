@@ -18,7 +18,10 @@
     display: block;
     width: 34px;
     height: 34px;
+    padding: 3px;
+    border: 1px solid var(--border);
     border-radius: var(--r-2);
+    background: var(--mark-plate);
 }
 
 main {

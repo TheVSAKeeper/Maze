@@ -6,17 +6,6 @@
     width: 100%;
 }
 
-.nav::before {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: var(--s-3);
-    width: 1px;
-    content: "";
-    background: var(--accent);
-    opacity: 0.55;
-}
-
 .nav ::deep .nav__link {
     position: relative;
     display: flex;
@@ -42,23 +31,23 @@
 .nav ::deep .nav__link::after {
     position: absolute;
     top: 50%;
-    left: var(--s-3);
-    width: 7px;
-    height: 7px;
+    left: -4px;
+    width: 2px;
+    height: 24px;
     content: "";
-    transform: translate(-50%, -50%) scale(0);
+    transform: translateY(-50%) scaleY(0);
     transition: transform var(--dur-2) var(--ease);
-    border-radius: 50%;
+    border-radius: 0 1px 1px 0;
     background: var(--accent);
 }
 
 .nav ::deep .nav__link--active::after {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(-50%) scaleY(1);
 }
 
 .nav__label {
-    font-size: 0.5625rem;
-    letter-spacing: 0.1em;
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
     color: inherit;
 }
 
@@ -70,21 +59,20 @@
         width: auto;
     }
 
-    .nav::before {
-        top: var(--s-3);
-        right: 0;
-        bottom: auto;
-        left: 0;
-        width: auto;
-        height: 1px;
-    }
-
     .nav ::deep .nav__link {
-        padding: var(--s-5) var(--s-3) var(--s-2);
+        padding: var(--s-4) var(--s-3) var(--s-2);
     }
 
     .nav ::deep .nav__link::after {
-        top: var(--s-3);
+        top: 0;
         left: 50%;
+        width: 24px;
+        height: 2px;
+        transform: translateX(-50%) scaleX(0);
+        border-radius: 0 0 1px 1px;
+    }
+
+    .nav ::deep .nav__link--active::after {
+        transform: translateX(-50%) scaleX(1);
     }
 }
