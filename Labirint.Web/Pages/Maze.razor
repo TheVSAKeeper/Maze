@@ -54,10 +54,7 @@
 
                 <div class="field-frame">
                     <div class="field">
-                        <Animation Delay="@Delay.None"
-                                   Effect="AnimationService.AnimationEffect"
-                                   IterationCount="1"
-                                   Speed="TimeSpan.FromMilliseconds(200.0)">
+                        <div class="maze-anim @AnimationService.EffectClass">
                             <CascadingValue Value="_renderParameter">
                                 <TouchInterceptor @ref="_touchInterceptor">
                                     <MazeFloor @ref="_mazeFloor" />
@@ -82,7 +79,7 @@
                                 <img alt="Бегун"
                                      src="images/runner.png"
                                      style="position:absolute;
-                                         z-index: 100;
+                                         z-index: 4;
                                          left: @(drawPosition.X)px;
                                      top: @(drawPosition.Y)px;
                                      width: @(entitySize)px;
@@ -95,7 +92,7 @@
                                 <div class="ruler ruler--column t-data"
                                      style="left: @(drawPosition.X + entitySize / 2)px">@(runner.Position.X + 1)</div>
                             }
-                        </Animation>
+                        </div>
                     </div>
                 </div>
 
