@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Components;
 
 namespace Labirint.Web.Components.Base;
 
-public abstract class MazeComponent : RenderComponent
+public abstract class MazeComponent : RenderComponent, IDisposable
 {
     protected ElementReference CanvasRef;
 
-    private Canvas2DContext _context = null!;
+    private Canvas2DContext? _context;
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
@@ -26,6 +26,12 @@ public abstract class MazeComponent : RenderComponent
     protected Vision Vision { get; private set; } = null!;
 
     protected abstract string CanvasId { get; }
+
+    public void Dispose()
+    {
+        _context?.Dispose();
+        GC.SuppressFinalize(this);
+    }
 
     protected virtual void OnParametersSetInner()
     {
@@ -55,7 +61,7 @@ public abstract class MazeComponent : RenderComponent
         OnParametersSetInner();
     }
 
-    protected override async Task OnRenderAsyncInner()
+    protected override Task OnRenderAsyncInner()
     {
         DrawSequence drawSequence = new();
         drawSequence.ClearRect(0, 0, CanvasWidth, CanvasHeight);
@@ -69,13 +75,19 @@ public abstract class MazeComponent : RenderComponent
             }
         }
 
-        await _context.DrawSequenceAsync(drawSequence);
+        _context?.Draw(drawSequence);
+
+        return Task.CompletedTask;
     }
 
-    protected override async Task OnFirstRenderAsyncInner()
+    protected override Task OnFirstRenderAsyncInner()
     {
-        var contextRef = await JSRuntime.InvokeAsync<IJSObjectReference>("canvasHelper.getContext2D", CanvasRef);
-        _context = new(contextRef, JSRuntime);
+        var runtime = (IJSInProcessRuntime)JSRuntime;
+        var contextRef = runtime.Invoke<IJSInProcessObjectReference>("canvasHelper.getContext2D", CanvasRef);
+
+        _context = new(contextRef, runtime);
+
+        return Task.CompletedTask;
     }
 
     protected abstract void DrawInner(int x, int y, DrawSequence sequence);
