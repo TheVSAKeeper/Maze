@@ -5,7 +5,7 @@ namespace Labirint.Web.Components.Ui;
 
 public partial class ColorField
 {
-    private const string DefaultRgb = "#8b0000";
+    private const string DefaultRgb = "#000000";
 
     private readonly string _pickerId = $"cf-picker-{Guid.NewGuid():N}";
     private readonly string _hexId = $"cf-hex-{Guid.NewGuid():N}";
@@ -20,6 +20,9 @@ public partial class ColorField
 
     [Parameter]
     public string Value { get; set; } = DefaultRgb;
+
+    [Parameter]
+    public string FallbackValue { get; set; } = DefaultRgb;
 
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
@@ -54,8 +57,9 @@ public partial class ColorField
             }
 
             _isRepaired = true;
-            _rgb = DefaultRgb;
-            _alpha = byte.MaxValue;
+            TryParse(FallbackValue, out string fallbackRgb, out byte fallbackAlpha);
+            _rgb = fallbackRgb;
+            _alpha = fallbackAlpha;
 
             await CommitAsync();
             return;
