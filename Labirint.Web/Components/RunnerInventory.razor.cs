@@ -1,5 +1,7 @@
 ﻿using Labirint.Web.Common.Animation;
 using Labirint.Web.Common.Control.Schemes;
+using Labirint.Web.Components.Dialogs;
+using Labirint.Web.Services.Dialogs;
 using Microsoft.AspNetCore.Components;
 
 namespace Labirint.Web.Components;
@@ -7,8 +9,6 @@ namespace Labirint.Web.Components;
 public partial class RunnerInventory : RenderComponent, IDisposable
 {
     private Dictionary<Item, AnimatedStack> _stackCache = new();
-    private bool _showDescription;
-    private Item? _currentItem;
     private Item? _pendingFlight;
     private Item? _pendingCast;
     private Item? _castingItem;
@@ -26,6 +26,9 @@ public partial class RunnerInventory : RenderComponent, IDisposable
 
     [Inject]
     public required PickupFlightService PickupFlight { get; set; }
+
+    [Inject]
+    public required DialogService DialogService { get; set; }
 
     private AnimatedStack? WaitItem { get; set; }
 
@@ -188,18 +191,29 @@ public partial class RunnerInventory : RenderComponent, IDisposable
         }
     }
 
-    private async Task ShowDescription(Item item)
+    private async Task ShowLoreAsync(Item item)
     {
-        _showDescription = true;
-        _currentItem = item;
-        await ForceRenderAsync();
-    }
+        if (_stackCache.TryGetValue(item, out var animatedStack) == false)
+        {
+            return;
+        }
 
-    private async Task HideDescription()
-    {
-        _showDescription = false;
-        _currentItem = null;
-        await ForceRenderAsync();
+        DialogParameters parameters = new()
+        {
+            [nameof(ItemLoreDialog.Item)] = item,
+            [nameof(ItemLoreDialog.Count)] = animatedStack.Stack.Count,
+            [nameof(ItemLoreDialog.IsInfinite)] = animatedStack.Stack.IsInfinite,
+        };
+
+        var result = await DialogService.ShowAsync<ItemLoreDialog>(item.DisplayName, parameters, new DialogOptions
+        {
+            Width = DialogWidth.Large,
+        });
+
+        if (result.GetValue<bool>())
+        {
+            OnClicked(item);
+        }
     }
 
     private void OnClicked(Item item)

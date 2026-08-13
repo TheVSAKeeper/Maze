@@ -152,30 +152,22 @@
     max-width: 100%;
     overflow: hidden;
     padding: var(--s-1) calc(var(--s-1) * 1.5);
+    cursor: pointer;
+    transition: color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
     white-space: nowrap;
+    text-decoration: underline dotted color-mix(in srgb, var(--gold) 65%, transparent);
+    text-underline-offset: 3px;
     text-overflow: ellipsis;
     color: var(--text);
+    border: 0;
     border-radius: var(--r-1);
     background: color-mix(in srgb, var(--bg-raised) 80%, transparent);
 }
 
-.item-description {
-    position: fixed;
-    z-index: var(--z-sheet);
-    bottom: calc(var(--s-8) * 3);
-    left: 50%;
-    width: max-content;
-    max-width: min(32rem, calc(100vw - var(--s-6)));
-    padding: var(--s-4);
-    transform: translateX(-50%);
-    border: 1px solid var(--border);
-    border-radius: var(--r-3);
+.inventory-item .item-name:hover,
+.inventory-item .item-name:focus-visible {
+    color: var(--gold);
     background: var(--bg-raised);
-}
-
-.item-description p {
-    margin: 0;
-    text-align: justify;
 }
 
 .keyboard-button {
