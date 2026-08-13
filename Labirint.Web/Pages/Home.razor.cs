@@ -4,6 +4,8 @@ namespace Labirint.Web.Pages;
 
 public partial class Home
 {
+    private const int HeroSeed = 20250813;
+
     private readonly IReadOnlyList<string> _facts =
     [
         "Первый известный лабиринт был построен в Египте около 4 тысяч лет назад. Он был частью комплекса пирамид в Хаваре.",

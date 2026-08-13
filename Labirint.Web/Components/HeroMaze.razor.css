@@ -1,0 +1,51 @@
+﻿.hero-maze {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.hero-maze__floor {
+    fill: var(--bg-sunken);
+    stroke: var(--border);
+    stroke-width: 1;
+}
+
+.hero-maze__exit {
+    fill: var(--accent);
+    opacity: 0;
+    animation: hero-maze-exit var(--dur-3) var(--ease) 900ms forwards;
+}
+
+.hero-maze__start {
+    fill: var(--gold);
+    opacity: 0;
+    animation: hero-maze-exit var(--dur-3) var(--ease) 760ms forwards;
+}
+
+.hero-maze__walls line {
+    stroke: var(--wall);
+    stroke-width: 3;
+    stroke-linecap: square;
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: hero-maze-draw var(--dur-2) var(--ease) forwards;
+}
+
+@keyframes hero-maze-draw {
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes hero-maze-exit {
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-maze__walls line {
+        stroke-dashoffset: 0;
+    }
+
+    .hero-maze__exit,
+    .hero-maze__start {
+        opacity: 1;
+    }
+}
