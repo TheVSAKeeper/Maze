@@ -8,6 +8,7 @@
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <EmccMaximumHeapSize>268435456</EmccMaximumHeapSize>
+    <InvariantTimezone>true</InvariantTimezone>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(GHPages)' == 'true'">
