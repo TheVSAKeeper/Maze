@@ -15,7 +15,7 @@
     background: var(--bg-sunken);
 }
 
-.inventory-item.score-panel {
+.inventory-item.score {
     background: color-mix(in srgb, var(--gold) 25%, var(--bg-sunken));
 }
 

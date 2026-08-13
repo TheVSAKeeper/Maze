@@ -16,13 +16,18 @@
     <div class="header-panel">
         @if (IsInit)
         {
-            <div class="score">
+            <div class="stat">
                 <span class="t-label">Счёт</span>
-                <span class="score__value ui-row ui-row--2">
+                <span class="stat__value ui-row ui-row--2">
                     <Icon Name="@IconCatalog.Coin"
                           Size="26" />
-                    <span class="t-data score__number">@_labyrinth.Runner.Score.ToString("N0")</span>
+                    <span class="t-data stat__number">@_labyrinth.Runner.Score.ToString("N0")</span>
                 </span>
+            </div>
+
+            <div class="stat">
+                <span class="t-label">Ходов</span>
+                <span class="t-data stat__number stat__number--dim">@_moveCount</span>
             </div>
         }
 
@@ -40,59 +45,58 @@
     {
         <div class="game">
             <div class="main-panel">
-                <div class="ability-panel">
-                    <RunnerAbilities Abilities="@_labyrinth.Runner.Abilities" />
-                </div>
+                @if (_labyrinth.Runner.Abilities.Any(ability => ability.Active))
+                {
+                    <div class="ability-panel">
+                        <RunnerAbilities Abilities="@_labyrinth.Runner.Abilities" />
+                    </div>
+                }
 
-                <div class="field">
-                    <Animation Delay="@Delay.None"
-                               Effect="AnimationService.AnimationEffect"
-                               IterationCount="1"
-                               Speed="TimeSpan.FromMilliseconds(200.0)">
-                        <CascadingValue Value="_renderParameter">
-                            <TouchInterceptor @ref="_touchInterceptor">
-                                <MazeFloor @ref="_mazeFloor" />
-                                <MazeWalls @ref="_mazeWalls" />
-                                <MazeEntities @ref="_mazeEntities" />
-                            </TouchInterceptor>
-                        </CascadingValue>
+                <div class="field-frame">
+                    <div class="field">
+                        <Animation Delay="@Delay.None"
+                                   Effect="AnimationService.AnimationEffect"
+                                   IterationCount="1"
+                                   Speed="TimeSpan.FromMilliseconds(200.0)">
+                            <CascadingValue Value="_renderParameter">
+                                <TouchInterceptor @ref="_touchInterceptor">
+                                    <MazeFloor @ref="_mazeFloor" />
+                                    <MazeWalls @ref="_mazeWalls" />
+                                    <MazeEntities @ref="_mazeEntities" />
+                                </TouchInterceptor>
+                            </CascadingValue>
 
-                        @{
-                            var runner = _labyrinth.Runner;
-                            var scale = 0.9;
-                            var position = _vision.GetDraw(runner.Position);
-                            var (entitySize, drawPosition) = AlignmentHelper.GetAlignmentParameters(_boxSize, _wallWidth, scale, position, Alignment.Center);
+                            @{
+                                var runner = _labyrinth.Runner;
+                                var scale = 0.9;
+                                var position = _vision.GetDraw(runner.Position);
+                                var (entitySize, drawPosition) = AlignmentHelper.GetAlignmentParameters(_boxSize, _wallWidth, scale, position, Alignment.Center);
 
-                            _runnerScaleX = runner.LastDirection switch
-                            {
-                                Direction.Right => 1,
-                                Direction.Left => -1,
-                                _ => _runnerScaleX,
-                            };
+                                _runnerScaleX = runner.LastDirection switch
+                                {
+                                    Direction.Right => 1,
+                                    Direction.Left => -1,
+                                    _ => _runnerScaleX,
+                                };
 
-                            <div class="coord t-data"
-                                 style="position:absolute;
-                                z-index: 100;
-                                left: @(-30)px;
-                            top: @(drawPosition.Y - 4)px;">@(runner.Position.Y + 1)</div>
+                                <img alt="Бегун"
+                                     src="images/runner.png"
+                                     style="position:absolute;
+                                         z-index: 100;
+                                         left: @(drawPosition.X)px;
+                                     top: @(drawPosition.Y)px;
+                                     width: @(entitySize)px;
+                                     height: @(entitySize)px;
+                                     transform: scaleX(@_runnerScaleX) scaleY(1);" />
 
-                            <div class="coord t-data"
-                                 style="position:absolute;
-                                z-index: 100;
-                                left: @(drawPosition.X + 4)px;
-                            top: @(-30)px;">@(runner.Position.X + 1)</div>
+                                <div class="ruler ruler--row t-data"
+                                     style="top: @(drawPosition.Y + entitySize / 2)px">@(runner.Position.Y + 1)</div>
 
-                            <img alt="Бегун"
-                                 src="images/runner.png"
-                                 style="position:absolute;
-                                     z-index: 100;
-                                     left: @(drawPosition.X)px;
-                                 top: @(drawPosition.Y)px;
-                                 width: @(entitySize)px;
-                                 height: @(entitySize)px;
-                                 transform: scaleX(@_runnerScaleX) scaleY(1);" />
-                        }
-                    </Animation>
+                                <div class="ruler ruler--column t-data"
+                                     style="left: @(drawPosition.X + entitySize / 2)px">@(runner.Position.X + 1)</div>
+                            }
+                        </Animation>
+                    </div>
                 </div>
 
                 <div class="inventory-panel">
@@ -118,7 +122,7 @@
      role="dialog"
      tabindex="-1">
     <div class="sheet__head ui-row ui-row--between">
-        <span class="t-display-m">Параметры:</span>
+        <span class="t-display-m">Параметры</span>
         <IconButton Icon="@IconCatalog.Close"
                     OnClick="CloseSettings"
                     Title="Закрыть параметры" />
@@ -131,8 +135,9 @@
                          Seed="@Seed"
                          Size="@_originalSize" />
 
-        <div class="ui-stack ui-stack--1">
+        <div class="ui-stack ui-stack--2 param">
             <NumberField @bind-Value="_originalSize"
+                         Class="param__number"
                          Label="Размер"
                          Max="MaxSize"
                          Min="MinSize" />
@@ -142,8 +147,9 @@
                     Step="1" />
         </div>
 
-        <div class="ui-stack ui-stack--1">
+        <div class="ui-stack ui-stack--2 param">
             <NumberField @bind-Value="_density"
+                         Class="param__number"
                          Label="Плотность"
                          Max="MaxDensity"
                          Min="MinDensity" />
@@ -156,7 +162,8 @@
         <Button FullWidth
                 OnClick="GenerateAsync"
                 StartIcon="@IconCatalog.Refresh"
-                Tone="UiTone.Accent">
+                Tone="UiTone.Accent"
+                Variant="UiVariant.Filled">
             Генерировать
         </Button>
 
