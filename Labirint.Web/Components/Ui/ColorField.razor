@@ -25,18 +25,20 @@
 
     @if (ShowAlpha)
     {
-        <div class="ui-row ui-row--between ui-row--2">
-            <label class="ui-field__label" for="@_alphaId">Прозрачность</label>
-            <span class="t-label t-data">@AlphaText</span>
-        </div>
+        <div class="ui-stack ui-stack--1 ui-color__alpha">
+            <div class="ui-row ui-row--between ui-row--2">
+                <label class="ui-field__label" for="@_alphaId">Прозрачность</label>
+                <span class="t-label t-data">@AlphaText</span>
+            </div>
 
-        <input id="@_alphaId"
-               class="ui-range"
-               type="range"
-               min="0"
-               max="1"
-               step="0.01"
-               value="@AlphaValue"
-               @oninput="OnAlphaChangedAsync" />
+            <input id="@_alphaId"
+                   class="ui-range"
+                   type="range"
+                   min="0"
+                   max="1"
+                   step="0.01"
+                   value="@AlphaValue"
+                   @oninput="OnAlphaChangedAsync" />
+        </div>
     }
 </div>

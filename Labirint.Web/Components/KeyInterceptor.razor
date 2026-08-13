@@ -1,6 +1,5 @@
 ﻿<Button FullWidth
         OnClick="() => _isPause = _isPause == false"
-        StartIcon="@(_isPause ? IconCatalog.Play : IconCatalog.Pause)"
-        Tone="@(_isPause ? UiTone.Success : UiTone.Warning)">
-    @(_isPause ? "Играть" : "Остановить")
+        StartIcon="@(_isPause ? IconCatalog.Play : IconCatalog.Pause)">
+    @(_isPause ? "Продолжить игру" : "Пауза")
 </Button>
