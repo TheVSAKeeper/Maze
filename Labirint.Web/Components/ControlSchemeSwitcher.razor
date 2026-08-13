@@ -1,10 +1,12 @@
-﻿<div class="t-label">Схемы управления:</div>
+﻿<div class="ui-stack ui-stack--2">
+    <div class="t-label">Схема управления</div>
 
-<RadioGroup @bind-Value="ControlSchemeService.CurrentScheme">
-    <div class="ui-stack ui-stack--1">
-        @foreach (var scheme in ControlSchemeService.AvailableSchemes)
-        {
-            <Radio Value="scheme">@scheme.Name</Radio>
-        }
-    </div>
-</RadioGroup>
+    <RadioGroup @bind-Value="ControlSchemeService.CurrentScheme">
+        <div class="ui-stack ui-stack--1">
+            @foreach (var scheme in ControlSchemeService.AvailableSchemes)
+            {
+                <Radio Value="scheme">@scheme.Name</Radio>
+            }
+        </div>
+    </RadioGroup>
+</div>

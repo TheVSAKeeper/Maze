@@ -26,3 +26,7 @@
 .ui-color__hex {
     min-width: 0;
 }
+
+.ui-color__alpha {
+    margin-top: var(--s-2);
+}

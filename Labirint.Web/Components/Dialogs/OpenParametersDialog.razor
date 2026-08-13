@@ -2,15 +2,16 @@
 
 <Dialog>
     <ChildContent>
-        <div class="ui-stack ui-stack--4">
+        <div class="ui-stack ui-stack--6">
             <ControlSchemeSwitcher @ref="_controlScheme" />
 
-            <div class="ui-row ui-row--4">
+            <div class="ui-stack">
                 <Switch @bind-Value="_parameters.IsSoundOn"
                         Label="Звук" />
                 @if (_parameters.IsSoundOn)
                 {
                     <Slider @bind-Value="_parameters.SoundVolume"
+                            Label="Громкость"
                             Max="1f"
                             Min="0f"
                             Step="0.01f"
@@ -19,22 +20,25 @@
                 }
             </div>
 
-            <div class="ui-stack ui-stack--2">
-                <div class="t-label">Цвет лабиринта</div>
-                <ColorField @bind-Value="_parameters.Color" />
-            </div>
+            <ColorField @bind-Value="_parameters.Color"
+                        FallbackValue="@LabyrinthParameters.DefaultColor"
+                        Label="Цвет лабиринта" />
         </div>
     </ChildContent>
     <Actions>
-        <Button OnClick="Cancel">Отмена</Button>
         <Button Disabled="_isProcessing"
                 OnClick="Reset"
-                Tone="UiTone.Warning">
+                Variant="UiVariant.Text">
             Сбросить
         </Button>
+
+        <div class="ui-spacer"></div>
+
+        <Button OnClick="Cancel">Отмена</Button>
         <Button Disabled="_isProcessing"
                 OnClick="UpdateAsync"
-                Tone="UiTone.Success">
+                Tone="UiTone.Accent"
+                Variant="UiVariant.Filled">
             @if (_isProcessing)
             {
                 <Spinner Size="18" />
