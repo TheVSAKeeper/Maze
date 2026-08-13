@@ -1,102 +1,54 @@
-﻿@using Labirint.Core.Interfaces
+﻿<div class="hero-maze">
+    <button aria-label="Показать другой лабиринт"
+            class="hero-maze__surface"
+            @onclick="Regenerate"
+            title="Другой лабиринт"
+            type="button">
+        <svg aria-hidden="true"
+             class="hero-maze__grid"
+             preserveAspectRatio="xMidYMid meet"
+             viewBox="-1 -1 @(Side + 2) @(Side + 2)"
+             xmlns="http://www.w3.org/2000/svg">
+            <rect class="hero-maze__floor"
+                  height="@Side"
+                  width="@Side"
+                  x="0"
+                  y="0" />
 
-<svg class="hero-maze"
-     aria-hidden="true"
-     preserveAspectRatio="xMidYMid meet"
-     viewBox="-1 -1 @(Side + 2) @(Side + 2)"
-     xmlns="http://www.w3.org/2000/svg">
-    <rect class="hero-maze__floor"
-          x="0"
-          y="0"
-          width="@Side"
-          height="@Side" />
+            <g @key="_run.Seed"
+               style="@RunStyle">
+                <rect class="hero-maze__exit @(_run.IsSolved ? "hero-maze__exit--found" : null)"
+                      height="@(Cell - 10)"
+                      width="@(Cell - 10)"
+                      x="@(ExitX * Cell + 5)"
+                      y="@(ExitY * Cell + 5)" />
 
-    <rect class="hero-maze__exit"
-          x="@(_exit.X * Cell + 5)"
-          y="@(_exit.Y * Cell + 5)"
-          width="@(Cell - 10)"
-          height="@(Cell - 10)" />
+                <g class="hero-maze__walls">
+                    @for (var index = 0; index < _run.Walls.Count; index++)
+                    {
+                        var wall = _run.Walls[index];
 
-    <circle class="hero-maze__start"
-            cx="@(Cell / 2)"
-            cy="@(Cell / 2)"
-            r="4" />
+                        <line style="animation-delay: @(index * WallDrawStep)ms"
+                              x1="@wall.X1"
+                              y1="@wall.Y1"
+                              x2="@wall.X2"
+                              y2="@wall.Y2" />
+                    }
+                </g>
 
-    <g class="hero-maze__walls">
-        @for (var index = 0; index < _walls.Count; index++)
-        {
-            var wall = _walls[index];
+                <path class="hero-maze__trail"
+                      d="@_run.TrailPath" />
 
-            <line style="animation-delay: @(index * 9)ms"
-                  x1="@wall.X1"
-                  y1="@wall.Y1"
-                  x2="@wall.X2"
-                  y2="@wall.Y2" />
-        }
-    </g>
-</svg>
+                <path class="hero-maze__tail"
+                      d="@_run.TrailPath" />
 
-@code {
+                <circle class="hero-maze__runner"
+                        cx="0"
+                        cy="0"
+                        r="4" />
+            </g>
+        </svg>
+    </button>
 
-    private const int Size = 13;
-    private const int Cell = 24;
-    private const int Side = Size * Cell;
-
-    private readonly List<(int X1, int Y1, int X2, int Y2)> _walls = [];
-
-    private Position _exit;
-    private int? _appliedSeed;
-
-    [Parameter]
-    public int Seed { get; set; }
-
-    protected override void OnParametersSet()
-    {
-        if (_appliedSeed == Seed)
-        {
-            return;
-        }
-
-        _appliedSeed = Seed;
-        _walls.Clear();
-
-        Labyrinth labyrinth = new(new FixedRandom(Seed));
-        labyrinth.Init(Size, Size, 42, []);
-
-        _exit = (Size / 2, Size - 1);
-
-        for (var x = 0; x < Size; x++)
-        {
-            for (var y = 0; y < Size; y++)
-            {
-                var tile = labyrinth[x, y];
-
-                if (tile.ContainsWall(Direction.Top))
-                {
-                    _walls.Add((x * Cell, y * Cell, (x + 1) * Cell, y * Cell));
-                }
-
-                if (tile.ContainsWall(Direction.Left))
-                {
-                    _walls.Add((x * Cell, y * Cell, x * Cell, (y + 1) * Cell));
-                }
-
-                if (x == Size - 1 && tile.ContainsWall(Direction.Right))
-                {
-                    _walls.Add(((x + 1) * Cell, y * Cell, (x + 1) * Cell, (y + 1) * Cell));
-                }
-
-                if (y == Size - 1 && tile.ContainsWall(Direction.Bottom))
-                {
-                    _walls.Add((x * Cell, (y + 1) * Cell, (x + 1) * Cell, (y + 1) * Cell));
-                }
-            }
-        }
-    }
-
-    private sealed class FixedRandom(int seed) : IRandom
-    {
-        public Random Generator { get; } = new(seed);
-    }
-
-}
+    <p class="t-label hero-maze__caption">Зерно @_run.Seed</p>
+</div>
