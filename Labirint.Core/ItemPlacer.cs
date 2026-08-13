@@ -41,7 +41,7 @@ public class ItemPlacer(IRandom seeder, Action<int, int, WorldItem> placeItemAct
 
         foreach (var item in placeableItems)
         {
-            var count = item.GetItemsForPlace(_parameters).Count();
+            var count = item.CalculateCountInMaze(_parameters.Width, _parameters.Height, _parameters.Density);
             _itemCounts[item] = count;
             totalItemsCount += count;
         }

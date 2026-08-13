@@ -89,29 +89,23 @@ public class Tile(Labyrinth labyrinth)
             return false;
         }
 
-        List<TileFeature> newFeatures = [];
-
-        foreach (var feature in Features)
+        for (var index = 0; index < Features.Count; index++)
         {
-            if (feature.TryPickUp(labyrinth))
-            {
-                item = feature;
+            var feature = Features[index];
 
-                if (feature.RemoveAfterSuccessPickUp)
-                {
-                }
-                else
-                {
-                    newFeatures.Add(feature);
-                }
-            }
-            else
+            if (feature.TryPickUp(labyrinth) == false)
             {
-                newFeatures.Add(feature);
+                continue;
+            }
+
+            item = feature;
+
+            if (feature.RemoveAfterSuccessPickUp)
+            {
+                Features.RemoveAt(index);
+                index--;
             }
         }
-
-        Features = newFeatures;
 
         return item != null;
     }
