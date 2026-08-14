@@ -42,7 +42,7 @@ main pre {
 
 @media (min-width: 900px) {
     main {
-        margin-left: max(var(--rail-size), calc((100vw - var(--content-max)) / 2));
+        margin-left: calc(var(--rail-size) + max(0px, (100vw - var(--rail-size) - var(--content-max)) / 2));
     }
 }
 
