@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 
 namespace Labirint.Web.Components.Ui;
 
-public partial class Sheet
+public partial class Sheet : IAsyncDisposable
 {
     private ElementReference _sheet;
     private bool _isTrapped;
@@ -27,6 +27,17 @@ public partial class Sheet
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
 
+    public async ValueTask DisposeAsync()
+    {
+        if (_isTrapped)
+        {
+            _isTrapped = false;
+            await ReleaseAsync();
+        }
+
+        GC.SuppressFinalize(this);
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender || _isTrapped == IsOpen)
@@ -38,7 +49,21 @@ public partial class Sheet
 
         await (IsOpen
             ? JSRuntime.InvokeVoidAsync("labirintDialog.trap", _sheet)
-            : JSRuntime.InvokeVoidAsync("labirintDialog.release"));
+            : ReleaseAsync());
+    }
+
+    private async ValueTask ReleaseAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("labirintDialog.release", _sheet);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (TaskCanceledException)
+        {
+        }
     }
 
     private Task CloseAsync()
