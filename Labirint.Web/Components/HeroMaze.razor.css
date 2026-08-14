@@ -61,8 +61,12 @@
     stroke-linejoin: round;
     stroke-dasharray: var(--trail-length);
     stroke-dashoffset: var(--trail-length);
-    opacity: 0.18;
+    opacity: 0.3;
     animation: hero-maze-trail var(--trail-duration) linear var(--trail-delay) forwards;
+}
+
+[data-theme="light"] .hero-maze__trail {
+    opacity: 0.5;
 }
 
 .hero-maze__tail {
