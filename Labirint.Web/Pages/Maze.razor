@@ -35,7 +35,6 @@
 
         <IconButton Icon="@IconCatalog.Settings"
                     OnClick="OpenSettings"
-                    @ref="_settingsButton"
                     Size="22"
                     Title="Параметры"
                     Variant="UiVariant.Outlined" />
@@ -115,6 +114,7 @@
 
 <div aria-hidden="@(_isSettingsOpen == false)"
      aria-label="Параметры"
+     aria-modal="true"
      class="sheet @(_isSettingsOpen ? "sheet--open" : null)"
      @onkeydown="OnSettingsKeyDown"
      @ref="_settingsSheet"

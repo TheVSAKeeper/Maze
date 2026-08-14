@@ -26,8 +26,7 @@ public partial class Maze : IAsyncDisposable
     private bool _isContinueGame;
     private bool _isInit;
     private bool _isSettingsOpen;
-    private bool _isSettingsFocusPending;
-    private bool _isSettingsButtonFocusPending;
+    private bool _isSettingsTrapped;
     private bool _isRegenerationPending;
     private bool _isGenerating;
 
@@ -36,7 +35,6 @@ public partial class Maze : IAsyncDisposable
     private int? _appliedDensity;
 
     private ElementReference _settingsSheet;
-    private IconButton? _settingsButton;
 
     private int _originalSize;
     private int _density;
@@ -78,6 +76,9 @@ public partial class Maze : IAsyncDisposable
 
     [Inject]
     private DialogService DialogService { get; set; } = null!;
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = null!;
 
     // Проверка на null и инициализацию (дополнительная проверка, если флаг выставили в true, а значение у не null полей не выставили)
     private bool IsInit => _isInit && _labyrinth != null && _seeder != null && _vision != null && _renderParameter != null;
@@ -141,16 +142,13 @@ public partial class Maze : IAsyncDisposable
     {
         if (firstRender == false)
         {
-            if (_isSettingsFocusPending)
+            if (_isSettingsOpen != _isSettingsTrapped)
             {
-                _isSettingsFocusPending = false;
-                await _settingsSheet.FocusAsync();
-            }
+                _isSettingsTrapped = _isSettingsOpen;
 
-            if (_isSettingsButtonFocusPending && _settingsButton != null)
-            {
-                _isSettingsButtonFocusPending = false;
-                await _settingsButton.Element.FocusAsync();
+                await (_isSettingsOpen
+                    ? JSRuntime.InvokeVoidAsync("labirintDialog.trap", _settingsSheet)
+                    : JSRuntime.InvokeVoidAsync("labirintDialog.release"));
             }
 
             if (_isRegenerationPending)
@@ -187,7 +185,6 @@ public partial class Maze : IAsyncDisposable
     private void OpenSettings()
     {
         _isSettingsOpen = true;
-        _isSettingsFocusPending = true;
     }
 
     private void CloseSettings()
@@ -198,8 +195,6 @@ public partial class Maze : IAsyncDisposable
         }
 
         _isSettingsOpen = false;
-        _isSettingsFocusPending = false;
-        _isSettingsButtonFocusPending = true;
     }
 
     private void OnSettingsKeyDown(KeyboardEventArgs args)

@@ -228,7 +228,8 @@
     position: fixed;
     z-index: calc(var(--z-sheet) - 1);
     inset: 0;
-    background: color-mix(in srgb, var(--bg-sunken) 72%, transparent);
+    background: color-mix(in srgb, var(--bg-sunken) 82%, transparent);
+    backdrop-filter: blur(3px);
 }
 
 .sheet {
@@ -241,14 +242,16 @@
     visibility: hidden;
     flex-direction: column;
     width: min(380px, 100%);
-    transition: transform var(--dur-2) var(--ease), visibility var(--dur-2) var(--ease);
+    transition: transform var(--dur-2) var(--ease), visibility 0s linear var(--dur-2);
     border-left: 1px solid var(--border);
     background: var(--bg-raised);
+    box-shadow: var(--shadow-sheet);
     transform: translateX(100%);
 }
 
 .sheet--open {
     visibility: visible;
+    transition: transform var(--dur-2) var(--ease), visibility 0s;
     transform: translateX(0);
 }
 

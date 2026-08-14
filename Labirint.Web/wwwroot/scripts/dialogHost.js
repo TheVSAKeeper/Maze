@@ -41,8 +41,14 @@
             trapped = element;
             document.body.style.overflow = 'hidden';
 
-            const reachable = items();
-            (reachable.length > 0 ? reachable[0] : element).focus();
+            requestAnimationFrame(() => {
+                if (trapped !== element) {
+                    return;
+                }
+
+                const reachable = items();
+                (reachable.length > 0 ? reachable[0] : element).focus();
+            });
         },
         release: () => {
             trapped = null;
