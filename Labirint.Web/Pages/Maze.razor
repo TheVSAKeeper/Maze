@@ -142,7 +142,8 @@
                          Label="Размер"
                          Max="MaxSize"
                          Min="MinSize" />
-            <Slider @bind-Value="_originalSize"
+            <Slider AriaLabel="Размер"
+                    @bind-Value="_originalSize"
                     Max="MaxSize"
                     Min="MinSize"
                     Step="1" />
@@ -154,7 +155,8 @@
                          Label="Плотность"
                          Max="MaxDensity"
                          Min="MinDensity" />
-            <Slider @bind-Value="_density"
+            <Slider AriaLabel="Плотность"
+                    @bind-Value="_density"
                     Max="MaxDensity"
                     Min="MinDensity"
                     Step="1" />

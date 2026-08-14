@@ -25,6 +25,20 @@
     object-fit: contain;
 }
 
+.inventory-item .item-use {
+    position: absolute;
+    display: block;
+    padding: 0;
+    cursor: pointer;
+    border: 0;
+    background: none;
+    inset: 0;
+}
+
+.inventory-item .item-use:focus-visible {
+    outline-offset: -2px;
+}
+
 .inventory-item .item-flow {
     position: absolute;
     top: 0;
@@ -180,6 +194,7 @@
     width: 32px;
     height: 32px;
     margin-top: var(--s-1);
+    padding: 0;
     cursor: pointer;
     transition: transform var(--dur-2) var(--ease), background var(--dur-1) var(--ease);
     color: var(--text);

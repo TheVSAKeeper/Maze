@@ -11,6 +11,10 @@
             continue;
         }
 
+        var useLabel = stack.IsInfinite
+            ? $"Использовать: {item.DisplayName}. В инвентаре {animatedStack.DisplayCount}, предел не ограничен"
+            : $"Использовать: {item.DisplayName}. В инвентаре {animatedStack.DisplayCount} из {stack.MaxCount}";
+
         <div class="inventory-item-container">
             <div class="inventory-item
                             @(stack.IsInfinite ? " score" : string.Empty)
@@ -18,10 +22,15 @@
                  data-item="@item.Name"
                  style="--animate-duration: @(animatedStack.GetDuration())ms; --animate-delay: @(animatedStack.GetDelay())ms">
 
-                <img alt="@item.DisplayName"
-                     @onclick="() => OnClicked(item)"
-                     src="@item.Icon"
-                     title="Использовать предмет">
+                <button aria-label="@useLabel"
+                        class="item-use"
+                        @onclick="() => OnClicked(item)"
+                        title="Использовать предмет"
+                        type="button">
+                    <img alt=""
+                         aria-hidden="true"
+                         src="@item.Icon">
+                </button>
                 <img alt=""
                      aria-hidden="true"
                      class="item-flow"
@@ -32,10 +41,12 @@
                         type="button">
                     @item.DisplayName
                 </button>
-                <div class="count t-data"
-                     title="Текущие количество в инвентаре">@animatedStack.DisplayCount</div>
-                <div class="max-count t-data"
-                     title="Максимальной количество в инвентаре">@(stack.IsInfinite ? "∞" : stack.MaxCount)</div>
+                <div aria-hidden="true"
+                     class="count t-data"
+                     title="Текущее количество в инвентаре">@animatedStack.DisplayCount</div>
+                <div aria-hidden="true"
+                     class="max-count t-data"
+                     title="Максимальное количество в инвентаре">@(stack.IsInfinite ? "∞" : stack.MaxCount)</div>
             </div>
 
             @{
@@ -43,13 +54,16 @@
 
                 if (control != null)
                 {
-                    <div class="keyboard-button"
-                         @onclick="() => OnClicked(item)"
-                         title="Использовать предмет">
+                    <button aria-hidden="true"
+                            class="keyboard-button"
+                            @onclick="() => OnClicked(item)"
+                            tabindex="-1"
+                            title="Использовать предмет"
+                            type="button">
                         <span>
                             @ControlScheme.GetActivateKey(control).DisplaySymbol
                         </span>
-                    </div>
+                    </button>
                 }
             }
         </div>

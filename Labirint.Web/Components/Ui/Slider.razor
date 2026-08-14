@@ -24,7 +24,7 @@
            max="@ToText(Max)"
            step="@ToText(Step)"
            value="@ToText(Value)"
-           aria-label="@Label"
+           aria-label="@(string.IsNullOrEmpty(Label) ? AriaLabel : Label)"
            @oninput="OnInputAsync" />
 </div>
 
@@ -49,6 +49,9 @@
 
     [Parameter]
     public string? Label { get; set; }
+
+    [Parameter]
+    public string? AriaLabel { get; set; }
 
     [Parameter]
     public string? ValueLabelFormat { get; set; }
