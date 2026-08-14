@@ -69,7 +69,7 @@
     isolation: isolate;
     border: 1px solid var(--border-strong);
     border-radius: var(--r-1);
-    background: var(--bg-sunken);
+    background: radial-gradient(circle at 50% 50%, transparent 45%, color-mix(in srgb, var(--void-deep) 55%, transparent)), var(--void);
     box-shadow: var(--shadow-pit);
 }
 
