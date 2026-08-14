@@ -2,6 +2,8 @@
     const storageKey = 'IsDarkMod';
     const barColors = { dark: '#14110d', light: '#e9e2d2' };
 
+    const isSystemDark = () => window.matchMedia('(prefers-color-scheme: light)').matches === false;
+
     const apply = theme => {
         document.documentElement.setAttribute('data-theme', theme);
 
@@ -14,14 +16,15 @@
 
     return {
         apply: apply,
+        isSystemDark: isSystemDark,
         applyStored: () => {
-            let isDark = true;
+            let isDark;
 
             try {
                 const stored = localStorage.getItem(storageKey);
-                isDark = stored === null ? true : JSON.parse(stored) !== false;
+                isDark = stored === null ? isSystemDark() : JSON.parse(stored) !== false;
             } catch {
-                isDark = true;
+                isDark = isSystemDark();
             }
 
             apply(isDark ? 'dark' : 'light');

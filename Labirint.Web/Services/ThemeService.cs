@@ -11,7 +11,7 @@ public sealed class ThemeService(IJSRuntime jsRuntime, ILocalStorageService loca
     public async Task InitializeAsync()
     {
         var isDark = await localStorage.GetItemAsync<bool?>(StorageKey);
-        IsDark = isDark ?? true;
+        IsDark = isDark ?? await jsRuntime.InvokeAsync<bool>("labirintTheme.isSystemDark");
         await ApplyAsync();
     }
 
