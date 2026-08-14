@@ -80,6 +80,9 @@ public partial class Maze : IAsyncDisposable
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
 
+    [Inject]
+    private MotionService MotionService { get; set; } = null!;
+
     // Проверка на null и инициализацию (дополнительная проверка, если флаг выставили в true, а значение у не null полей не выставили)
     private bool IsInit => _isInit && _labyrinth != null && _seeder != null && _vision != null && _renderParameter != null;
 
@@ -331,10 +334,11 @@ public partial class Maze : IAsyncDisposable
         }
 
         var direction = args.Direction;
+        var flightDuration = MotionService.IsReduced ? 0 : AnimatedStackExtensions.UseFlightDuration;
 
         RunSafe(async () =>
         {
-            await Task.Delay(AnimatedStackExtensions.UseFlightDuration);
+            await Task.Delay(flightDuration);
 
             if (_isExitFound)
             {

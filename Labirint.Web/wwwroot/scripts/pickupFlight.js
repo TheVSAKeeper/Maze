@@ -1,7 +1,7 @@
 ﻿window.labirintPickup = (() => {
     const findSlot = name => [...document.querySelectorAll('[data-item]')].find(slot => slot.dataset.item === name) ?? null;
 
-    const isMotionReduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMotionReduced = () => window.labirintPage.isMotionReduced();
 
     const start = (name, icon, duration, isReturned, attempt) => {
         const runner = document.querySelector('[data-runner]');
