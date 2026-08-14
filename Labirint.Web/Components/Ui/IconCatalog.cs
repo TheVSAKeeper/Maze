@@ -7,6 +7,7 @@ public static class IconCatalog
     public const string Home = "home";
     public const string Maze = "maze";
     public const string Settings = "settings";
+    public const string Gear = "gear";
     public const string Theme = "theme";
     public const string Share = "share";
     public const string Copy = "copy";
@@ -29,6 +30,7 @@ public static class IconCatalog
         [Home] = """<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>""",
         [Maze] = """<path d="M3 3h18v18H3z"/><path d="M7 3v7h10M3 14h7v7M14 21v-7h7"/>""",
         [Settings] = """<path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h7M15 17h5"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="13" cy="17" r="2"/>""",
+        [Gear] = """<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.6"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2m-2.64-6.36-1.41 1.41M7.05 16.95l-1.41 1.41m12.9 0-1.41-1.41M7.05 7.05 5.64 5.64"/>""",
         [Theme] = """<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/>""",
         [Share] = """<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.3 10.8 7.4-4.4M8.3 13.2l7.4 4.4"/>""",
         [Copy] = """<rect x="9" y="9" width="11" height="11" rx="1.5"/><path d="M6 15H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1"/>""",

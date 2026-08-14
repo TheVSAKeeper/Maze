@@ -36,7 +36,7 @@
         <IconButton Icon="@IconCatalog.Settings"
                     OnClick="OpenSettings"
                     Size="22"
-                    Title="Параметры"
+                    Title="Параметры лабиринта"
                     Variant="UiVariant.Outlined" />
     </div>
 
@@ -115,7 +115,7 @@
 }
 
 <div aria-hidden="@(_isSettingsOpen == false)"
-     aria-label="Параметры"
+     aria-label="Параметры лабиринта"
      aria-modal="true"
      class="sheet @(_isSettingsOpen ? "sheet--open" : null)"
      @onkeydown="OnSettingsKeyDown"
@@ -123,7 +123,7 @@
      role="dialog"
      tabindex="-1">
     <div class="sheet__head ui-row ui-row--between">
-        <span class="t-display-m">Параметры</span>
+        <span class="t-display-m">Параметры лабиринта</span>
         <IconButton Icon="@IconCatalog.Close"
                     OnClick="CloseSettings"
                     Title="Закрыть параметры" />
@@ -169,6 +169,8 @@
                 Variant="UiVariant.Filled">
             Генерировать
         </Button>
+
+        <hr class="ui-hairline" />
 
         <KeyInterceptor Inventory="_labyrinth?.Runner.Inventory"
                         @ref="_keyInterceptor" />
