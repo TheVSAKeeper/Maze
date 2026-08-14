@@ -27,7 +27,7 @@
 
             <div class="stat">
                 <span class="t-label">Ходов</span>
-                <span class="t-data stat__number stat__number--dim">@_moveCount</span>
+                <span class="t-data stat__number stat__number--dim">@_session.MoveCount</span>
             </div>
         }
 
@@ -44,63 +44,21 @@
     {
         <div class="game">
             <div class="main-panel">
-                @if (_labyrinth.Runner.Abilities.Any(ability => ability.Active))
+                @if (_session.Runner.Abilities.Any(ability => ability.Active))
                 {
                     <div class="ability-panel">
-                        <RunnerAbilities Abilities="@_labyrinth.Runner.Abilities" />
+                        <RunnerAbilities Abilities="@_session.Runner.Abilities" />
                     </div>
                 }
 
-                <div class="field-frame"
-                     style="--maze-size: @(_renderParameter!.RenderRange)px">
-                    <div class="field">
-                        <div class="maze-anim @AnimationService.EffectClass">
-                            <CascadingValue Value="_renderParameter">
-                                <TouchInterceptor @ref="_touchInterceptor">
-                                    <MazeFloor @ref="_mazeFloor" />
-                                    <MazeWalls @ref="_mazeWalls" />
-                                    <MazeEntities @ref="_mazeEntities" />
-                                </TouchInterceptor>
-                            </CascadingValue>
-
-                            @{
-                                var runner = _labyrinth.Runner;
-                                var scale = 0.9;
-                                var position = _vision.GetDraw(runner.Position);
-                                var (entitySize, drawPosition) = AlignmentHelper.GetAlignmentParameters(_boxSize, _wallWidth, scale, position, Alignment.Center);
-                                var renderRange = _renderParameter.RenderRange;
-
-                                _runnerScaleX = runner.LastDirection switch
-                                {
-                                    Direction.Right => 1,
-                                    Direction.Left => -1,
-                                    _ => _runnerScaleX,
-                                };
-
-                                <img alt="Бегун"
-                                     data-runner
-                                     src="images/runner.webp"
-                                     style="position:absolute;
-                                         z-index: 4;
-                                         left: calc(100% * @(drawPosition.X) / @renderRange);
-                                     top: calc(100% * @(drawPosition.Y) / @renderRange);
-                                     width: calc(100% * @entitySize / @renderRange);
-                                     height: calc(100% * @entitySize / @renderRange);
-                                     transform: scaleX(@_runnerScaleX) scaleY(1);" />
-
-                                <div class="ruler ruler--row t-data"
-                                     style="top: calc(100% * @(drawPosition.Y + entitySize / 2) / @renderRange)">@(runner.Position.Y + 1)</div>
-
-                                <div class="ruler ruler--column t-data"
-                                     style="left: calc(100% * @(drawPosition.X + entitySize / 2) / @renderRange)">@(runner.Position.X + 1)</div>
-                            }
-                        </div>
-                    </div>
-                </div>
+                <MazeField AnimationClass="@AnimationService.EffectClass"
+                           OnSwipe="OnSwipe"
+                           Parameters="_session.Parameters"
+                           @ref="_field" />
 
                 <div class="inventory-panel">
                     <RunnerInventory Interceptor="_keyInterceptor"
-                                     Inventory="_labyrinth.Runner.Inventory"
+                                     Inventory="_session.Runner.Inventory"
                                      @ref="_runnerInventory" />
                 </div>
             </div>
@@ -108,71 +66,52 @@
     }
 </div>
 
-@if (_isSettingsOpen)
-{
-    <div class="sheet-scrim"
-         @onclick="CloseSettings"></div>
-}
+<Sheet CloseTitle="Закрыть параметры"
+       IsOpen="_isSettingsOpen"
+       OnClose="CloseSettings"
+       Title="Параметры лабиринта">
+    <RandomGenerator Density="@_density"
+                     IsExitFound="@(_session?.IsExitFound ?? false)"
+                     @ref="_seeder"
+                     Seed="@Seed"
+                     Size="@_originalSize" />
 
-<div aria-hidden="@(_isSettingsOpen == false)"
-     aria-label="Параметры лабиринта"
-     aria-modal="true"
-     class="sheet @(_isSettingsOpen ? "sheet--open" : null)"
-     @onkeydown="OnSettingsKeyDown"
-     @ref="_settingsSheet"
-     role="dialog"
-     tabindex="-1">
-    <div class="sheet__head ui-row ui-row--between">
-        <span class="t-display-m">Параметры лабиринта</span>
-        <IconButton Icon="@IconCatalog.Close"
-                    OnClick="CloseSettings"
-                    Title="Закрыть параметры" />
+    <div class="ui-stack ui-stack--2 param">
+        <NumberField @bind-Value="_originalSize"
+                     Class="param__number"
+                     Label="Размер"
+                     Max="MaxSize"
+                     Min="MinSize" />
+        <Slider AriaLabel="Размер"
+                @bind-Value="_originalSize"
+                Max="MaxSize"
+                Min="MinSize"
+                Step="1" />
     </div>
 
-    <div class="sheet__body ui-stack ui-stack--5">
-        <RandomGenerator Density="@_density"
-                         IsExitFound="@_isExitFound"
-                         @ref="_seeder"
-                         Seed="@Seed"
-                         Size="@_originalSize" />
-
-        <div class="ui-stack ui-stack--2 param">
-            <NumberField @bind-Value="_originalSize"
-                         Class="param__number"
-                         Label="Размер"
-                         Max="MaxSize"
-                         Min="MinSize" />
-            <Slider AriaLabel="Размер"
-                    @bind-Value="_originalSize"
-                    Max="MaxSize"
-                    Min="MinSize"
-                    Step="1" />
-        </div>
-
-        <div class="ui-stack ui-stack--2 param">
-            <NumberField @bind-Value="_density"
-                         Class="param__number"
-                         Label="Плотность"
-                         Max="MaxDensity"
-                         Min="MinDensity" />
-            <Slider AriaLabel="Плотность"
-                    @bind-Value="_density"
-                    Max="MaxDensity"
-                    Min="MinDensity"
-                    Step="1" />
-        </div>
-
-        <Button FullWidth
-                OnClick="GenerateAsync"
-                StartIcon="@IconCatalog.Refresh"
-                Tone="UiTone.Accent"
-                Variant="UiVariant.Filled">
-            Генерировать
-        </Button>
-
-        <hr class="ui-hairline" />
-
-        <KeyInterceptor Inventory="_labyrinth?.Runner.Inventory"
-                        @ref="_keyInterceptor" />
+    <div class="ui-stack ui-stack--2 param">
+        <NumberField @bind-Value="_density"
+                     Class="param__number"
+                     Label="Плотность"
+                     Max="MaxDensity"
+                     Min="MinDensity" />
+        <Slider AriaLabel="Плотность"
+                @bind-Value="_density"
+                Max="MaxDensity"
+                Min="MinDensity"
+                Step="1" />
     </div>
-</div>
+
+    <Button FullWidth
+            OnClick="GenerateAsync"
+            StartIcon="@IconCatalog.Refresh"
+            Tone="UiTone.Accent"
+            Variant="UiVariant.Filled">
+        Генерировать
+    </Button>
+
+    <hr class="ui-hairline" />
+
+    <KeyInterceptor Inventory="_session?.Runner.Inventory"
+                    @ref="_keyInterceptor" />
+</Sheet>

@@ -3,15 +3,13 @@ using Labirint.Web.Common.Animation;
 using Labirint.Web.Common.Ui;
 using Labirint.Web.Components;
 using Labirint.Web.Components.Dialogs;
-using Labirint.Web.Components.Ui;
 using Labirint.Web.Parameters;
 using Labirint.Web.Services.Dialogs;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace Labirint.Web.Pages;
 
-public partial class Maze : IAsyncDisposable
+public partial class Maze : IDisposable
 {
     private const int MinSize = 1;
     private const int MaxSize = 500;
@@ -22,11 +20,8 @@ public partial class Maze : IAsyncDisposable
     private const int DefaultSize = 16;
     private const int DefaultDensity = 40;
 
-    private bool _isExitFound;
-    private bool _isContinueGame;
     private bool _isInit;
     private bool _isSettingsOpen;
-    private bool _isSettingsTrapped;
     private bool _isRegenerationPending;
     private bool _isGenerating;
 
@@ -34,30 +29,17 @@ public partial class Maze : IAsyncDisposable
     private int? _appliedSize;
     private int? _appliedDensity;
 
-    private ElementReference _settingsSheet;
-
     private int _originalSize;
     private int _density;
 
-    private int _boxSize;
-    private int _wallWidth;
-
-    private int _moveCount;
     private int _displayScore;
 
-    private int _runnerScaleX = 1;
-
-    private MazeFloor? _mazeFloor;
-    private MazeWalls? _mazeWalls;
-    private MazeEntities? _mazeEntities;
-    private MazeRenderParameters? _renderParameter;
+    private MazeField? _field;
     private KeyInterceptor? _keyInterceptor;
     private RunnerInventory? _runnerInventory;
 
-    private Labyrinth _labyrinth = null!;
+    private MazeSession _session = null!;
     private RandomGenerator _seeder = null!;
-    private Vision _vision = null!;
-    private TouchInterceptor? _touchInterceptor;
 
     [Parameter]
     public string? Seed { get; set; }
@@ -78,17 +60,13 @@ public partial class Maze : IAsyncDisposable
     private DialogService DialogService { get; set; } = null!;
 
     [Inject]
-    private IJSRuntime JSRuntime { get; set; } = null!;
-
-    [Inject]
     private MotionService MotionService { get; set; } = null!;
 
-    // Проверка на null и инициализацию (дополнительная проверка, если флаг выставили в true, а значение у не null полей не выставили)
-    private bool IsInit => _isInit && _labyrinth != null && _seeder != null && _vision != null && _renderParameter != null;
+    private bool IsInit => _isInit && _session is { IsReady: true };
 
     private bool IsBusy => IsInit == false || _isGenerating;
 
-    public ValueTask DisposeAsync()
+    public void Dispose()
     {
         GlobalParameters.LabyrinthChanged -= OnLabyrinthParametersChanged;
 
@@ -98,29 +76,21 @@ public partial class Maze : IAsyncDisposable
             _keyInterceptor.MoveKeyDown -= OnMoveKeyDown;
         }
 
-        if (_labyrinth != null)
+        if (_session != null)
         {
-            _labyrinth.RunnerMoved -= OnRunnerMoved;
-            _labyrinth.ExitFound -= OnExitFound;
-            _labyrinth.ItemPickedUp -= OnItemPickedUp;
-            _labyrinth.Runner.Inventory.ItemUsed -= OnItemUsed;
-            _labyrinth.Runner.Inventory.ScoreIncreased -= OnScoreIncreased;
-        }
-
-        if (_touchInterceptor != null)
-        {
-            _touchInterceptor.Moved -= OnMoved;
+            _session.Finished -= OnFinished;
+            _session.Labyrinth.RunnerMoved -= OnRunnerMoved;
+            _session.Labyrinth.ItemPickedUp -= OnItemPickedUp;
+            _session.Runner.Inventory.ItemUsed -= OnItemUsed;
+            _session.Runner.Inventory.ScoreIncreased -= OnScoreIncreased;
+            _session.Dispose();
         }
 
         GC.SuppressFinalize(this);
-        return ValueTask.CompletedTask;
     }
 
     protected override void OnInitialized()
     {
-        _boxSize = 64;
-        _wallWidth = Math.Max(1, _boxSize / 10);
-
         GlobalParameters.LabyrinthChanged += OnLabyrinthParametersChanged;
     }
 
@@ -145,15 +115,6 @@ public partial class Maze : IAsyncDisposable
     {
         if (firstRender == false)
         {
-            if (_isSettingsOpen != _isSettingsTrapped)
-            {
-                _isSettingsTrapped = _isSettingsOpen;
-
-                await (_isSettingsOpen
-                    ? JSRuntime.InvokeVoidAsync("labirintDialog.trap", _settingsSheet)
-                    : JSRuntime.InvokeVoidAsync("labirintDialog.release"));
-            }
-
             if (_isRegenerationPending)
             {
                 _isRegenerationPending = false;
@@ -163,12 +124,12 @@ public partial class Maze : IAsyncDisposable
             return;
         }
 
-        _labyrinth = new(_seeder);
-        _labyrinth.RunnerMoved += OnRunnerMoved;
-        _labyrinth.ExitFound += OnExitFound;
-        _labyrinth.ItemPickedUp += OnItemPickedUp;
-        _labyrinth.Runner.Inventory.ItemUsed += OnItemUsed;
-        _labyrinth.Runner.Inventory.ScoreIncreased += OnScoreIncreased;
+        _session = new(_seeder);
+        _session.Finished += OnFinished;
+        _session.Labyrinth.RunnerMoved += OnRunnerMoved;
+        _session.Labyrinth.ItemPickedUp += OnItemPickedUp;
+        _session.Runner.Inventory.ItemUsed += OnItemUsed;
+        _session.Runner.Inventory.ScoreIncreased += OnScoreIncreased;
 
         if (_keyInterceptor != null)
         {
@@ -178,11 +139,6 @@ public partial class Maze : IAsyncDisposable
         }
 
         await GenerateAsync();
-
-        if (_touchInterceptor != null)
-        {
-            _touchInterceptor.Moved += OnMoved;
-        }
     }
 
     private void OpenSettings()
@@ -192,25 +148,12 @@ public partial class Maze : IAsyncDisposable
 
     private void CloseSettings()
     {
-        if (_isSettingsOpen == false)
-        {
-            return;
-        }
-
         _isSettingsOpen = false;
     }
 
-    private void OnSettingsKeyDown(KeyboardEventArgs args)
+    private void OnSwipe(Direction direction)
     {
-        if (args.Key == "Escape")
-        {
-            CloseSettings();
-        }
-    }
-
-    private void OnMoved(object? sender, Direction args)
-    {
-        _keyInterceptor?.OnKeyDown(args);
+        _keyInterceptor?.OnKeyDown(direction);
     }
 
     private void OnLabyrinthParametersChanged(object? sender, EventArgs args)
@@ -225,9 +168,6 @@ public partial class Maze : IAsyncDisposable
 
     private void OnRunnerMoved(object? sender, Position args)
     {
-        _moveCount++;
-        _vision.SetPosition(_labyrinth.Runner.Position);
-
         RunSafe(async () =>
         {
             await ForceRender();
@@ -237,15 +177,8 @@ public partial class Maze : IAsyncDisposable
         });
     }
 
-    private void OnExitFound(object? sender, EventArgs args)
+    private void OnFinished(object? sender, EventArgs args)
     {
-        if (_isContinueGame)
-        {
-            return;
-        }
-
-        _isExitFound = true;
-
         RunSafe(ShowWinDialogAsync);
     }
 
@@ -256,8 +189,8 @@ public partial class Maze : IAsyncDisposable
             [nameof(WinDialog.OnRestart)] = (Func<Task>)GenerateAsync,
             [nameof(WinDialog.OnRepeat)] = (Func<Task>)RepeatAsync,
             [nameof(WinDialog.Seeder)] = _seeder,
-            [nameof(WinDialog.Score)] = _labyrinth.Runner.Score,
-            [nameof(WinDialog.MoveCount)] = _moveCount,
+            [nameof(WinDialog.Score)] = _session.Runner.Score,
+            [nameof(WinDialog.MoveCount)] = _session.MoveCount,
             [nameof(WinDialog.Size)] = _originalSize,
         };
 
@@ -269,11 +202,9 @@ public partial class Maze : IAsyncDisposable
             Width = DialogWidth.Large,
         });
 
-        _isContinueGame = result.GetValue<bool>();
-
-        if (_isContinueGame)
+        if (result.GetValue<bool>())
         {
-            _isExitFound = false;
+            _session.Continue();
         }
     }
 
@@ -293,24 +224,24 @@ public partial class Maze : IAsyncDisposable
         {
             await Task.Delay(AnimatedStackExtensions.PickupFlightDuration);
 
-            _displayScore = _labyrinth.Runner.Score;
+            _displayScore = _session.Runner.Score;
             StateHasChanged();
         });
     }
 
     private void OnMoveKeyDown(object? sender, MoveEventArgs args)
     {
-        if (_isExitFound)
+        if (_session.IsExitFound)
         {
             return;
         }
 
-        _labyrinth.Move(args.Direction);
+        _session.Labyrinth.Move(args.Direction);
     }
 
     private void OnAttackKeyDown(object? sender, AttackEventArgs args)
     {
-        if (_isExitFound)
+        if (_session.IsExitFound)
         {
             return;
         }
@@ -322,9 +253,9 @@ public partial class Maze : IAsyncDisposable
             return;
         }
 
-        if (_labyrinth.Runner.Inventory.CanUse(item) == false || _runnerInventory == null)
+        if (_session.Runner.Inventory.CanUse(item) == false || _runnerInventory == null)
         {
-            _labyrinth.Runner.UseItem(item, args.Direction);
+            _session.Runner.UseItem(item, args.Direction);
             return;
         }
 
@@ -340,13 +271,13 @@ public partial class Maze : IAsyncDisposable
         {
             await Task.Delay(flightDuration);
 
-            if (_isExitFound)
+            if (_session.IsExitFound)
             {
                 _runnerInventory.CancelCast(item);
                 return;
             }
 
-            _labyrinth.Runner.UseItem(item, direction);
+            _session.Runner.UseItem(item, direction);
         });
     }
 
@@ -386,20 +317,12 @@ public partial class Maze : IAsyncDisposable
             _seeder.Reload();
         }
 
-        _isExitFound = false;
-        _isContinueGame = false;
-        _moveCount = 0;
         _displayScore = 0;
 
-        _originalSize = Math.Max(MinSize, Math.Min(MaxSize, _originalSize));
-        _density = Math.Max(MinDensity, Math.Min(MaxDensity, _density));
+        _originalSize = Math.Clamp(_originalSize, MinSize, MaxSize);
+        _density = Math.Clamp(_density, MinDensity, MaxDensity);
 
-        _labyrinth.Init(_originalSize, _originalSize, _density);
-
-        _vision = new(_originalSize, _originalSize);
-        _vision.SetPosition(_labyrinth.Runner.Position);
-
-        _renderParameter = new(_labyrinth, _boxSize, _wallWidth, _vision);
+        _session.Generate(_originalSize, _density);
         _isGenerating = false;
 
         StateHasChanged();
@@ -412,9 +335,7 @@ public partial class Maze : IAsyncDisposable
 
     private async Task ForceRender()
     {
-        await Task.WhenAll(_mazeFloor?.ForceRenderAsync() ?? Task.CompletedTask,
-            _mazeWalls?.ForceRenderAsync() ?? Task.CompletedTask,
-            _mazeEntities?.ForceRenderAsync() ?? Task.CompletedTask);
+        await (_field?.ForceRenderAsync() ?? Task.CompletedTask);
 
         StateHasChanged();
     }
