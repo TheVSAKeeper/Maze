@@ -207,7 +207,7 @@ public partial class RunnerInventory : RenderComponent, IDisposable
 
         var result = await DialogService.ShowAsync<ItemLoreDialog>(item.DisplayName, parameters, new DialogOptions
         {
-            Width = DialogWidth.Large,
+            Width = DialogWidth.Medium,
         });
 
         if (result.GetValue<bool>())
