@@ -1,56 +1,18 @@
-﻿using Labirint.Web.Parameters;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using System.Drawing;
+﻿using Microsoft.AspNetCore.Components;
 
 namespace Labirint.Web.Components;
 
 public partial class TouchInterceptor
 {
-    private Rectangle _left;
-    private Rectangle _top;
-    private Rectangle _right;
-    private Rectangle _bottom;
-    private int? _xStep;
-    private int? _yStep;
-
     public event EventHandler<Direction>? Moved;
 
     [Parameter]
     [EditorRequired]
     public required RenderFragment ChildContent { get; set; }
 
-    [CascadingParameter]
-    public required MazeRenderParameters RenderParameters { get; set; }
-
-    protected override void OnParametersSet()
+    private void OnZoneClicked(Direction direction)
     {
-        if (_xStep != null && _yStep != null)
-        {
-            return;
-        }
-
-        var renderRange = RenderParameters.Vision.Range * 2 * RenderParameters.BoxSize + RenderParameters.BoxSize + RenderParameters.WallWidth;
-        var xStep = renderRange / 4;
-        var yStep = renderRange / 4;
-
-        _left = new(0, yStep, xStep, yStep * 2);
-        _top = new(xStep, 0, xStep * 2, yStep);
-        _right = new(xStep * 3, yStep, xStep, yStep * 2);
-        _bottom = new(xStep, yStep * 3, xStep * 2, yStep);
-
-        _xStep = xStep;
-        _yStep = yStep;
-    }
-
-    private void OnFieldClicked(MouseEventArgs args)
-    {
-        var direction = GetDirection((int)args.OffsetX, (int)args.OffsetY);
-
-        if (direction != Direction.None)
-        {
-            Moved?.Invoke(this, direction);
-        }
+        Moved?.Invoke(this, direction);
     }
 
     private void OnSwipe(Direction direction)
@@ -59,30 +21,5 @@ public partial class TouchInterceptor
         {
             Moved?.Invoke(this, direction);
         }
-    }
-
-    private Direction GetDirection(int x, int y)
-    {
-        if (_left.Contains(x, y))
-        {
-            return Direction.Left;
-        }
-
-        if (_top.Contains(x, y))
-        {
-            return Direction.Top;
-        }
-
-        if (_right.Contains(x, y))
-        {
-            return Direction.Right;
-        }
-
-        if (_bottom.Contains(x, y))
-        {
-            return Direction.Bottom;
-        }
-
-        return Direction.None;
     }
 }
