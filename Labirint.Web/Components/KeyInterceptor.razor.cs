@@ -55,6 +55,14 @@ public partial class KeyInterceptor : IAsyncDisposable
         _bindings.RebuildItems(ControlScheme, Inventory);
     }
 
+    public void ResetWaitItem()
+    {
+        if (_waitItem != null)
+        {
+            ChangeWaitItem(null);
+        }
+    }
+
     [JSInvokable]
     public void OnKeyDown(string code)
     {
@@ -149,13 +157,16 @@ public partial class KeyInterceptor : IAsyncDisposable
     {
         if (_waitItem != null)
         {
+            var item = _waitItem;
+            ChangeWaitItem(null);
+
             AttackKeyDown?.Invoke(this, new()
             {
-                Item = _waitItem,
+                Item = item,
                 Direction = move.Direction,
             });
 
-            ChangeWaitItem(null);
+            return;
         }
 
         MoveKeyDown?.Invoke(this, move);

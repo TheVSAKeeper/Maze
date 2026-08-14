@@ -24,6 +24,9 @@ public partial class Maze : IDisposable
     private bool _isSettingsOpen;
     private bool _isRegenerationPending;
     private bool _isGenerating;
+    private bool _isCasting;
+
+    private int _generation;
 
     private string? _appliedSeed;
     private int? _appliedSize;
@@ -31,6 +34,9 @@ public partial class Maze : IDisposable
 
     private int _originalSize;
     private int _density;
+
+    private int _generatedSize;
+    private int _generatedDensity;
 
     private int _displayScore;
 
@@ -191,7 +197,7 @@ public partial class Maze : IDisposable
             [nameof(WinDialog.Seeder)] = _seeder,
             [nameof(WinDialog.Score)] = _session.Runner.Score,
             [nameof(WinDialog.MoveCount)] = _session.MoveCount,
-            [nameof(WinDialog.Size)] = _originalSize,
+            [nameof(WinDialog.Size)] = _generatedSize,
         };
 
         var result = await DialogService.ShowAsync<WinDialog>("Финал Лабиринта", parameters, new DialogOptions
@@ -231,12 +237,12 @@ public partial class Maze : IDisposable
 
     private void OnMoveKeyDown(object? sender, MoveEventArgs args)
     {
-        if (_session.IsExitFound)
+        if (_isCasting)
         {
             return;
         }
 
-        _session.Labyrinth.Move(args.Direction);
+        Move(args.Direction);
     }
 
     private void OnAttackKeyDown(object? sender, AttackEventArgs args)
@@ -247,38 +253,61 @@ public partial class Maze : IDisposable
         }
 
         var item = args.Item;
+        var direction = args.Direction;
 
         if (item == null)
         {
+            Move(direction);
             return;
         }
 
         if (_session.Runner.Inventory.CanUse(item) == false || _runnerInventory == null)
         {
-            _session.Runner.UseItem(item, args.Direction);
+            _session.Runner.UseItem(item, direction);
+            Move(direction);
             return;
         }
 
-        if (_runnerInventory.TryStartCast(item) == false)
+        if (_isCasting || _runnerInventory.TryStartCast(item) == false)
         {
             return;
         }
 
-        var direction = args.Direction;
+        _isCasting = true;
+
+        var generation = _generation;
         var flightDuration = MotionService.IsReduced ? 0 : AnimatedStackExtensions.UseFlightDuration;
 
         RunSafe(async () =>
         {
-            await Task.Delay(flightDuration);
-
-            if (_session.IsExitFound)
+            try
             {
-                _runnerInventory.CancelCast(item);
-                return;
-            }
+                await Task.Delay(flightDuration);
 
-            _session.Runner.UseItem(item, direction);
+                if (generation != _generation || _session.IsExitFound)
+                {
+                    _runnerInventory.CancelCast(item);
+                    return;
+                }
+
+                _session.Runner.UseItem(item, direction);
+                Move(direction);
+            }
+            finally
+            {
+                _isCasting = false;
+            }
         });
+    }
+
+    private void Move(Direction? direction)
+    {
+        if (direction is null or Direction.None || _session.IsExitFound)
+        {
+            return;
+        }
+
+        _session.Labyrinth.Move(direction.Value);
     }
 
     private void OnItemUsed(object? sender, Item item)
@@ -304,6 +333,9 @@ public partial class Maze : IDisposable
     {
         AnimationService.StartRandomAnimationEffect();
 
+        _generation++;
+        _keyInterceptor?.ResetWaitItem();
+
         _isGenerating = true;
         StateHasChanged();
         await Task.Delay(1);
@@ -322,7 +354,10 @@ public partial class Maze : IDisposable
         _originalSize = Math.Clamp(_originalSize, MinSize, MaxSize);
         _density = Math.Clamp(_density, MinDensity, MaxDensity);
 
-        _session.Generate(_originalSize, _density);
+        _generatedSize = _originalSize;
+        _generatedDensity = _density;
+
+        _session.Generate(_generatedSize, _generatedDensity);
         _isGenerating = false;
 
         StateHasChanged();

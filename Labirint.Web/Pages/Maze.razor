@@ -70,11 +70,11 @@
        IsOpen="_isSettingsOpen"
        OnClose="CloseSettings"
        Title="Параметры лабиринта">
-    <RandomGenerator Density="@_density"
+    <RandomGenerator Density="@_generatedDensity"
                      IsExitFound="@(_session?.IsExitFound ?? false)"
                      @ref="_seeder"
                      Seed="@Seed"
-                     Size="@_originalSize" />
+                     Size="@_generatedSize" />
 
     <div class="ui-stack ui-stack--2 param">
         <NumberField @bind-Value="_originalSize"
