@@ -1,0 +1,20 @@
+﻿@inherits SafeComponent
+
+@if (IsVisible)
+{
+    <div class="update ui-panel"
+         role="status">
+        <span class="t-body-s update__text">Доступна новая версия</span>
+
+        <Button Variant="UiVariant.Filled"
+                Tone="UiTone.Accent"
+                OnClick="@Apply">
+            Обновить
+        </Button>
+
+        <IconButton Icon="@IconCatalog.Close"
+                    OnClick="@Dismiss"
+                    Size="16"
+                    Title="Позже" />
+    </div>
+}
