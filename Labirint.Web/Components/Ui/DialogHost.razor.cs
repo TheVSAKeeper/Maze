@@ -36,7 +36,7 @@ public partial class DialogHost : IDisposable
         }
         else if (count == 0 && _shownCount > 0)
         {
-            await JSRuntime.InvokeVoidAsync("labirintDialog.release");
+            await JSRuntime.InvokeVoidAsync("labirintDialog.release", _backdrop);
         }
 
         _shownCount = count;
