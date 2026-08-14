@@ -1,0 +1,32 @@
+﻿.touch-zone {
+    position: absolute;
+    z-index: 5;
+}
+
+.touch-zone--top {
+    top: 0;
+    left: 25%;
+    width: 50%;
+    height: 25%;
+}
+
+.touch-zone--bottom {
+    bottom: 0;
+    left: 25%;
+    width: 50%;
+    height: 25%;
+}
+
+.touch-zone--left {
+    top: 25%;
+    left: 0;
+    width: 25%;
+    height: 50%;
+}
+
+.touch-zone--right {
+    top: 25%;
+    right: 0;
+    width: 25%;
+    height: 50%;
+}

@@ -1,5 +1,8 @@
-﻿<div @onclick="OnFieldClicked">
-    <SwipeArea OnSwipe="OnSwipe">
-        @ChildContent
-    </SwipeArea>
-</div>
+﻿<SwipeArea OnSwipe="OnSwipe">
+    @ChildContent
+
+    <div class="touch-zone touch-zone--top" @onclick="@(() => OnZoneClicked(Direction.Top))"></div>
+    <div class="touch-zone touch-zone--left" @onclick="@(() => OnZoneClicked(Direction.Left))"></div>
+    <div class="touch-zone touch-zone--right" @onclick="@(() => OnZoneClicked(Direction.Right))"></div>
+    <div class="touch-zone touch-zone--bottom" @onclick="@(() => OnZoneClicked(Direction.Bottom))"></div>
+</SwipeArea>
