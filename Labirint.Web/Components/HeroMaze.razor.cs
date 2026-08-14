@@ -36,6 +36,9 @@ public partial class HeroMaze : IDisposable
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
 
+    [Inject]
+    private MotionService MotionService { get; set; } = null!;
+
     private string RunStyle =>
         $"--route: path('{_run.TrailPath}'); --trail-length: {_run.TrailLength}; --tail-length: {TailLength}; " +
         $"--trail-delay: {_run.TrailDelay}ms; --trail-duration: {_run.TrailDuration}ms; " +
@@ -61,7 +64,7 @@ public partial class HeroMaze : IDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender == false)
+        if (firstRender == false || MotionService.IsReduced)
         {
             return;
         }
