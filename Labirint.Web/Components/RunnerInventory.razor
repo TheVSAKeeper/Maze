@@ -1,71 +1,19 @@
 ﻿@inherits RenderComponent
 
 <div class="ui-row ui-row--wrap">
-    @foreach (var animatedStack in _stackCache.Values)
+    @foreach (var animatedStack in _animator.Stacks)
     {
         var stack = animatedStack.Stack;
-        var item = stack.Item;
 
         if (stack.Count <= 0 && animatedStack.IsIdle)
         {
             continue;
         }
 
-        var useLabel = stack.IsInfinite
-            ? $"Использовать: {item.DisplayName}. В инвентаре {animatedStack.DisplayCount}, предел не ограничен"
-            : $"Использовать: {item.DisplayName}. В инвентаре {animatedStack.DisplayCount} из {stack.MaxCount}";
-
-        <div class="inventory-item-container">
-            <div class="inventory-item
-                            @(stack.IsInfinite ? " score" : string.Empty)
-                            @(animatedStack.GetAnimation())"
-                 data-item="@item.Name"
-                 style="--animate-duration: @(animatedStack.GetDuration())ms; --animate-delay: @(animatedStack.GetDelay())ms">
-
-                <button aria-label="@useLabel"
-                        class="item-use"
-                        @onclick="() => OnClicked(item)"
-                        title="Использовать предмет"
-                        type="button">
-                    <img alt=""
-                         aria-hidden="true"
-                         src="@item.Icon">
-                </button>
-                <img alt=""
-                     aria-hidden="true"
-                     class="item-flow"
-                     src="@item.Icon">
-                <button class="item-name"
-                        @onclick="() => ShowLoreAsync(item)"
-                        title="Открыть карточку предмета"
-                        type="button">
-                    @item.DisplayName
-                </button>
-                <div aria-hidden="true"
-                     class="count t-data"
-                     title="Текущее количество в инвентаре">@animatedStack.DisplayCount</div>
-                <div aria-hidden="true"
-                     class="max-count t-data"
-                     title="Максимальное количество в инвентаре">@(stack.IsInfinite ? "∞" : stack.MaxCount)</div>
-            </div>
-
-            @{
-                var control = item.ControlSettings;
-
-                if (control != null)
-                {
-                    <button aria-hidden="true"
-                            class="keyboard-button"
-                            @onclick="() => OnClicked(item)"
-                            tabindex="-1"
-                            title="Использовать предмет"
-                            type="button">
-                        <span>
-                            @ControlScheme.GetActivateKey(control).DisplaySymbol
-                        </span>
-                    </button>
-                }
-            }
-        </div>
+        <InventorySlot @key="stack.Item"
+                       KeySymbol="@GetKeySymbol(stack.Item)"
+                       OnLore="ShowLoreAsync"
+                       OnUse="OnClicked"
+                       Stack="animatedStack" />
     }
 </div>
