@@ -41,20 +41,7 @@ public abstract class MazeComponent : RenderComponent, IDisposable
     {
         (Maze, BoxSize, WallWidth, Vision) = RenderParameters;
 
-        // Данное замечание актуально, если в MazeWalls оставлять условия с исключением повторного рисования стен
-        // и необходимо заменить перед прочтением 63 строку на данную: int renderRange = Vision.Range * 2 * BoxSize + WallWidth;
-        // По факту рисуется Vision.Range * 2 * BoxSize + BoxSize + WallWidth,
-        // но чтобы было (возможно) красивее оставлена только верхнюю часть ячейки (картинки были в предыдущем PR).
-        // Из-за этого игрок размещается не в центре радиуса видимости.
-        // Если данное поведение не устраивает, нужно заменить стоку 63 на закомментированную ниже.
-        // int renderRange = Vision.Range * 2 * BoxSize + BoxSize + WallWidth;
-
-        // Vision.Range * 2 -> область видимости во все стороны.
-        // * BoxSize -> из относительного в абсолютное значение.
-        // + BoxSize -> клетка с игроком.
-        // + WallWidth -> для того, чтобы видеть стенки у клеток на границе обзора.
-
-        var renderRange = Vision.Range * 2 * BoxSize + BoxSize + WallWidth;
+        var renderRange = RenderParameters.RenderRange;
         CanvasWidth = renderRange;
         CanvasHeight = renderRange;
 

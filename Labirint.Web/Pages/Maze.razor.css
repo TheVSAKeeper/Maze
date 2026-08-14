@@ -57,20 +57,38 @@
     align-items: center;
     flex-direction: column;
     gap: var(--s-4);
+    width: 100%;
     padding: var(--s-5) 0;
 }
 
 .field-frame {
-    padding: var(--s-6) 0 0 var(--s-6);
+    --frame-pad: var(--s-6);
+    --field-border: 1px;
+
+    width: 100%;
+    max-width: calc(var(--maze-size) + var(--frame-pad) + 2 * var(--field-border));
+    margin: 0 auto;
+    padding: var(--frame-pad) 0 0 var(--frame-pad);
 }
 
 .field {
     position: relative;
     isolation: isolate;
-    border: 1px solid var(--border-strong);
+    width: 100%;
+    border: var(--field-border) solid var(--border-strong);
     border-radius: var(--r-1);
     background: radial-gradient(circle at 50% 50%, transparent 45%, color-mix(in srgb, var(--void-deep) 55%, transparent)), var(--void);
     box-shadow: var(--shadow-pit);
+}
+
+.field ::deep .ui-swipe {
+    line-height: 0;
+}
+
+.field ::deep canvas {
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
 .maze-anim {
@@ -193,8 +211,8 @@
 .ruler--row {
     align-items: center;
     justify-content: flex-end;
-    left: calc(-1 * var(--s-6));
-    width: var(--s-6);
+    left: calc(-1 * var(--frame-pad));
+    width: var(--frame-pad);
     height: var(--s-5);
     padding-right: var(--s-3);
     transform: translateY(-50%);
@@ -210,9 +228,9 @@
 .ruler--column {
     align-items: flex-end;
     justify-content: center;
-    top: calc(-1 * var(--s-6));
-    width: var(--s-6);
-    height: var(--s-6);
+    top: calc(-1 * var(--frame-pad));
+    width: var(--frame-pad);
+    height: var(--frame-pad);
     padding-bottom: var(--s-3);
     transform: translateX(-50%);
 }
@@ -306,19 +324,14 @@
     }
 
     .field-frame {
-        padding: var(--s-5) 0 0 var(--s-5);
+        --frame-pad: var(--s-5);
     }
 
     .ruler--row {
-        left: calc(-1 * var(--s-5));
-        width: var(--s-5);
         padding-right: var(--s-2);
     }
 
     .ruler--column {
-        top: calc(-1 * var(--s-5));
-        width: var(--s-5);
-        height: var(--s-5);
         padding-bottom: var(--s-2);
     }
 

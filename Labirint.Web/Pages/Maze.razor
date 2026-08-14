@@ -51,7 +51,8 @@
                     </div>
                 }
 
-                <div class="field-frame">
+                <div class="field-frame"
+                     style="--maze-size: @(_renderParameter!.RenderRange)px">
                     <div class="field">
                         <div class="maze-anim @AnimationService.EffectClass">
                             <CascadingValue Value="_renderParameter">
@@ -67,6 +68,7 @@
                                 var scale = 0.9;
                                 var position = _vision.GetDraw(runner.Position);
                                 var (entitySize, drawPosition) = AlignmentHelper.GetAlignmentParameters(_boxSize, _wallWidth, scale, position, Alignment.Center);
+                                var renderRange = _renderParameter.RenderRange;
 
                                 _runnerScaleX = runner.LastDirection switch
                                 {
@@ -80,17 +82,17 @@
                                      src="images/runner.webp"
                                      style="position:absolute;
                                          z-index: 4;
-                                         left: @(drawPosition.X)px;
-                                     top: @(drawPosition.Y)px;
-                                     width: @(entitySize)px;
-                                     height: @(entitySize)px;
+                                         left: calc(100% * @(drawPosition.X) / @renderRange);
+                                     top: calc(100% * @(drawPosition.Y) / @renderRange);
+                                     width: calc(100% * @entitySize / @renderRange);
+                                     height: calc(100% * @entitySize / @renderRange);
                                      transform: scaleX(@_runnerScaleX) scaleY(1);" />
 
                                 <div class="ruler ruler--row t-data"
-                                     style="top: @(drawPosition.Y + entitySize / 2)px">@(runner.Position.Y + 1)</div>
+                                     style="top: calc(100% * @(drawPosition.Y + entitySize / 2) / @renderRange)">@(runner.Position.Y + 1)</div>
 
                                 <div class="ruler ruler--column t-data"
-                                     style="left: @(drawPosition.X + entitySize / 2)px">@(runner.Position.X + 1)</div>
+                                     style="left: calc(100% * @(drawPosition.X + entitySize / 2) / @renderRange)">@(runner.Position.X + 1)</div>
                             }
                         </div>
                     </div>
