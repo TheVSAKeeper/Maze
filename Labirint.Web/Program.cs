@@ -21,6 +21,7 @@ builder.Services.AddScoped<MotionService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<ThemeService>();
+builder.Services.AddScoped<AppUpdateService>();
 
 var host = builder.Build();
 await host.RunAsync();

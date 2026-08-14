@@ -5,11 +5,12 @@ self.importScripts('./service-worker-assets.js');
 self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
 self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
+self.addEventListener('message', event => onMessage(event));
 
 const cacheNamePrefix = 'offline-cache-';
 const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
-const offlineAssetsInclude = [/\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff2?$/, /\.png$/, /\.webp$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/];
-const offlineAssetsExclude = [/^service-worker\.js$/, /^icon-192\.png$/];
+const offlineAssetsInclude = [/\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.webmanifest$/, /\.css$/, /\.woff2?$/, /\.png$/, /\.webp$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/, /\.mp3$/];
+const offlineAssetsExclude = [/^service-worker\.js$/, /^icon-192\.png$/, /^images\/screenshots\//];
 
 const baseUrl = new URL(self.registration.scope);
 const manifestUrlList = self.assetsManifest.assets.map(asset => new URL(asset.url, baseUrl).href);
@@ -49,5 +50,28 @@ async function onFetch(event) {
         cachedResponse = await cache.match(request);
     }
 
-    return cachedResponse || fetch(event.request);
+    if (cachedResponse) {
+        return cachedResponse;
+    }
+
+    try {
+        return await fetch(event.request);
+    } catch {
+        if (event.request.mode === 'navigate') {
+            const cache = await caches.open(cacheName);
+            const offlineResponse = await cache.match('index.html');
+
+            if (offlineResponse) {
+                return offlineResponse;
+            }
+        }
+
+        return Response.error();
+    }
+}
+
+function onMessage(event) {
+    if (event.data?.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 }
