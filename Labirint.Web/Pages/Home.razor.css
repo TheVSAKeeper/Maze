@@ -9,7 +9,7 @@
 
 .hero {
     display: grid;
-    align-items: start;
+    align-items: center;
     gap: var(--s-7);
     grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
     padding-bottom: var(--s-6);
@@ -19,6 +19,8 @@
 .hero__standfirst {
     max-width: 46ch;
     margin: 0;
+    font-size: 1.0625rem;
+    color: var(--text-dim);
 }
 
 .hero__plate {
