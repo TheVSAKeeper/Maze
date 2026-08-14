@@ -7,28 +7,26 @@
         <svg aria-hidden="true"
              class="hero-maze__grid"
              preserveAspectRatio="xMidYMid meet"
-             viewBox="-1 -1 @(Side + 2) @(Side + 2)"
+             viewBox="-1 -1 @(_run.Side + 2) @(_run.Side + 2)"
              xmlns="http://www.w3.org/2000/svg">
             <rect class="hero-maze__floor"
-                  height="@Side"
-                  width="@Side"
+                  height="@_run.Side"
+                  width="@_run.Side"
                   x="0"
                   y="0" />
 
             <g @key="_run.Seed"
-               style="@RunStyle">
+               style="@_run.Style">
                 <rect class="hero-maze__exit @(_run.IsSolved ? "hero-maze__exit--found" : null)"
-                      height="@(Cell - 10)"
-                      width="@(Cell - 10)"
-                      x="@(ExitX * Cell + 5)"
-                      y="@(ExitY * Cell + 5)" />
+                      height="@_run.Exit.Size"
+                      width="@_run.Exit.Size"
+                      x="@_run.Exit.X"
+                      y="@_run.Exit.Y" />
 
                 <g class="hero-maze__walls">
-                    @for (var index = 0; index < _run.Walls.Count; index++)
+                    @foreach (var wall in _run.Walls)
                     {
-                        var wall = _run.Walls[index];
-
-                        <line style="animation-delay: @(index * WallDrawStep)ms"
+                        <line style="animation-delay: @(wall.Delay)ms"
                               x1="@wall.X1"
                               y1="@wall.Y1"
                               x2="@wall.X2"
