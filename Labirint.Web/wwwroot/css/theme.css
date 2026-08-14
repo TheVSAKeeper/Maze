@@ -44,7 +44,7 @@
 
     --text: #e8e0d2;
     --text-dim: #9a8f7c;
-    --text-faint: #857b6c;
+    --text-faint: #918676;
 
     --accent: #cf7b3c;
     --accent-strong: #e59a5e;
@@ -77,17 +77,17 @@
 
     --text: #241f18;
     --text-dim: #5e5445;
-    --text-faint: #6b6151;
+    --text-faint: #635a4b;
 
     --accent: #9a4e18;
     --accent-strong: #7d3d10;
     --accent-dim: #d8a878;
     --accent-wash: #9a4e181f;
 
-    --gold: #9a6e14;
+    --gold: #74530e;
     --danger: #9b2c22;
     --success: #4a7a2c;
-    --warning: #9a6e14;
+    --warning: #74530e;
 
     --wall: #8f3520;
     --mark-plate: #2a241b;
