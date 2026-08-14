@@ -6,6 +6,7 @@ public class AnimatedStack(ItemStack stack)
 {
     private readonly ConcurrentQueue<State> _stateQueue = new();
     private State _executedState = State.Removed;
+    private int _countVersion;
 
     public static event Action<State>? StateChanged;
 
@@ -83,17 +84,20 @@ public class AnimatedStack(ItemStack stack)
 
     public void SyncCount()
     {
+        _countVersion++;
         SetDisplayCount(Stack.Count);
     }
 
     public void ReserveCount()
     {
+        _countVersion++;
         SetDisplayCount(Math.Max(0, Stack.Count - 1));
     }
 
     private void SyncDisplayCount(State state)
     {
         var delay = state.ToDelay();
+        var version = ++_countVersion;
 
         if (delay <= 0)
         {
@@ -101,12 +105,17 @@ public class AnimatedStack(ItemStack stack)
             return;
         }
 
-        _ = SyncDisplayCountAfterAsync(delay);
+        _ = SyncDisplayCountAfterAsync(delay, version);
     }
 
-    private async Task SyncDisplayCountAfterAsync(int delay)
+    private async Task SyncDisplayCountAfterAsync(int delay, int version)
     {
         await Task.Delay(delay);
+
+        if (version != _countVersion)
+        {
+            return;
+        }
 
         SetDisplayCount(Stack.Count);
     }
