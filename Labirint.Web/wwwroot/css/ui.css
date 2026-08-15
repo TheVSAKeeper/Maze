@@ -203,6 +203,9 @@
 
 .ui-input:focus {
     border-color: var(--accent);
+}
+
+.ui-input:focus:not(:focus-visible) {
     outline: none;
 }
 

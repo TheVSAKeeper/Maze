@@ -1,6 +1,14 @@
 ﻿.touch-zone {
     position: absolute;
     z-index: 5;
+    padding: 0;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+}
+
+.touch-zone:focus-visible {
+    outline-offset: -4px;
 }
 
 .touch-zone--top {
