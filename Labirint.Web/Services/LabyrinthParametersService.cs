@@ -1,16 +1,37 @@
 ﻿using Blazored.LocalStorage;
+using Labirint.Web.Parameters;
 using Microsoft.Extensions.Logging;
 
-namespace Labirint.Web.Parameters;
+namespace Labirint.Web.Services;
 
-public static class LabyrinthParametersLoader
+public sealed class LabyrinthParametersService(ILocalStorageService localStorage, ILogger<LabyrinthParametersService> logger)
 {
-    public static async Task ApplyAsync(ILocalStorageService localStorage, ILogger logger)
+    private LabyrinthParameters _current = new();
+
+    public event EventHandler? Changed;
+
+    public LabyrinthParameters Current
     {
-        GlobalParameters.Labyrinth = await LoadAsync(localStorage, logger) ?? new LabyrinthParameters();
+        get => _current;
+        private set
+        {
+            _current = value;
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
     }
 
-    private static async Task<LabyrinthParameters?> LoadAsync(ILocalStorageService localStorage, ILogger logger)
+    public async Task InitializeAsync()
+    {
+        Current = await LoadAsync() ?? new LabyrinthParameters();
+    }
+
+    public async Task SaveAsync(LabyrinthParameters parameters)
+    {
+        await localStorage.SetItemAsync(LabyrinthParameters.LocalStorageKey, parameters);
+        Current = parameters;
+    }
+
+    private async Task<LabyrinthParameters?> LoadAsync()
     {
         try
         {

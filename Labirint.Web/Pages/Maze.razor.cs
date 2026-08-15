@@ -70,6 +70,9 @@ public partial class Maze : IDisposable
     private SoundService SoundService { get; set; } = null!;
 
     [Inject]
+    private LabyrinthParametersService ParametersService { get; set; } = null!;
+
+    [Inject]
     private AnimationService AnimationService { get; set; } = null!;
 
     [Inject]
@@ -88,7 +91,7 @@ public partial class Maze : IDisposable
 
     public void Dispose()
     {
-        GlobalParameters.LabyrinthChanged -= OnLabyrinthParametersChanged;
+        ParametersService.Changed -= OnLabyrinthParametersChanged;
 
         if (_keyInterceptor != null)
         {
@@ -111,7 +114,7 @@ public partial class Maze : IDisposable
 
     protected override void OnInitialized()
     {
-        GlobalParameters.LabyrinthChanged += OnLabyrinthParametersChanged;
+        ParametersService.Changed += OnLabyrinthParametersChanged;
     }
 
     protected override void OnParametersSet()
