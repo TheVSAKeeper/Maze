@@ -8,7 +8,7 @@ namespace Labirint.Web.Components.Ui;
 public partial class DialogHost : IDisposable
 {
     private readonly Dictionary<Guid, ElementReference> _panels = [];
-    private readonly List<TrappedPanel> _trapped = [];
+    private readonly List<Guid> _trapped = [];
 
     [Inject]
     public required DialogService DialogService { get; set; }
@@ -32,36 +32,41 @@ public partial class DialogHost : IDisposable
 
         for (int index = _trapped.Count - 1; index >= 0; index--)
         {
-            TrappedPanel trapped = _trapped[index];
+            Guid id = _trapped[index];
 
-            if (shown.Contains(trapped.Id))
+            if (shown.Contains(id))
             {
                 continue;
             }
 
             _trapped.RemoveAt(index);
-            _panels.Remove(trapped.Id);
+            _panels.Remove(id);
 
-            await ReleaseAsync(trapped.Panel);
+            await ReleaseAsync(id);
         }
 
         foreach (Guid id in shown)
         {
-            if (_trapped.Exists(trapped => trapped.Id == id) || _panels.TryGetValue(id, out ElementReference panel) == false)
+            if (_trapped.Contains(id) || _panels.TryGetValue(id, out ElementReference panel) == false)
             {
                 continue;
             }
 
-            _trapped.Add(new(id, panel));
-            await JSRuntime.InvokeVoidAsync("labirintDialog.trap", panel);
+            _trapped.Add(id);
+            await JSRuntime.InvokeVoidAsync("labirintDialog.trap", panel, GetLayerKey(id));
         }
     }
 
-    private async ValueTask ReleaseAsync(ElementReference panel)
+    private static string GetLayerKey(Guid id)
+    {
+        return $"dialog-{id:N}";
+    }
+
+    private async ValueTask ReleaseAsync(Guid id)
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("labirintDialog.release", panel);
+            await JSRuntime.InvokeVoidAsync("labirintDialog.release", GetLayerKey(id));
         }
         catch (JSDisconnectedException)
         {
@@ -118,6 +123,4 @@ public partial class DialogHost : IDisposable
             ? DialogService.Instances[^1]
             : null;
     }
-
-    private sealed record TrappedPanel(Guid Id, ElementReference Panel);
 }
