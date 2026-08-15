@@ -86,7 +86,7 @@ public partial class RandomGenerator : IRandom
     {
         var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
         var result = BitConverter.ToInt32(hashBytes, 0);
-        return Math.Abs(result);
+        return result == int.MinValue ? int.MaxValue : Math.Abs(result);
     }
 
     private void ReloadWithRandomSeed()

@@ -3,7 +3,7 @@
 <Dialog>
     <ChildContent>
         <div class="ui-stack ui-stack--6">
-            <ControlSchemeSwitcher @ref="_controlScheme" />
+            <ControlSchemeSwitcher @bind-Value="_controlScheme" />
 
             <div class="ui-stack">
                 <Switch @bind-Value="_parameters.IsSoundOn"
@@ -41,7 +41,8 @@
                 Variant="UiVariant.Filled">
             @if (_isProcessing)
             {
-                <Spinner Size="18" />
+                <Spinner IsDecorative
+                         Size="18" />
             }
             else
             {

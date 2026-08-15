@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Labirint.Web.Common.Control.Schemes;
+using Microsoft.Extensions.Logging;
 
 namespace Labirint.Web.Services;
 
@@ -9,11 +10,14 @@ public class ControlSchemeService
 
     private readonly List<IControlScheme> _controlSchemes;
     private readonly ILocalStorageService _localStorage;
+    private readonly ILogger<ControlSchemeService> _logger;
     private IControlScheme _currentScheme;
+    private bool _isChosenByUser;
 
-    public ControlSchemeService(ILocalStorageService localStorage)
+    public ControlSchemeService(ILocalStorageService localStorage, ILogger<ControlSchemeService> logger)
     {
         _localStorage = localStorage;
+        _logger = logger;
 
         _controlSchemes =
         [
@@ -22,7 +26,7 @@ public class ControlSchemeService
         ];
 
         _currentScheme = _controlSchemes.First();
-        LoadCurrentSchemeAsync().ConfigureAwait(false);
+        _ = LoadCurrentSchemeAsync();
     }
 
     public event EventHandler<IControlScheme>? ControlSchemeChanged;
@@ -35,7 +39,8 @@ public class ControlSchemeService
             if (_controlSchemes.Contains(value))
             {
                 _currentScheme = value;
-                SaveCurrentSchemeAsync().ConfigureAwait(false);
+                _isChosenByUser = true;
+                _ = SaveCurrentSchemeAsync();
                 NotifySchemeChanged();
             }
             else
@@ -46,6 +51,8 @@ public class ControlSchemeService
     }
 
     public IEnumerable<IControlScheme> AvailableSchemes => _controlSchemes;
+
+    public IControlScheme DefaultScheme => _controlSchemes.FirstOrDefault() ?? new ClassicScheme();
 
     public void RegisterScheme(IControlScheme scheme)
     {
@@ -71,7 +78,7 @@ public class ControlSchemeService
 
     public void Reset()
     {
-        CurrentScheme = _controlSchemes.FirstOrDefault() ?? new ClassicScheme();
+        CurrentScheme = DefaultScheme;
     }
 
     private void NotifySchemeChanged()
@@ -81,9 +88,19 @@ public class ControlSchemeService
 
     private async Task LoadCurrentSchemeAsync()
     {
-        var schemeName = await _localStorage.GetItemAsync<string>(LocalStorageKey);
+        string? schemeName;
 
-        if (schemeName == null)
+        try
+        {
+            schemeName = await _localStorage.GetItemAsync<string>(LocalStorageKey);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Не удалось прочитать схему управления, остаётся схема по умолчанию");
+            return;
+        }
+
+        if (schemeName == null || _isChosenByUser)
         {
             return;
         }
@@ -101,6 +118,13 @@ public class ControlSchemeService
 
     private async Task SaveCurrentSchemeAsync()
     {
-        await _localStorage.SetItemAsync(LocalStorageKey, _currentScheme.Name);
+        try
+        {
+            await _localStorage.SetItemAsync(LocalStorageKey, _currentScheme.Name);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Не удалось сохранить схему управления");
+        }
     }
 }

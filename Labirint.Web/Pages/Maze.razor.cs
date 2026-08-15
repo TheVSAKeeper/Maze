@@ -1,4 +1,5 @@
-﻿using Labirint.Core.TileFeatures.Base;
+﻿using Labirint.Core.TileFeatures;
+using Labirint.Core.TileFeatures.Base;
 using Labirint.Web.Common.Animation;
 using Labirint.Web.Common.Ui;
 using Labirint.Web.Components;
@@ -19,6 +20,12 @@ public partial class Maze : IDisposable
 
     private const int DefaultSize = 16;
     private const int DefaultDensity = 40;
+
+    private const int AnnouncementCapacity = 4;
+
+    private readonly List<Announcement> _announcements = [];
+
+    private int _announcementId;
 
     private bool _isInit;
     private bool _isSettingsOpen;
@@ -176,6 +183,8 @@ public partial class Maze : IDisposable
     {
         RunSafe(async () =>
         {
+            Announce($"Ряд {args.Y + 1}, столбец {args.X + 1}");
+
             await ForceRender();
 
             // TODO подумать как вынести строку
@@ -218,7 +227,11 @@ public partial class Maze : IDisposable
     {
         RunSafe(async () =>
         {
-            await ForceRender();
+            Announce(args is WorldItem worldItem
+                ? $"Подобран предмет: {worldItem.Item.DisplayName}"
+                : "Предмет подобран");
+
+            await ForceRenderEntities();
 
             SoundService.Play(args.PickUpSound);
         });
@@ -284,7 +297,7 @@ public partial class Maze : IDisposable
             {
                 await Task.Delay(flightDuration);
 
-                if (generation != _generation || _session.IsExitFound)
+                if (generation != _generation || _session.IsExitFound || (_keyInterceptor?.IsPaused ?? false))
                 {
                     _runnerInventory.CancelCast(item);
                     return;
@@ -314,6 +327,8 @@ public partial class Maze : IDisposable
     {
         RunSafe(async () =>
         {
+            Announce($"Использован предмет: {item.DisplayName}");
+
             await ForceRender();
             SoundService.Play(item.SoundSettings?.UseSound);
         });
@@ -374,4 +389,23 @@ public partial class Maze : IDisposable
 
         StateHasChanged();
     }
+
+    private async Task ForceRenderEntities()
+    {
+        await (_field?.ForceRenderEntitiesAsync() ?? Task.CompletedTask);
+
+        StateHasChanged();
+    }
+
+    private void Announce(string text)
+    {
+        _announcements.Add(new(++_announcementId, text));
+
+        if (_announcements.Count > AnnouncementCapacity)
+        {
+            _announcements.RemoveAt(0);
+        }
+    }
+
+    private sealed record Announcement(int Id, string Text);
 }

@@ -27,6 +27,8 @@ public partial class KeyInterceptor : IAsyncDisposable
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
 
+    public bool IsPaused => _isPause;
+
     private IControlScheme ControlScheme => SchemeService.CurrentScheme;
 
     public async ValueTask DisposeAsync()
@@ -155,6 +157,11 @@ public partial class KeyInterceptor : IAsyncDisposable
 
     private void PerformMove(MoveEventArgs move)
     {
+        if (_isPause)
+        {
+            return;
+        }
+
         if (_waitItem != null)
         {
             var item = _waitItem;

@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using Labirint.Web.Common.Control.Schemes;
 using Labirint.Web.Parameters;
 using Labirint.Web.Services.Dialogs;
 using Labirint.Web.Services.Toasts;
@@ -9,7 +10,7 @@ namespace Labirint.Web.Components.Dialogs;
 public partial class OpenParametersDialog
 {
     private bool _isProcessing;
-    private ControlSchemeSwitcher _controlScheme = null!;
+    private IControlScheme _controlScheme = null!;
     private LabyrinthParameters _parameters = new();
 
     [CascadingParameter]
@@ -21,9 +22,13 @@ public partial class OpenParametersDialog
     [Inject]
     public required ILocalStorageService LocalStorage { get; set; }
 
+    [Inject]
+    public required ControlSchemeService ControlSchemeService { get; set; }
+
     protected override void OnInitialized()
     {
         _parameters = GlobalParameters.Labyrinth.Clone();
+        _controlScheme = ControlSchemeService.CurrentScheme;
     }
 
     private async Task UpdateAsync()
@@ -34,6 +39,12 @@ public partial class OpenParametersDialog
         {
             await LocalStorage.SetItemAsync(LabyrinthParameters.LocalStorageKey, _parameters);
             GlobalParameters.Labyrinth = _parameters;
+
+            if (ControlSchemeService.CurrentScheme != _controlScheme)
+            {
+                ControlSchemeService.CurrentScheme = _controlScheme;
+            }
+
             ToastService.Show("Сохранено!", UiSeverity.Success);
             Instance.Close();
         }
@@ -48,7 +59,7 @@ public partial class OpenParametersDialog
     private void Reset()
     {
         _parameters = new();
-        _controlScheme.ControlSchemeService.Reset();
+        _controlScheme = ControlSchemeService.DefaultScheme;
     }
 
     private void Cancel()
