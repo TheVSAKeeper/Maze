@@ -9,12 +9,6 @@ public class Canvas2DContext(IJSInProcessObjectReference context, IJSInProcessRu
 
     public void Dispose()
     {
-        try
-        {
-            context.Dispose();
-        }
-        catch (JSException)
-        {
-        }
+        context.Dispose();
     }
 }

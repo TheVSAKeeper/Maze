@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 
 namespace Labirint.Web.Components.Ui;
 
@@ -28,6 +29,9 @@ public partial class Sheet : IAsyncDisposable
 
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
+
+    [Inject]
+    private ILogger<Sheet> Logger { get; set; } = null!;
 
     public async ValueTask DisposeAsync()
     {
@@ -60,8 +64,9 @@ public partial class Sheet : IAsyncDisposable
         {
             await JSRuntime.InvokeVoidAsync("labirintDialog.release", _layerKey);
         }
-        catch (JSException)
+        catch (JSException exception)
         {
+            Logger.LogError(exception, "Не удалось снять ловушку фокуса шторки");
         }
     }
 

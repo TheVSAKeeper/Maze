@@ -24,7 +24,7 @@
            max="@ToText(Max)"
            step="@ToText(Step)"
            value="@ToText(Value)"
-           aria-label="@(string.IsNullOrEmpty(Label) ? AriaLabel : Label)"
+           aria-label="@(string.IsNullOrEmpty(Label) ? AriaLabel : null)"
            @oninput="OnInputAsync" />
 </div>
 

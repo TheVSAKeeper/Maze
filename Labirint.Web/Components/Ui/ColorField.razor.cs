@@ -31,6 +31,9 @@ public partial class ColorField
     public string? Label { get; set; }
 
     [Parameter]
+    public string? AriaLabel { get; set; }
+
+    [Parameter]
     public bool ShowAlpha { get; set; } = true;
 
     [Parameter]
