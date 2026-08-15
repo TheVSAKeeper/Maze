@@ -1,7 +1,6 @@
 ﻿@if (DialogService.Instances.Count > 0)
 {
-    <div @ref="_backdrop"
-         class="ui-dialog-backdrop"
+    <div class="ui-dialog-backdrop"
          tabindex="-1"
          @onclick="OnBackdropClick"
          @onkeydown="OnKeyDown"
@@ -9,6 +8,7 @@
         @foreach (DialogInstance instance in DialogService.Instances)
         {
             <div @key="instance.Id"
+                 @ref="_panels[instance.Id]"
                  class="ui-dialog-panel @GetWidthClass(instance)"
                  role="dialog"
                  aria-modal="true"
