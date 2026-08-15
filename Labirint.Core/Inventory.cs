@@ -64,7 +64,7 @@ public class Inventory
             return false;
         }
 
-        // TODO Убрать проверку на основе типа
+        // TODO: очки начисляются проверкой типа; вынести начисление в сам предмет, когда очки начнёт давать не только ScoreItem
         if (item is ScoreItem scoreItem)
         {
             ScoreIncreased?.Invoke(this, scoreItem.CostPerItem * count);

@@ -39,8 +39,9 @@ public class Oil : ScoreItem
         {
             for (var y = start.Y; y <= end.Y; y++)
             {
-                // Условие для создания формы в виде креста
-                if ((x == start.X || x == end.X) && (y == start.Y || y == end.Y))
+                var isDiagonal = (x == start.X || x == end.X) && (y == start.Y || y == end.Y);
+
+                if (isDiagonal)
                 {
                     continue;
                 }

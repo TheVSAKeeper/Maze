@@ -94,18 +94,6 @@ public class DrawSequence
         });
     }
 
-    /// <summary>
-    /// Нарисовать спрайт на экране.
-    /// </summary>
-    /// <param name="source">Путь к файлу изображения, содержащего спрайт.</param>
-    /// <param name="sX">Координата X спрайта в файле изображения.</param>
-    /// <param name="sY">Координата Y спрайта в файле изображения.</param>
-    /// <param name="sWidth">Ширина спрайта в файле изображения.</param>
-    /// <param name="sHeight">Высота спрайта в файле изображения.</param>
-    /// <param name="dX">Координата X, где будет отображен спрайт.</param>
-    /// <param name="dY">Координата Y, где будет отображен спрайт.</param>
-    /// <param name="dWidth">Ширина, в которую будет отображен спрайт.</param>
-    /// <param name="dHeight">Высота, в которую будет отображен спрайт.</param>
     public void DrawSprite(string source, double sX, double sY, double sWidth, double sHeight, double dX, double dY, double dWidth, double dHeight)
     {
         if (_spriteSource != source)
@@ -117,42 +105,18 @@ public class DrawSequence
         _sprites.AddRange([sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight]);
     }
 
-    /// <summary>
-    /// Нарисовать спрайт на экране.
-    /// </summary>
-    /// <param name="source">Путь к файлу изображения, содержащего спрайт.</param>
-    /// <param name="row">Номер строки спрайта в файле изображения.</param>
-    /// <param name="column">Номер столбца спрайта в файле изображения.</param>
-    /// <param name="sWidth">Ширина спрайта в файле изображения.</param>
-    /// <param name="sHeight">Высота спрайта в файле изображения.</param>
-    /// <param name="dX">Координата X, где будет отображен спрайт.</param>
-    /// <param name="dY">Координата Y, где будет отображен спрайт.</param>
-    /// <param name="dWidth">Ширина, в которую будет отображен спрайт.</param>
-    /// <param name="dHeight">Высота, в которую будет отображен спрайт.</param>
     public void DrawSprite(string source, int row, int column, double sWidth, double sHeight, double dX, double dY, double dWidth, double dHeight)
     {
         DrawSprite(source, column * sWidth, row * sHeight, sWidth, sHeight,
             dX, dY, dWidth, dHeight);
     }
 
-    /// <summary>
-    /// Нарисовать спрайт на экране с одинаковыми размерами источника и назначения.
-    /// </summary>
-    /// <param name="source">Путь к файлу изображения, содержащего спрайт.</param>
-    /// <param name="row">Номер строки спрайта в файле изображения.</param>
-    /// <param name="column">Номер столбца спрайта в файле изображения.</param>
-    /// <param name="dX">Координата X, где будет отображен спрайт.</param>
-    /// <param name="dY">Координата Y, где будет отображен спрайт.</param>
-    /// <param name="size">Размер, в который будет отображен спрайт.</param>
     public void DrawSprite(string source, int row, int column, double dX, double dY, double size)
     {
         DrawSprite(source, row, column, size, size,
             dX, dY, size, size);
     }
 
-    /// <summary>
-    /// Завершить набор и вернуть команды для передачи в JavaScript.
-    /// </summary>
     public IReadOnlyList<Command> Build()
     {
         FlushSprites();
