@@ -1,25 +1,21 @@
-﻿using Labirint.Core.Interfaces;
+﻿using Labirint.Web.Common.Seeding;
 using Labirint.Web.Components.Dialogs;
 using Labirint.Web.Services.Dialogs;
 using Microsoft.AspNetCore.Components;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Labirint.Web.Components;
 
-public partial class RandomGenerator : IRandom
+public partial class RandomGenerator
 {
     public const string SizeQueryName = "s";
     public const string DensityQueryName = "d";
     private const string MazePageUrl = "labirint";
 
-    private int _currentSeed;
+    private readonly SeedSource _seed = new();
 
-    private Random? _random;
-    private string? _userSeed;
     private string? _appliedSeed;
 
-    public Random Generator => _random ?? Random.Shared;
+    public SeedSource Source => _seed;
 
     public string Link => GetShareLink();
 
@@ -41,33 +37,17 @@ public partial class RandomGenerator : IRandom
     [Inject]
     private DialogService DialogService { get; set; } = null!;
 
-    private bool IsGenerateRequired => _currentSeed < 0;
+    private bool IsGenerateRequired => _seed.IsGenerateRequired;
 
     public void Repeat()
     {
-        if (IsGenerateRequired)
-        {
-            Reload();
-            return;
-        }
-
-        _random = new(_currentSeed);
+        _seed.Repeat();
         StateHasChanged();
     }
 
     public void Reload(bool force = false)
     {
-        if (force || string.IsNullOrWhiteSpace(_userSeed))
-        {
-            ReloadWithRandomSeed();
-            return;
-        }
-
-        _currentSeed = _userSeed.All(char.IsDigit) && int.TryParse(_userSeed, out var parsedSeed)
-            ? parsedSeed
-            : GenerateSeed(_userSeed);
-
-        _random = new(_currentSeed);
+        _seed.Reload(force);
         StateHasChanged();
     }
 
@@ -79,33 +59,18 @@ public partial class RandomGenerator : IRandom
         }
 
         _appliedSeed = Seed;
-        _userSeed = string.IsNullOrWhiteSpace(Seed) ? null : Seed;
-    }
-
-    private static int GenerateSeed(string input)
-    {
-        var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
-        var result = BitConverter.ToInt32(hashBytes, 0);
-        return result == int.MinValue ? int.MaxValue : Math.Abs(result);
-    }
-
-    private void ReloadWithRandomSeed()
-    {
-        _userSeed = null;
-        _currentSeed = Random.Shared.Next();
-        _random = new(_currentSeed);
-        StateHasChanged();
+        _seed.UserSeed = string.IsNullOrWhiteSpace(Seed) ? null : Seed;
     }
 
     private void ResetSeed()
     {
-        _currentSeed = -1;
+        _seed.ResetSeed();
         StateHasChanged();
     }
 
     private string GetShareLink()
     {
-        var linkWithSeed = $"{NavigationManager.BaseUri}{MazePageUrl}/{_currentSeed}";
+        var linkWithSeed = $"{NavigationManager.BaseUri}{MazePageUrl}/{_seed.CurrentSeed}";
 
         return NavigationManager.GetUriWithQueryParameters(linkWithSeed, new Dictionary<string, object?>
         {
@@ -119,7 +84,7 @@ public partial class RandomGenerator : IRandom
         await DialogService.ShowAsync<ShareDialog>("Поделиться лабиринтом", new DialogParameters
         {
             [nameof(ShareDialog.Link)] = Link,
-            [nameof(ShareDialog.UserSeed)] = _userSeed,
+            [nameof(ShareDialog.UserSeed)] = _seed.UserSeed,
             [nameof(ShareDialog.IsExitFound)] = IsExitFound,
         }, new DialogOptions { Width = DialogWidth.Medium });
     }

@@ -137,7 +137,7 @@ public partial class Maze : IDisposable
             return;
         }
 
-        _session = new(_seeder);
+        _session = new(_seeder.Source);
         _session.Finished += OnFinished;
         _session.Labyrinth.RunnerMoved += OnRunnerMoved;
         _session.Labyrinth.ItemPickedUp += OnItemPickedUp;
