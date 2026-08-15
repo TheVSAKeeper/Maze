@@ -21,6 +21,9 @@ public partial class NumberField : IDisposable
     public string? Label { get; set; }
 
     [Parameter]
+    public string? AriaLabel { get; set; }
+
+    [Parameter]
     public int Min { get; set; }
 
     [Parameter]
