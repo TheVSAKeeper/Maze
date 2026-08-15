@@ -13,8 +13,6 @@ public sealed class InventoryAnimator : IDisposable
         _inventory = inventory;
         _stacks = CreateStacks();
 
-        AnimatedStack.StateChanged += OnStateChanged;
-
         _inventory.ItemAdded += OnItemAdded;
         _inventory.ItemCantAdded += OnItemCantAdded;
         _inventory.ItemUsed += OnItemUsed;
@@ -30,7 +28,7 @@ public sealed class InventoryAnimator : IDisposable
 
     public void Dispose()
     {
-        AnimatedStack.StateChanged -= OnStateChanged;
+        ReleaseStacks();
 
         _inventory.ItemAdded -= OnItemAdded;
         _inventory.ItemCantAdded -= OnItemCantAdded;
@@ -76,7 +74,7 @@ public sealed class InventoryAnimator : IDisposable
     {
         if (item == null)
         {
-            _waitStack?.RemoveState();
+            _waitStack?.CancelState();
             _waitStack = null;
             return;
         }
@@ -92,7 +90,22 @@ public sealed class InventoryAnimator : IDisposable
 
     private Dictionary<Item, AnimatedStack> CreateStacks()
     {
-        return _inventory.Stacks.ToDictionary(stack => stack.Item, stack => new AnimatedStack(stack));
+        var stacks = _inventory.Stacks.ToDictionary(stack => stack.Item, stack => new AnimatedStack(stack));
+
+        foreach (var stack in stacks.Values)
+        {
+            stack.StateChanged += OnStateChanged;
+        }
+
+        return stacks;
+    }
+
+    private void ReleaseStacks()
+    {
+        foreach (var stack in _stacks.Values)
+        {
+            stack.StateChanged -= OnStateChanged;
+        }
     }
 
     private void OnStateChanged(AnimatedStack.State state)
@@ -138,6 +151,7 @@ public sealed class InventoryAnimator : IDisposable
 
     private void OnInventoryCleared(object? sender, EventArgs args)
     {
+        ReleaseStacks();
         _stacks = CreateStacks();
         _waitStack = null;
         _castingItem = null;
