@@ -3,6 +3,11 @@
 public class WorldItem(Item item, string imageSource, Alignment alignment, double scale)
     : TileFeature
 {
+    /// <summary>
+    /// Предмет, лежащий в клетке.
+    /// </summary>
+    public Item Item => item;
+
     public Action<Position, Labyrinth>? AfterPlace { get; init; }
     public int? PickUpCount { get; init; }
 

@@ -16,12 +16,18 @@ const isEditableTarget = target => {
 
 const isModalOpen = () => document.querySelector(".sheet--open, .ui-dialog-backdrop") !== null;
 
+const scrollKeys = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"]);
+
 window.initializeKeyInterceptor = (dotNetHelper, id) => {
     window.finalizeKeyInterceptor(id);
 
     const handler = e => {
-        if (isEditableTarget(e.target) || isModalOpen()) {
+        if (e.repeat || isEditableTarget(e.target) || isModalOpen()) {
             return;
+        }
+
+        if (scrollKeys.has(e.code)) {
+            e.preventDefault();
         }
 
         dotNetHelper.invokeMethodAsync('OnKeyDown', e.code);
