@@ -5,6 +5,8 @@ namespace Labirint.Web.Components.Ui;
 
 public partial class Sheet : IAsyncDisposable
 {
+    private readonly string _layerKey = $"sheet-{Guid.NewGuid():N}";
+
     private ElementReference _sheet;
     private bool _isTrapped;
 
@@ -48,7 +50,7 @@ public partial class Sheet : IAsyncDisposable
         _isTrapped = IsOpen;
 
         await (IsOpen
-            ? JSRuntime.InvokeVoidAsync("labirintDialog.trap", _sheet)
+            ? JSRuntime.InvokeVoidAsync("labirintDialog.trap", _sheet, _layerKey)
             : ReleaseAsync());
     }
 
@@ -56,7 +58,7 @@ public partial class Sheet : IAsyncDisposable
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("labirintDialog.release", _sheet);
+            await JSRuntime.InvokeVoidAsync("labirintDialog.release", _layerKey);
         }
         catch (JSDisconnectedException)
         {

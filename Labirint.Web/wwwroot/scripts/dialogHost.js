@@ -54,8 +54,8 @@
     };
 
     return {
-        trap: element => {
-            const index = layers.findIndex(layer => layer.element === element);
+        trap: (element, key) => {
+            const index = layers.findIndex(layer => layer.key === key);
             const previous = index < 0 ? document.activeElement : layers[index].previous;
 
             if (index >= 0) {
@@ -66,13 +66,13 @@
                 document.addEventListener('keydown', onKeyDown, true);
             }
 
-            layers.push({ element, previous });
+            layers.push({ element, previous, key });
             document.body.style.overflow = 'hidden';
 
             focusInto(element);
         },
-        release: element => {
-            const index = element ? layers.findIndex(layer => layer.element === element) : layers.length - 1;
+        release: key => {
+            const index = key ? layers.findIndex(layer => layer.key === key) : layers.length - 1;
 
             if (index < 0) {
                 return;
