@@ -8,7 +8,7 @@ public class AnimatedStack(ItemStack stack)
     private State _executedState = State.Removed;
     private int _countVersion;
 
-    public static event Action<State>? StateChanged;
+    public event Action<State>? StateChanged;
 
     public enum State
     {
@@ -77,8 +77,9 @@ public class AnimatedStack(ItemStack stack)
         StateChanged?.Invoke(_executedState);
     }
 
-    public void RemoveState()
+    public void CancelState()
     {
+        _stateQueue.Clear();
         ExecutedState = State.Removed;
     }
 
@@ -147,7 +148,7 @@ public class AnimatedStack(ItemStack stack)
 
         if (ExecutedState == state)
         {
-            RemoveState();
+            ExecutedState = State.Removed;
         }
     }
 }
