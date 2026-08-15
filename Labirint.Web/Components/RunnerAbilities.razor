@@ -8,7 +8,7 @@
                 <div class="ability-name">@ability.Properties.DisplayName</div>
                 @if (ability.Properties.IsUnlimitedMoveCount == false)
                 {
-                    <div class="ability-lost-count t-data">@ability.LostCount</div>
+                    <div class="ability-lost-count t-data"><span class="visually-hidden">Осталось ходов: </span>@ability.LostCount</div>
                 }
             </div>
         </div>

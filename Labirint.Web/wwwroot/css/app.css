@@ -157,10 +157,15 @@ code {
 }
 
 #blazor-error-ui .dismiss {
+    font: inherit;
     position: absolute;
     top: var(--s-3);
     right: var(--s-4);
+    padding: 0;
     cursor: pointer;
+    color: inherit;
+    border: 0;
+    background: none;
 }
 
 .blazor-error-boundary {
