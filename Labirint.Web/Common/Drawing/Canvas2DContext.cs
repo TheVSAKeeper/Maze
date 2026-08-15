@@ -13,7 +13,7 @@ public class Canvas2DContext(IJSInProcessObjectReference context, IJSInProcessRu
         {
             context.Dispose();
         }
-        catch (JSDisconnectedException)
+        catch (JSException)
         {
         }
     }

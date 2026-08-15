@@ -23,11 +23,5 @@ public class PickupFlightService(IJSRuntime jsRuntime)
         catch (JSException)
         {
         }
-        catch (JSDisconnectedException)
-        {
-        }
-        catch (TaskCanceledException)
-        {
-        }
     }
 }
