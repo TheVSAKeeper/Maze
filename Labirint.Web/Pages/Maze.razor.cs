@@ -46,6 +46,7 @@ public partial class Maze : IDisposable
     private int _generatedDensity;
 
     private int _displayScore;
+    private int _generationProgress;
 
     private MazeField? _field;
     private KeyInterceptor? _keyInterceptor;
@@ -78,6 +79,10 @@ public partial class Maze : IDisposable
     private bool IsInit => _isInit && _session is { IsReady: true };
 
     private bool IsBusy => IsInit == false || _isGenerating;
+
+    private string LoadingText => _isGenerating && _generationProgress is > 0 and < 100
+        ? $"Генерация.. {_generationProgress} %"
+        : "Загрузка..";
 
     public void Dispose()
     {
@@ -260,7 +265,7 @@ public partial class Maze : IDisposable
 
     private void OnAttackKeyDown(object? sender, AttackEventArgs args)
     {
-        if (_session.IsExitFound)
+        if (_session.IsExitFound || _isGenerating)
         {
             return;
         }
@@ -315,7 +320,7 @@ public partial class Maze : IDisposable
 
     private void Move(Direction? direction)
     {
-        if (direction is null or Direction.None || _session.IsExitFound)
+        if (direction is null or Direction.None || _session.IsExitFound || _isGenerating)
         {
             return;
         }
@@ -352,6 +357,7 @@ public partial class Maze : IDisposable
         _keyInterceptor?.ResetWaitItem();
 
         _isGenerating = true;
+        _generationProgress = 0;
         StateHasChanged();
         await Task.Delay(1);
 
@@ -372,7 +378,7 @@ public partial class Maze : IDisposable
         _generatedSize = _originalSize;
         _generatedDensity = _density;
 
-        _session.Generate(_generatedSize, _generatedDensity);
+        await _session.GenerateAsync(_generatedSize, _generatedDensity, new Progress<int>(OnGenerationProgress));
         _isGenerating = false;
 
         StateHasChanged();
@@ -394,6 +400,17 @@ public partial class Maze : IDisposable
     {
         await (_field?.ForceRenderEntitiesAsync() ?? Task.CompletedTask);
 
+        StateHasChanged();
+    }
+
+    private void OnGenerationProgress(int percent)
+    {
+        if (_isGenerating == false)
+        {
+            return;
+        }
+
+        _generationProgress = percent;
         StateHasChanged();
     }
 

@@ -8,6 +8,8 @@ namespace Labirint.Core;
 /// </summary>
 public class Labyrinth
 {
+    private const int CellsPerYield = 4096;
+
     private readonly IRandom _seeder;
     private readonly ItemPlacer _itemPlacer;
 
@@ -95,6 +97,31 @@ public class Labyrinth
     /// <param name="placeableItems">Список предметов, которые нужно разместить в лабиринте</param>
     public void Init(int width, int height, int density, IEnumerable<Item>? placeableItems = null)
     {
+        foreach (var _ in Generate(width, height, density, placeableItems))
+        {
+        }
+    }
+
+    /// <summary>
+    /// Инициализировать лабиринт, отдавая управление вызывающей стороне между полосами клеток.
+    /// </summary>
+    /// <param name="width">Ширина лабиринта</param>
+    /// <param name="height">Высота лабиринта</param>
+    /// <param name="density">Плотность стен в лабиринте</param>
+    /// <param name="placeableItems">Список предметов, которые нужно разместить в лабиринте</param>
+    /// <param name="progress">Приёмник прогресса генерации в процентах</param>
+    public async Task InitAsync(int width, int height, int density, IEnumerable<Item>? placeableItems = null, IProgress<int>? progress = null)
+    {
+        foreach (var percent in Generate(width, height, density, placeableItems))
+        {
+            progress?.Report(percent);
+
+            await Task.Yield();
+        }
+    }
+
+    private IEnumerable<int> Generate(int width, int height, int density, IEnumerable<Item>? placeableItems)
+    {
         Runner.Reset();
 
         placeableItems ??= Runner.Inventory.AllItems;
@@ -103,6 +130,8 @@ public class Labyrinth
         Height = height;
 
         Tiles = new Tile[width, height];
+
+        var columnsPerYield = Math.Max(1, CellsPerYield / height);
 
         for (var x = 0; x < width; x++)
         {
@@ -115,12 +144,19 @@ public class Labyrinth
                 CreateWall((x, y), Direction.Top, density);
                 CreateWall((x, y), Direction.Left, density);
             }
+
+            if ((x + 1) % columnsPerYield == 0 && x + 1 < width)
+            {
+                yield return (x + 1) * 100 / width;
+            }
         }
 
         this[width / 2, height - 1].IsExit = true;
         this[width / 2, height - 1].RemoveWall(Direction.Bottom);
 
         _itemPlacer.PlaceItems(width, height, density, placeableItems);
+
+        yield return 100;
     }
 
     /// <summary>

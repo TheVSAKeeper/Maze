@@ -38,13 +38,13 @@ public sealed class MazeSession : IDisposable
         Labyrinth.ExitFound -= OnExitFound;
     }
 
-    public void Generate(int size, int density)
+    public async Task GenerateAsync(int size, int density, IProgress<int>? progress = null)
     {
         IsExitFound = false;
         IsContinued = false;
         MoveCount = 0;
 
-        Labyrinth.Init(size, size, density);
+        await Labyrinth.InitAsync(size, size, density, progress: progress);
 
         Vision = new(size, size);
         Vision.SetPosition(Runner.Position);
