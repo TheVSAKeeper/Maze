@@ -1,6 +1,6 @@
-﻿using Blazored.LocalStorage;
-using Labirint.Web.Common.Control.Schemes;
+﻿using Labirint.Web.Common.Control.Schemes;
 using Labirint.Web.Parameters;
+using Labirint.Web.Services;
 using Labirint.Web.Services.Dialogs;
 using Labirint.Web.Services.Toasts;
 using Microsoft.AspNetCore.Components;
@@ -20,14 +20,14 @@ public partial class OpenParametersDialog
     public required ToastService ToastService { get; set; }
 
     [Inject]
-    public required ILocalStorageService LocalStorage { get; set; }
+    public required LabyrinthParametersService ParametersService { get; set; }
 
     [Inject]
     public required ControlSchemeService ControlSchemeService { get; set; }
 
     protected override void OnInitialized()
     {
-        _parameters = GlobalParameters.Labyrinth.Clone();
+        _parameters = ParametersService.Current.Clone();
         _controlScheme = ControlSchemeService.CurrentScheme;
     }
 
@@ -37,8 +37,7 @@ public partial class OpenParametersDialog
 
         try
         {
-            await LocalStorage.SetItemAsync(LabyrinthParameters.LocalStorageKey, _parameters);
-            GlobalParameters.Labyrinth = _parameters;
+            await ParametersService.SaveAsync(_parameters);
 
             if (ControlSchemeService.CurrentScheme != _controlScheme)
             {

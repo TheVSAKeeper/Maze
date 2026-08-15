@@ -1,4 +1,5 @@
 ﻿using Labirint.Web.Parameters;
+using Labirint.Web.Services;
 using Microsoft.AspNetCore.Components;
 
 namespace Labirint.Web.Components.Base;
@@ -12,13 +13,16 @@ public abstract class MazeComponent : RenderComponent, IDisposable
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
 
+    [Inject]
+    public required LabyrinthParametersService ParametersService { get; set; }
+
     [CascadingParameter]
     public required MazeRenderParameters RenderParameters { get; set; }
 
     public int CanvasWidth { get; private set; }
     public int CanvasHeight { get; private set; }
 
-    protected virtual string StrokeStyle => GlobalParameters.Labyrinth.Color;
+    protected virtual string StrokeStyle => ParametersService.Current.Color;
 
     protected int BoxSize { get; private set; }
     protected int WallWidth { get; private set; }
