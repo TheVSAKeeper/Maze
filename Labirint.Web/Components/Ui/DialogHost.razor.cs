@@ -68,10 +68,7 @@ public partial class DialogHost : IDisposable
         {
             await JSRuntime.InvokeVoidAsync("labirintDialog.release", GetLayerKey(id));
         }
-        catch (JSDisconnectedException)
-        {
-        }
-        catch (TaskCanceledException)
+        catch (JSException)
         {
         }
     }

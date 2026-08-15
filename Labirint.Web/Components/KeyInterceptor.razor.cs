@@ -39,10 +39,7 @@ public partial class KeyInterceptor : IAsyncDisposable
         {
             await JSRuntime.InvokeVoidAsync("finalizeKeyInterceptor", _interceptorId);
         }
-        catch (JSDisconnectedException)
-        {
-        }
-        catch (TaskCanceledException)
+        catch (JSException)
         {
         }
 

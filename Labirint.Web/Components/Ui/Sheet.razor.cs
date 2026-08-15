@@ -60,10 +60,7 @@ public partial class Sheet : IAsyncDisposable
         {
             await JSRuntime.InvokeVoidAsync("labirintDialog.release", _layerKey);
         }
-        catch (JSDisconnectedException)
-        {
-        }
-        catch (TaskCanceledException)
+        catch (JSException)
         {
         }
     }
