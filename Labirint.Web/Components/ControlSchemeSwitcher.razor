@@ -1,7 +1,12 @@
-﻿<div class="ui-stack ui-stack--2">
-    <div class="t-label">Схема управления</div>
+﻿@using Labirint.Web.Common.Control.Schemes
 
-    <RadioGroup @bind-Value="ControlSchemeService.CurrentScheme">
+<div class="ui-stack ui-stack--2">
+    <div class="t-label" id="@_labelId">Схема управления</div>
+
+    <RadioGroup AriaLabelledBy="@_labelId"
+                T="IControlScheme"
+                Value="Value"
+                ValueChanged="SwitchSchemeAsync">
         <div class="ui-stack ui-stack--1">
             @foreach (var scheme in ControlSchemeService.AvailableSchemes)
             {

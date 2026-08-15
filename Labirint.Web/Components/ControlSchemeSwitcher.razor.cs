@@ -3,30 +3,22 @@ using Microsoft.AspNetCore.Components;
 
 namespace Labirint.Web.Components;
 
-public partial class ControlSchemeSwitcher : IDisposable
+public partial class ControlSchemeSwitcher
 {
+    private readonly string _labelId = $"scheme-{Guid.NewGuid():N}";
+
     [Inject]
     public required ControlSchemeService ControlSchemeService { get; set; }
 
-    public void Dispose()
-    {
-        ControlSchemeService.ControlSchemeChanged -= OnControlSchemeChanged;
+    [Parameter]
+    [EditorRequired]
+    public required IControlScheme Value { get; set; }
 
-        GC.SuppressFinalize(this);
-    }
+    [Parameter]
+    public EventCallback<IControlScheme> ValueChanged { get; set; }
 
-    protected override void OnInitialized()
+    private Task SwitchSchemeAsync(IControlScheme scheme)
     {
-        ControlSchemeService.ControlSchemeChanged += OnControlSchemeChanged;
-    }
-
-    private void OnControlSchemeChanged(object? sender, IControlScheme e)
-    {
-        StateHasChanged();
-    }
-
-    private void SwitchScheme(IControlScheme scheme)
-    {
-        ControlSchemeService.CurrentScheme = scheme;
+        return ValueChanged.InvokeAsync(scheme);
     }
 }

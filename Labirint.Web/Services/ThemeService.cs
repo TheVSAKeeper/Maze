@@ -1,8 +1,9 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.Extensions.Logging;
 
 namespace Labirint.Web.Services;
 
-public sealed class ThemeService(IJSRuntime jsRuntime, ILocalStorageService localStorage)
+public sealed class ThemeService(IJSRuntime jsRuntime, ILocalStorageService localStorage, ILogger<ThemeService> logger)
 {
     private const string StorageKey = "IsDarkMod";
 
@@ -10,7 +11,17 @@ public sealed class ThemeService(IJSRuntime jsRuntime, ILocalStorageService loca
 
     public async Task InitializeAsync()
     {
-        var isDark = await localStorage.GetItemAsync<bool?>(StorageKey);
+        bool? isDark = null;
+
+        try
+        {
+            isDark = await localStorage.GetItemAsync<bool?>(StorageKey);
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Не удалось прочитать выбранную тему, берётся системная");
+        }
+
         IsDark = isDark ?? await jsRuntime.InvokeAsync<bool>("labirintTheme.isSystemDark");
         await ApplyAsync();
     }
@@ -18,7 +29,16 @@ public sealed class ThemeService(IJSRuntime jsRuntime, ILocalStorageService loca
     public async Task ToggleAsync()
     {
         IsDark = IsDark == false;
-        await localStorage.SetItemAsync(StorageKey, IsDark);
+
+        try
+        {
+            await localStorage.SetItemAsync(StorageKey, IsDark);
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Не удалось сохранить выбранную тему");
+        }
+
         await ApplyAsync();
     }
 

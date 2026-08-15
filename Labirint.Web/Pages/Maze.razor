@@ -3,6 +3,16 @@
 
 <PageTitle>Лабиринт: партия</PageTitle>
 
+<h1 class="visually-hidden">Лабиринт</h1>
+
+<div aria-live="polite"
+     class="visually-hidden">
+    @foreach (var announcement in _announcements)
+    {
+        <div @key="announcement.Id">@announcement.Text</div>
+    }
+</div>
+
 @if (IsBusy)
 {
     <div class="loading ui-row ui-row--2">
