@@ -19,7 +19,7 @@
                value="@_hex"
                spellcheck="false"
                autocomplete="off"
-               aria-label="@Label"
+               aria-label="@(string.IsNullOrEmpty(Label) ? AriaLabel : null)"
                @onchange="OnHexChangedAsync" />
     </div>
 

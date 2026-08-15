@@ -2,6 +2,7 @@
 using Labirint.Web.Services.Dialogs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 
 namespace Labirint.Web.Components.Ui;
 
@@ -15,6 +16,9 @@ public partial class DialogHost : IDisposable
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
+
+    [Inject]
+    public required ILogger<DialogHost> Logger { get; set; }
 
     public void Dispose()
     {
@@ -68,8 +72,9 @@ public partial class DialogHost : IDisposable
         {
             await JSRuntime.InvokeVoidAsync("labirintDialog.release", GetLayerKey(id));
         }
-        catch (JSException)
+        catch (JSException exception)
         {
+            Logger.LogError(exception, "Не удалось снять ловушку фокуса диалога");
         }
     }
 

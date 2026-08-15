@@ -163,7 +163,7 @@ code {
     right: var(--s-4);
     padding: 0;
     cursor: pointer;
-    color: inherit;
+    color: var(--accent);
     border: 0;
     background: none;
 }

@@ -11,7 +11,7 @@
            max="@Max"
            value="@_text"
            inputmode="numeric"
-           aria-label="@AriaLabel"
+           aria-label="@(string.IsNullOrEmpty(Label) ? AriaLabel : null)"
            @oninput="OnInputAsync"
            @onblur="OnBlurAsync" />
 </div>

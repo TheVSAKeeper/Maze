@@ -2,9 +2,13 @@
     var stack = Stack.Stack;
     var item = stack.Item;
 
-    var useLabel = stack.IsInfinite
-        ? $"Использовать: {item.DisplayName}. В инвентаре {Stack.DisplayCount}, предел не ограничен"
-        : $"Использовать: {item.DisplayName}. В инвентаре {Stack.DisplayCount} из {stack.MaxCount}";
+    var countLabel = stack.IsInfinite
+        ? $"В инвентаре {Stack.DisplayCount}, предел не ограничен"
+        : $"В инвентаре {Stack.DisplayCount} из {stack.MaxCount}";
+
+    var keyLabel = string.IsNullOrEmpty(KeySymbol) ? string.Empty : $". Клавиша {KeySymbol}";
+
+    var useLabel = $"Использовать: {item.DisplayName}. {countLabel}{keyLabel}";
 }
 
 <div class="inventory-item-container">
@@ -43,12 +47,13 @@
 
     @if (string.IsNullOrEmpty(KeySymbol) == false)
     {
-        <button aria-label="@($"Использовать: {item.DisplayName}, клавиша {KeySymbol}")"
+        <button aria-hidden="true"
                 class="keyboard-button"
                 @onclick="() => OnUse.InvokeAsync(item)"
+                tabindex="-1"
                 title="Использовать предмет"
                 type="button">
-            <span aria-hidden="true">
+            <span>
                 @KeySymbol
             </span>
         </button>

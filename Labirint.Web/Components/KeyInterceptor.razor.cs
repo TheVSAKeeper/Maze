@@ -1,5 +1,6 @@
 ﻿using Labirint.Web.Common.Control.Schemes;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 
 namespace Labirint.Web.Components;
 
@@ -27,6 +28,9 @@ public partial class KeyInterceptor : IAsyncDisposable
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
 
+    [Inject]
+    public required ILogger<KeyInterceptor> Logger { get; set; }
+
     public bool IsPaused => _isPause;
 
     private IControlScheme ControlScheme => SchemeService.CurrentScheme;
@@ -39,8 +43,9 @@ public partial class KeyInterceptor : IAsyncDisposable
         {
             await JSRuntime.InvokeVoidAsync("finalizeKeyInterceptor", _interceptorId);
         }
-        catch (JSException)
+        catch (JSException exception)
         {
+            Logger.LogError(exception, "Не удалось снять перехватчик клавиш");
         }
 
         _reference?.Dispose();

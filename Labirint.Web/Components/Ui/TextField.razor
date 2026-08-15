@@ -12,7 +12,7 @@
            value="@Value"
            placeholder="@Placeholder"
            readonly="@ReadOnly"
-           aria-label="@AriaLabel"
+           aria-label="@(string.IsNullOrEmpty(Label) ? AriaLabel : null)"
            @oninput="OnInputAsync"
            @onblur="OnBlurAsync" />
 
