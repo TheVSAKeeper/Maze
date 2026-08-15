@@ -41,6 +41,11 @@ public partial class MazeField : SafeComponent, IDisposable
             _mazeEntities?.ForceRenderAsync() ?? Task.CompletedTask);
     }
 
+    public Task ForceRenderEntitiesAsync()
+    {
+        return _mazeEntities?.ForceRenderAsync() ?? Task.CompletedTask;
+    }
+
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && _touchInterceptor != null)
