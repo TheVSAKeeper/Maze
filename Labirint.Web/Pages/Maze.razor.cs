@@ -23,6 +23,8 @@ public partial class Maze : IDisposable
 
     private const int AnnouncementCapacity = 4;
 
+    private const string StepSound = "step";
+
     private readonly List<Announcement> _announcements = [];
 
     private int _announcementId;
@@ -192,8 +194,7 @@ public partial class Maze : IDisposable
 
             await ForceRender();
 
-            // TODO подумать как вынести строку
-            SoundService.Play("step");
+            SoundService.Play(StepSound);
         });
     }
 

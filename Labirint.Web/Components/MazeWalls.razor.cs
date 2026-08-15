@@ -15,12 +15,6 @@ public partial class MazeWalls : MazeComponent
 
     protected override void DrawInner(int x, int y, DrawSequence sequence)
     {
-        // При рисовании на canvas, ширина линии симметрична центру,
-        // то есть при рисовании из (0,0) в (0,10) получится линии в половину ширины,
-        // в итоге линия - это будет прямоугольник (0,0) в (ширина/2, 10),
-        // поэтому нужны были смешение в половину ширины линии.
-        // Теперь для упрощения понимания рисуются не линии, а просто прямоугольники.
-
         var topLeft = Vision.GetDraw((x, y)) * BoxSize;
         var bottomRight = topLeft + BoxSize;
 

@@ -28,7 +28,6 @@ public partial class MazeFloor : MazeComponent
         }
     }
 
-    // https://i.imgur.com/WL6Nt13.png
     private int[,] GetTile(int x, int y)
     {
         int? topLeft = null;
