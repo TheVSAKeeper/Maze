@@ -75,6 +75,18 @@ public class Labyrinth
     }
 
     /// <summary>
+    /// Лежит ли позиция внутри лабиринта.
+    /// </summary>
+    /// <param name="position">Проверяемая позиция</param>
+    public bool Contains(Position position)
+    {
+        return position.X >= 0
+               && position.X < Width
+               && position.Y >= 0
+               && position.Y < Height;
+    }
+
+    /// <summary>
     /// Инициализировать лабиринт с заданными параметрами.
     /// </summary>
     /// <param name="width">Ширина лабиринта</param>

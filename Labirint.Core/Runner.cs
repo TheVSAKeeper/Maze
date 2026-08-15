@@ -46,8 +46,8 @@ public class Runner : IDisposable
 
     public bool Move(Direction direction)
     {
-        // TODO Можно выйти за границы лабиринта
         if (direction == Direction.All
+            || _labyrinth.Contains(Position + direction) == false
             || _labyrinth[Position].ContainsWall(direction)
             && ContainsActiveAbility(ability => ability.IsIgnoreWalls) == false)
         {
