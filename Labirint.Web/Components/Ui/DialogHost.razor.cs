@@ -36,10 +36,24 @@ public partial class DialogHost : IDisposable
         }
         else if (count == 0 && _shownCount > 0)
         {
-            await JSRuntime.InvokeVoidAsync("labirintDialog.release", _backdrop);
+            await ReleaseAsync();
         }
 
         _shownCount = count;
+    }
+
+    private async ValueTask ReleaseAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("labirintDialog.release", _backdrop);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (TaskCanceledException)
+        {
+        }
     }
 
     private static string GetWidthClass(DialogInstance instance)
