@@ -2,11 +2,17 @@
 using Labirint.Web.Common.Control;
 using Labirint.Web.Common.Control.Schemes;
 
-namespace Labirint.Web.Tests;
+namespace Labirint.Web.Tests.Control;
 
 [TestFixture]
 public class KeyBindingMapTests
 {
+    /// <summary>
+    /// Тестирует, что KeyBindingMap.FindDigit распознаёт коды клавиш цифрового ряда DigitN.
+    /// Проверяет, что для кодов Digit0, Digit7 и Digit9 метод возвращает соответствующую цифру.
+    /// </summary>
+    /// <param name="code">Код клавиши</param>
+    /// <param name="expectedDigit">Ожидаемая цифра</param>
     [TestCase("Digit0", 0)]
     [TestCase("Digit7", 7)]
     [TestCase("Digit9", 9)]
@@ -15,6 +21,11 @@ public class KeyBindingMapTests
         Assert.That(KeyBindingMap.FindDigit(code), Is.EqualTo(expectedDigit));
     }
 
+    /// <summary>
+    /// Тестирует, что KeyBindingMap.FindDigit отклоняет коды, не являющиеся кодом цифровой клавиши DigitN.
+    /// Проверяет, что для усечённого кода, буквенного суффикса, кода Numpad, кода буквы и кода в нижнем регистре метод возвращает null.
+    /// </summary>
+    /// <param name="code">Код клавиши</param>
     [TestCase("Digit")]
     [TestCase("DigitA")]
     [TestCase("Numpad1")]
@@ -25,6 +36,10 @@ public class KeyBindingMapTests
         Assert.That(KeyBindingMap.FindDigit(code), Is.Null);
     }
 
+    /// <summary>
+    /// Тестирует, что KeyBindingMap.Rebuild строит привязку кодов клавиш к направлениям по схеме управления.
+    /// Проверяет, что FindDirection для клавиш ClassicScheme возвращает соответствующие им направления Left, Top, Right, Bottom.
+    /// </summary>
     [Test]
     public void DirectionsAreBoundToSchemeTest()
     {
@@ -42,6 +57,10 @@ public class KeyBindingMapTests
         });
     }
 
+    /// <summary>
+    /// Тестирует, что KeyBindingMap не находит привязку для кода клавиши, не входящего в схему управления.
+    /// Проверяет, что FindDirection и FindItem для незнакомого кода "F13" возвращают null.
+    /// </summary>
     [Test]
     public void UnknownCodeHasNoBindingTest()
     {
@@ -56,6 +75,10 @@ public class KeyBindingMapTests
         });
     }
 
+    /// <summary>
+    /// Тестирует, что повторный KeyBindingMap.Rebuild с новой схемой полностью заменяет прежние привязки направлений.
+    /// Проверяет, что коды клавиш прежней схемы, не встречающиеся в новой, перестают находить направление.
+    /// </summary>
     [Test]
     public void SchemeChangeReplacesDirectionsTest()
     {
@@ -72,6 +95,10 @@ public class KeyBindingMapTests
         Assert.That(replacedCodes.Select(key => map.FindDirection(key)), Has.All.Null);
     }
 
+    /// <summary>
+    /// Тестирует, что KeyBindingMap.Rebuild с переданным инвентарём привязывает предметы к их клавишам активации.
+    /// Проверяет, что FindItem по клавише активации каждого предмета с ControlSettings возвращает именно этот предмет.
+    /// </summary>
     [Test]
     public void ItemsAreBoundToActivateKeysTest()
     {

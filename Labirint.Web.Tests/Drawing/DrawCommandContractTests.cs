@@ -1,13 +1,17 @@
 ﻿using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Labirint.Web.Tests;
+namespace Labirint.Web.Tests.Drawing;
 
 [TestFixture]
 public class DrawCommandContractTests
 {
     private const string ScriptFileName = "canvasHelper.js";
 
+    /// <summary>
+    /// Тестирует, что числовые коды DrawSequence.Command совпадают с объектом commandTypes в canvasHelper.js.
+    /// Проверяет, что множество кодов и camelCase-имён, разобранных из скрипта регуляркой, равно множеству, полученному рефлексией по константам класса Command.
+    /// </summary>
     [Test]
     public void CommandCodesMatchScriptTest()
     {
