@@ -7,7 +7,7 @@ public class ControlSchemeService
 {
     private const string LocalStorageKey = nameof(ControlSchemeService);
 
-    private readonly List<IControlScheme> _controlSchemes;
+    private readonly IReadOnlyList<IControlScheme> _controlSchemes;
     private readonly LocalStorageService _localStorage;
     private readonly ILogger<ControlSchemeService> _logger;
     private IControlScheme _currentScheme;
@@ -24,7 +24,7 @@ public class ControlSchemeService
             new AlternativeScheme(),
         ];
 
-        _currentScheme = _controlSchemes.First();
+        _currentScheme = _controlSchemes[0];
         _ = LoadCurrentSchemeAsync();
     }
 
@@ -51,34 +51,7 @@ public class ControlSchemeService
 
     public IEnumerable<IControlScheme> AvailableSchemes => _controlSchemes;
 
-    public IControlScheme DefaultScheme => _controlSchemes.FirstOrDefault() ?? new ClassicScheme();
-
-    public void RegisterScheme(IControlScheme scheme)
-    {
-        if (_controlSchemes.Contains(scheme))
-        {
-            return;
-        }
-
-        _controlSchemes.Add(scheme);
-    }
-
-    public void UnregisterScheme(IControlScheme scheme)
-    {
-        _controlSchemes.Remove(scheme);
-
-        if (_currentScheme != scheme)
-        {
-            return;
-        }
-
-        Reset();
-    }
-
-    public void Reset()
-    {
-        CurrentScheme = DefaultScheme;
-    }
+    public IControlScheme DefaultScheme => _controlSchemes[0];
 
     private void NotifySchemeChanged()
     {
