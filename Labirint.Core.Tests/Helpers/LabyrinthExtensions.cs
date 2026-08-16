@@ -1,4 +1,6 @@
-﻿namespace Labirint.Core.Tests.Helpers;
+﻿using Labirint.Core.TileFeatures;
+
+namespace Labirint.Core.Tests.Helpers;
 
 internal static class LabyrinthExtensions
 {
@@ -17,7 +19,7 @@ internal static class LabyrinthExtensions
     {
         return labyrinth.Enumerate()
             .SelectMany(tile => tile.Features ?? [])
-            .Where(feature => feature.DrawingSettings != null)
-            .Count(feature => feature.DrawingSettings!.ImageSource.Contains(item.Name, StringComparison.InvariantCultureIgnoreCase));
+            .OfType<WorldItem>()
+            .Count(worldItem => worldItem.Item == item);
     }
 }

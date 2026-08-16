@@ -2,7 +2,7 @@
 using Labirint.Core.Abilities.Prolongations;
 using Labirint.Core.Abilities.Prolongations.Base;
 
-namespace Labirint.Core.Tests;
+namespace Labirint.Core.Tests.Runners;
 
 internal class TestAbility(int? moveCount = null) : Ability
 {
@@ -23,6 +23,11 @@ internal class TestAbility(int? moveCount = null) : Ability
 [TestFixture]
 public class RunnerAbilityTest : LabyrinthTestsBase
 {
+    /// <summary>
+    /// Тестирует, что RunnerAbility деактивируется после исчерпания MoveCount ударов и не деактивируется при безлимитном MoveCount.
+    /// Проверяет, что после MoveCount ударов активность способности совпадает с IsUnlimitedMoveCount, а число фактических вызовов Hit ограничено MoveCount у способностей с лимитом.
+    /// </summary>
+    /// <param name="count">Лимит ходов способности или null для безлимитной</param>
     [Test]
     [TestCase(null)]
     [TestCase(10)]
@@ -43,6 +48,6 @@ public class RunnerAbilityTest : LabyrinthTestsBase
 
         ability.Hit(tile, Direction.None);
 
-        Assert.That(testAbility.HitCount, Is.EqualTo(testAbility.IsUnlimitedMoveCount ? testAbility.HitCount : testAbility.MoveCount));
+        Assert.That(testAbility.HitCount, Is.EqualTo(testAbility.MoveCount ?? 1));
     }
 }

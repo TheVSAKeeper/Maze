@@ -1,10 +1,16 @@
-﻿namespace Labirint.Core.Tests;
+﻿namespace Labirint.Core.Tests.Maze;
 
 [TestFixture]
 public class LabyrinthInitAsyncTests
 {
     private const int Seed = 7;
 
+    /// <summary>
+    /// Тестирует, что Labyrinth.InitAsync генерирует тот же лабиринт, что и синхронный Init при одинаковом зерне.
+    /// Проверяет, что снимки стен и признака выхода по всем клеткам у асинхронно и синхронно сгенерированных лабиринтов совпадают.
+    /// </summary>
+    /// <param name="size">Ширина и высота лабиринта</param>
+    /// <param name="density">Плотность стен</param>
     [TestCase(16, 40)]
     [TestCase(64, 60)]
     public async Task AsyncInitRepeatsSyncInitTest(int size, int density)
@@ -18,6 +24,10 @@ public class LabyrinthInitAsyncTests
         Assert.That(Snapshot(actual), Is.EqualTo(Snapshot(expected)));
     }
 
+    /// <summary>
+    /// Тестирует, что Labyrinth.InitAsync на большом лабиринте регулярно отчитывается о прогрессе через переданный IProgress.
+    /// Проверяет, что значения прогресса идут по возрастанию, их больше одного и последнее равно 100.
+    /// </summary>
     [Test]
     public async Task ProgressIsReportedUpToHundredTest()
     {
@@ -34,6 +44,10 @@ public class LabyrinthInitAsyncTests
         });
     }
 
+    /// <summary>
+    /// Тестирует, что Labyrinth.InitAsync на маленьком лабиринте генерирует его одним проходом без промежуточной отдачи управления.
+    /// Проверяет, что прогресс сообщается ровно один раз и сразу со значением 100.
+    /// </summary>
     [Test]
     public async Task SmallMazeIsGeneratedInSinglePassTest()
     {
