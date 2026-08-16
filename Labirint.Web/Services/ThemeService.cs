@@ -1,9 +1,8 @@
-﻿using Blazored.LocalStorage;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Labirint.Web.Services;
 
-public sealed class ThemeService(IJSRuntime jsRuntime, ILocalStorageService localStorage, ILogger<ThemeService> logger)
+public sealed class ThemeService(IJSRuntime jsRuntime, LocalStorageService localStorage, ILogger<ThemeService> logger)
 {
     private const string StorageKey = "IsDarkMod";
 

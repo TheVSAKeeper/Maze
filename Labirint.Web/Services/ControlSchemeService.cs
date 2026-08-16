@@ -1,5 +1,4 @@
-﻿using Blazored.LocalStorage;
-using Labirint.Web.Common.Control.Schemes;
+﻿using Labirint.Web.Common.Control.Schemes;
 using Microsoft.Extensions.Logging;
 
 namespace Labirint.Web.Services;
@@ -9,12 +8,12 @@ public class ControlSchemeService
     private const string LocalStorageKey = nameof(ControlSchemeService);
 
     private readonly List<IControlScheme> _controlSchemes;
-    private readonly ILocalStorageService _localStorage;
+    private readonly LocalStorageService _localStorage;
     private readonly ILogger<ControlSchemeService> _logger;
     private IControlScheme _currentScheme;
     private bool _isChosenByUser;
 
-    public ControlSchemeService(ILocalStorageService localStorage, ILogger<ControlSchemeService> logger)
+    public ControlSchemeService(LocalStorageService localStorage, ILogger<ControlSchemeService> logger)
     {
         _localStorage = localStorage;
         _logger = logger;

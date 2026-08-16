@@ -1,5 +1,4 @@
-﻿using Blazored.LocalStorage;
-using Labirint.Web;
+﻿using Labirint.Web;
 using Labirint.Web.Services.Dialogs;
 using Labirint.Web.Services.Toasts;
 using Microsoft.AspNetCore.Components.Web;
@@ -11,7 +10,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddBlazoredLocalStorageAsSingleton();
+builder.Services.AddSingleton<LocalStorageService>();
 
 builder.Services.AddSingleton<LabyrinthParametersService>();
 builder.Services.AddSingleton<SoundService>();

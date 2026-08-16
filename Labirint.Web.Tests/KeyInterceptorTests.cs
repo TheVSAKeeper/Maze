@@ -1,5 +1,4 @@
-﻿using Blazored.LocalStorage;
-using Bunit;
+﻿using Bunit;
 using Labirint.Core;
 using Labirint.Core.Items;
 using Labirint.Core.Items.Base;
@@ -8,7 +7,6 @@ using Labirint.Web.Common.Control.Schemes;
 using Labirint.Web.Components;
 using Labirint.Web.Services;
 using Microsoft.Extensions.DependencyInjection;
-using NSubstitute;
 
 namespace Labirint.Web.Tests;
 
@@ -28,7 +26,7 @@ public class KeyInterceptorTests
         _context = new();
         _context.JSInterop.Mode = JSRuntimeMode.Loose;
         _context.Services.AddLogging();
-        _context.Services.AddSingleton(Substitute.For<ILocalStorageService>());
+        _context.Services.AddSingleton<LocalStorageService>();
         _context.Services.AddSingleton<ControlSchemeService>();
 
         _inventory = new();

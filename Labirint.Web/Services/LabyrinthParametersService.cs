@@ -1,10 +1,9 @@
-﻿using Blazored.LocalStorage;
-using Labirint.Web.Parameters;
+﻿using Labirint.Web.Parameters;
 using Microsoft.Extensions.Logging;
 
 namespace Labirint.Web.Services;
 
-public sealed class LabyrinthParametersService(ILocalStorageService localStorage, ILogger<LabyrinthParametersService> logger)
+public sealed class LabyrinthParametersService(LocalStorageService localStorage, ILogger<LabyrinthParametersService> logger)
 {
     private LabyrinthParameters _current = new();
 
