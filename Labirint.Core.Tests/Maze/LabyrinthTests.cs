@@ -1,25 +1,7 @@
+﻿using Labirint.Core.Extensions;
 using DirectionExtensions = Labirint.Core.Tests.Helpers.DirectionExtensions;
 
-namespace Labirint.Core.Tests;
-
-internal class TestItem(int count) : Item
-{
-    private static int _id;
-
-    public override string Name { get; } = "test " + _id++;
-    public override string DisplayName { get; } = "Test " + count;
-    public override string Description => string.Empty;
-
-    public override int DefaultCount => 0;
-    public override int MaxCount => 0;
-
-    public int Count { get; } = count;
-
-    public override int CalculateCountInMaze(int width, int height, int density)
-    {
-        return Count;
-    }
-}
+namespace Labirint.Core.Tests.Maze;
 
 [TestFixture]
 public class LabyrinthTests : LabyrinthTestsBase
@@ -32,7 +14,6 @@ public class LabyrinthTests : LabyrinthTestsBase
     /// <param name="width">Ширина лабиринта</param>
     /// <param name="height">Высота лабиринта</param>
     /// <param name="counts">Массив количеств предметов для распределения</param>
-    [Test]
     [TestCase(2, 2, 1, 2)]
     [TestCase(2, 2, 2, 2)]
     [TestCase(2, 2, 1, 1, 1, 1)]
@@ -40,7 +21,6 @@ public class LabyrinthTests : LabyrinthTestsBase
     [TestCase(2, 2, 2, 0, 1, 1)]
     public void DistributionOfRemainderTest(int width, int height, params int[] counts)
     {
-        var allCount = counts.Sum();
         var placedCount = 0;
 
         var items = counts.Select(x => new TestItem(x)).ToList();
@@ -54,11 +34,8 @@ public class LabyrinthTests : LabyrinthTestsBase
 
             placedCount += count;
 
-            Console.WriteLine($"{item.Name}({item.Count}): {count}/{expectedCount}");
-            Assert.That(count, Is.EqualTo(expectedCount));
+            Assert.That(count, Is.EqualTo(expectedCount), $"Предмет {item.Name} на {item.Count} штук");
         }
-
-        Console.WriteLine($"Всего: {placedCount}/{allCount}");
     }
 
     /// <summary>
@@ -69,7 +46,6 @@ public class LabyrinthTests : LabyrinthTestsBase
     /// <param name="height">Высота лабиринта</param>
     /// <param name="density">Плотность стен в лабиринте</param>
     /// <remarks>Была ошибка, что выдавались только песочки.</remarks>
-    [Test]
     [TestCase(16, 16, 40)]
     [TestCase(32, 32, 80)]
     [TestCase(128, 128, 10)]
@@ -84,39 +60,86 @@ public class LabyrinthTests : LabyrinthTestsBase
 
             var count = Labyrinth.GetInMazeCount(item);
 
-            Console.WriteLine($"{item.Name}: {count}/{expectedCount}");
-            Assert.That(count, Is.EqualTo(expectedCount));
+            Assert.That(count, Is.EqualTo(expectedCount), $"Предмет {item.Name}");
         }
     }
 
     /// <summary>
     /// Тестирует, что класс Labyrinth не создает и не разрушает стены с некорректными координатами.
-    /// Проверяет, что вызов методов CreateWall и BreakWall с отрицательными координатами не вызывает исключений.
+    /// Проверяет, что сетка стен не изменилась после каждого вызова CreateWall и BreakWall по отдельности.
     /// </summary>
     /// <param name="x">Позиция X клетки</param>
     /// <param name="y">Позиция Y клетки</param>
-    [Test]
-    [TestCase(0, 0)]
     [TestCase(-1, 0)]
     [TestCase(0, -1)]
     [TestCase(-1, -1)]
-    [TestCase(10, 10)]
     [TestCase(-11, 10)]
     [TestCase(10, -11)]
     [TestCase(-11, -11)]
-    public void DontCreateOrBreakIncorrectWallsTest(int x, int y)
+    [TestCase(DefaultWidth, 0)]
+    [TestCase(0, DefaultHeight)]
+    public void IncorrectPositionsLeaveWallsUntouchedTest(int x, int y)
     {
+        var expected = SnapshotWalls();
+
+        List<Action> calls = [];
+
         foreach (var direction in DirectionExtensions.GetAll())
         {
-            Assert.DoesNotThrow(() => Labyrinth.CreateWall((x, y), direction));
-            Assert.DoesNotThrow(() => Labyrinth.BreakWall((x, y), direction));
+            calls.Add(() => Labyrinth.CreateWall((x, y), direction));
+            calls.Add(() => Labyrinth.BreakWall((x, y), direction));
         }
 
-        Assert.DoesNotThrow(() => Labyrinth.CreateWall((x, y), Direction.All));
-        Assert.DoesNotThrow(() => Labyrinth.BreakWall((x, y), Direction.All));
+        calls.Add(() => Labyrinth.CreateWall((x, y), Direction.All));
+        calls.Add(() => Labyrinth.BreakWall((x, y), Direction.All));
+        calls.Add(() => Labyrinth.CreateWall((x, y), directions: [Direction.Left, Direction.Top, Direction.Right, Direction.Bottom]));
+        calls.Add(() => Labyrinth.BreakWall((x, y), Direction.Left, Direction.Top, Direction.Right, Direction.Bottom));
 
-        Assert.DoesNotThrow(() => Labyrinth.CreateWall((x, y), directions: [Direction.Left, Direction.Top, Direction.Right, Direction.Bottom]));
-        Assert.DoesNotThrow(() => Labyrinth.BreakWall((x, y), Direction.Left, Direction.Top, Direction.Right, Direction.Bottom));
+        Assert.Multiple(() =>
+        {
+            for (var index = 0; index < calls.Count; index++)
+            {
+                calls[index].Invoke();
+
+                Assert.That(SnapshotWalls(), Is.EqualTo(expected), $"Вызов {index} изменил сетку стен");
+            }
+        });
+    }
+
+    /// <summary>
+    /// Тестирует, что класс Labyrinth создает и разрушает стену с корректными координатами.
+    /// Проверяет, что стена появляется в клетке и зеркалится в соседнюю, а затем исчезает из обеих.
+    /// </summary>
+    /// <param name="x">Позиция X клетки</param>
+    /// <param name="y">Позиция Y клетки</param>
+    /// <param name="direction">Направление стены</param>
+    [TestCase(0, 0, Direction.Right)]
+    [TestCase(10, 10, Direction.Top)]
+    [TestCase(DefaultWidth - 1, DefaultHeight - 1, Direction.Left)]
+    public void CorrectPositionWallIsCreatedAndBrokenTest(int x, int y, Direction direction)
+    {
+        Position position = (x, y);
+        var adjacent = direction.GetAdjacentPosition(position);
+        var opposite = direction.GetOppositeDirection();
+
+        Labyrinth[position].Walls = Direction.None;
+        Labyrinth[adjacent].Walls = Direction.None;
+
+        Labyrinth.CreateWall(position, direction);
+        var isCreated = Labyrinth[position].ContainsWall(direction);
+        var isMirrored = Labyrinth[adjacent].ContainsWall(opposite);
+
+        Labyrinth.BreakWall(position, direction);
+        var isBroken = Labyrinth[position].ContainsWall(direction) == false;
+        var isMirrorBroken = Labyrinth[adjacent].ContainsWall(opposite) == false;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(isCreated, Is.True);
+            Assert.That(isMirrored, Is.True);
+            Assert.That(isBroken, Is.True);
+            Assert.That(isMirrorBroken, Is.True);
+        });
     }
 
     /// <summary>
@@ -126,20 +149,13 @@ public class LabyrinthTests : LabyrinthTestsBase
     /// <param name="x">Позиция X клетки</param>
     /// <param name="y">Позиция Y клетки</param>
     /// <param name="expectedResult">Ожидаемый результат проверки корректности позиции</param>
-    [TestCase(5, 5, true)]
     [TestCase(0, 0, true)]
+    [TestCase(DefaultWidth - 1, DefaultHeight - 1, true)]
     [TestCase(DefaultWidth, DefaultHeight, false)]
-    [TestCase(DefaultWidth + 1, DefaultHeight + 1, false)]
-    [TestCase(-1, -1, false)]
-    [TestCase(9, 9, true)]
-    [TestCase(0, 9, true)]
-    [TestCase(9, 0, true)]
-    [TestCase(DefaultWidth + 1, 0, false)]
+    [TestCase(DefaultWidth, 0, false)]
     [TestCase(0, DefaultHeight, false)]
-    [TestCase(5, DefaultHeight + 1, false)]
-    [TestCase(DefaultWidth + 1, 5, false)]
-    [TestCase(-1, 5, false)]
-    [TestCase(5, -1, false)]
+    [TestCase(-1, 0, false)]
+    [TestCase(0, -1, false)]
     public void IsCorrectPositionTest(int x, int y, bool expectedResult)
     {
         Position position = (x, y);
@@ -147,5 +163,10 @@ public class LabyrinthTests : LabyrinthTestsBase
         var result = Labyrinth.IsCorrectPosition(position);
 
         Assert.That(result, Is.EqualTo(expectedResult));
+    }
+
+    private Direction[] SnapshotWalls()
+    {
+        return Labyrinth.Enumerate().Select(tile => tile.Walls).ToArray();
     }
 }
