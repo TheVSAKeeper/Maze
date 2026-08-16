@@ -116,8 +116,8 @@ public class ItemPlacer(IRandom seeder, Action<int, int, WorldItem> placeItemAct
         for (var i = 0; i < placingItemsCount && i < indexes.Length; i++)
         {
             var index = indexes[i];
-            var x = index / width;
-            var y = index % width;
+            var x = index % width;
+            var y = index / width;
 
             if (_requiredItems.TryDequeue(out var placeable))
             {
