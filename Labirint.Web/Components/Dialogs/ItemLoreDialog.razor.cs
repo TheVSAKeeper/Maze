@@ -29,10 +29,6 @@ public partial class ItemLoreDialog
 
     private bool CanUse => Control != null && Count > 0;
 
-    private string Kind => Item is ScoreItem ? "Сокровище" : "Снаряжение";
-
-    private int? Cost => Item is ScoreItem score ? score.CostPerItem : null;
-
     private string ActivateSymbol => Control == null
         ? string.Empty
         : SchemeService.CurrentScheme.GetActivateKey(Control).DisplaySymbol;

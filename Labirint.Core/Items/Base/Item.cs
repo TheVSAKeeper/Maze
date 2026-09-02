@@ -14,10 +14,25 @@ public abstract class Item
     /// <summary>
     /// Используется сразу после подбора.
     /// </summary>
-    public virtual bool UseAfterPickup => false;
+    public virtual bool IsUsedOnPickup => false;
 
-    public string Icon => $"images/items/{Name}-icon.webp";
-    public string Image => $"images/items/{Name}.webp";
+    /// <summary>
+    /// Вид предмета для витрины.
+    /// </summary>
+    public virtual string Kind => "Снаряжение";
+
+    /// <summary>
+    /// Характеристики предмета для витрины.
+    /// </summary>
+    public virtual IReadOnlyList<ItemStat> Stats => [];
+
+    /// <summary>
+    /// Корень ресурсов предмета: у предметов из отдельной сборки это её статические файлы.
+    /// </summary>
+    public virtual string ResourceRoot => "images/items";
+
+    public string Icon => $"{ResourceRoot}/{Name}-icon.webp";
+    public string Image => $"{ResourceRoot}/{Name}.webp";
 
     public virtual ControlSettings? ControlSettings => null;
     public virtual SoundSettings? SoundSettings => null;
@@ -25,6 +40,17 @@ public abstract class Item
     public void Use(Position position, Direction? direction, Labyrinth labyrinth)
     {
         AfterUse(position, direction, labyrinth);
+    }
+
+    /// <summary>
+    /// Подобрать предмет: по умолчанию он отправляется в инвентарь.
+    /// </summary>
+    /// <param name="count">Количество подобранных штук.</param>
+    /// <param name="context">Возможности подобравшего.</param>
+    /// <returns>True, если предмет принят и должен исчезнуть с поля; иначе false.</returns>
+    public virtual bool TryPickUp(int count, IPickupContext context)
+    {
+        return context.TryStore(this, count);
     }
 
     public abstract int CalculateCountInMaze(int width, int height, int density);

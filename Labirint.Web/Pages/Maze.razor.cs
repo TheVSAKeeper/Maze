@@ -105,7 +105,7 @@ public partial class Maze : IDisposable
             _session.Labyrinth.RunnerMoved -= OnRunnerMoved;
             _session.Labyrinth.ItemPickedUp -= OnItemPickedUp;
             _session.Runner.Inventory.ItemUsed -= OnItemUsed;
-            _session.Runner.Inventory.ScoreIncreased -= OnScoreIncreased;
+            _session.Runner.ScoreIncreased -= OnScoreIncreased;
             _session.Dispose();
         }
 
@@ -152,7 +152,7 @@ public partial class Maze : IDisposable
         _session.Labyrinth.RunnerMoved += OnRunnerMoved;
         _session.Labyrinth.ItemPickedUp += OnItemPickedUp;
         _session.Runner.Inventory.ItemUsed += OnItemUsed;
-        _session.Runner.Inventory.ScoreIncreased += OnScoreIncreased;
+        _session.Runner.ScoreIncreased += OnScoreIncreased;
 
         if (_keyInterceptor != null)
         {

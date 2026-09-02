@@ -3,7 +3,7 @@
 /// <summary>
 /// Бегущий по лабиринту.
 /// </summary>
-public class Runner : IDisposable
+public class Runner
 {
     private readonly List<RunnerAbility> _abilities;
     private readonly Labyrinth _labyrinth;
@@ -15,8 +15,12 @@ public class Runner : IDisposable
         Inventory = inventory;
 
         _abilities = [];
-        Inventory.ScoreIncreased += OnScoreIncreased;
     }
+
+    /// <summary>
+    /// Бегуну начислены очки.
+    /// </summary>
+    public event EventHandler<int>? ScoreIncreased;
 
     public Position Position { get; private set; }
     public int Score { get; private set; }
@@ -70,13 +74,6 @@ public class Runner : IDisposable
         Inventory.Use(item, Position, direction, _labyrinth);
     }
 
-    public void Dispose()
-    {
-        Inventory.ScoreIncreased -= OnScoreIncreased;
-
-        GC.SuppressFinalize(this);
-    }
-
     public void Reset()
     {
         Position = (0, 0);
@@ -87,9 +84,11 @@ public class Runner : IDisposable
         _abilities.Clear();
     }
 
-    private void OnScoreIncreased(object? sender, int amount)
+    internal void AddScore(int amount)
     {
-        Score += amount;
+        Score = (int)Math.Min((long)Score + amount, int.MaxValue);
+
+        ScoreIncreased?.Invoke(this, amount);
     }
 
     private bool ContainsActiveAbility(Func<Ability, bool> predicate)

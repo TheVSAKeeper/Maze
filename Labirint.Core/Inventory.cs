@@ -2,12 +2,11 @@
 
 public class Inventory
 {
-    private static Item[]? _allItems;
     private readonly Dictionary<Item, ItemStack> _items;
 
     public Inventory()
     {
-        _items = GetAllDerivedItems().ToDictionary(item => item, item => new ItemStack(item));
+        _items = ItemCatalog.Items.ToDictionary(item => item, item => new ItemStack(item));
     }
 
     public event EventHandler? InventoryCleared;
@@ -16,8 +15,6 @@ public class Inventory
     public event EventHandler<Item>? ItemCantAdded;
     public event EventHandler<Item>? ItemCantUsed;
     public event EventHandler<Item>? ItemUsed;
-
-    public event EventHandler<int>? ScoreIncreased;
 
     /// <summary>
     /// Все доступные предметы.
@@ -64,12 +61,6 @@ public class Inventory
             return false;
         }
 
-        // TODO: очки начисляются проверкой типа; вынести начисление в сам предмет, когда очки начнёт давать не только ScoreItem
-        if (item is ScoreItem scoreItem)
-        {
-            ScoreIncreased?.Invoke(this, scoreItem.CostPerItem * count);
-        }
-
         ItemAdded?.Invoke(this, item);
 
         return true;
@@ -86,16 +77,5 @@ public class Inventory
         }
 
         InventoryCleared?.Invoke(this, EventArgs.Empty);
-    }
-
-    private IEnumerable<Item> GetAllDerivedItems()
-    {
-        return _allItems ??= typeof(Item).Assembly
-            .GetTypes()
-            .Where(type => type.IsSubclassOf(typeof(Item)) && type.IsAbstract == false)
-            .Select(type => (Item)Activator.CreateInstance(type)!)
-            .OrderByDescending(item => item.ControlSettings != null)
-            .ThenByDescending(item => item.MaxCount)
-            .ToArray();
     }
 }

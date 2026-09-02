@@ -1,9 +1,13 @@
-﻿using Labirint.Web;
+﻿using Labirint.Core.Items.Base;
+using Labirint.Items.Flame;
+using Labirint.Web;
 using Labirint.Web.Services.Dialogs;
 using Labirint.Web.Services.Toasts;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+
+ItemCatalog.AddSource(typeof(Flamethrower).Assembly);
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
