@@ -1,7 +1,7 @@
 ﻿<Dialog>
     <TitleContent>
         <div class="lore-head">
-            <span class="t-label">@Kind</span>
+            <span class="t-label">@Item.Kind</span>
             <h2 class="t-display-l lore-head__name">@Item.DisplayName</h2>
         </div>
     </TitleContent>
@@ -37,17 +37,20 @@
                         </div>
                     }
 
-                    @if (Cost != null)
+                    @foreach (var stat in Item.Stats)
                     {
                         <div class="lore-stat">
-                            <dt class="t-label">Ценность</dt>
+                            <dt class="t-label">@stat.Label</dt>
                             <dd class="t-data lore-stat__value">
-                                @(Cost)<span class="lore-stat__of"> очк. за штуку</span>
+                                @(stat.Value)@if (stat.Suffix != null)
+                                             {
+                                                 <span class="lore-stat__of">@stat.Suffix</span>
+                                             }
                             </dd>
                         </div>
                     }
 
-                    @if (Item.UseAfterPickup)
+                    @if (Item.IsUsedOnPickup)
                     {
                         <div class="lore-stat">
                             <dt class="t-label">Применение</dt>

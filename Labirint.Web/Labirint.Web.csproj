@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Labirint.Core\Labirint.Core.csproj" />
+    <ProjectReference Include="..\Labirint.Items.Flame\Labirint.Items.Flame.csproj" />
   </ItemGroup>
 
 </Project>

@@ -22,12 +22,6 @@ public class WorldItem(Item item, string imageSource, Alignment alignment, doubl
     /// <returns>Если предмет пропал с лабиринта, то true.</returns>
     public override bool TryPickUp(Labyrinth labyrinth)
     {
-        if (item.UseAfterPickup)
-        {
-            item.Use(labyrinth.Runner.Position, labyrinth.Runner.LastDirection, labyrinth);
-            return true;
-        }
-
-        return labyrinth.Runner.Inventory.TryAdd(item, PickUpCount ?? 1);
+        return item.TryPickUp(PickUpCount ?? 1, new PickupContext(labyrinth));
     }
 }

@@ -14,11 +14,11 @@ public class InventoryTests
     }
 
     /// <summary>
-    /// Тестирует, что класс Inventory находит рефлексией все предметы игры.
+    /// Тестирует, что инвентарь набирает свой состав из каталога предметов.
     /// Проверяет, что набор типов в инвентаре совпадает с полным списком предметов игры и имена не повторяются.
     /// </summary>
     [Test]
-    public void ReflectionFindsEveryItemTypeTest()
+    public void InventoryHoldsEveryCatalogItemTest()
     {
         var items = _inventory.Stacks.Select(stack => stack.Item).ToList();
 
