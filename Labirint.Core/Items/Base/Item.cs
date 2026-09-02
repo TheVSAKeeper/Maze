@@ -37,9 +37,15 @@ public abstract class Item
     public virtual ControlSettings? ControlSettings => null;
     public virtual SoundSettings? SoundSettings => null;
 
+    /// <summary>
+    /// Применить предмет. Отсутствие направления и <see cref="Direction.None" /> равнозначны: предмет получает null.
+    /// </summary>
+    /// <param name="position">Позиция, из которой предмет применяется.</param>
+    /// <param name="direction">Направление применения или null, если направления нет.</param>
+    /// <param name="labyrinth">Лабиринт, в котором предмет применяется.</param>
     public void Use(Position position, Direction? direction, Labyrinth labyrinth)
     {
-        AfterUse(position, direction, labyrinth);
+        AfterUse(position, direction == Direction.None ? null : direction, labyrinth);
     }
 
     /// <summary>

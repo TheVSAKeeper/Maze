@@ -71,6 +71,28 @@ public class ItemPickupTests : LabyrinthTestsBase
         });
     }
 
+    /// <summary>
+    /// Тестирует, что подбор отвергает бессмысленное количество штук, а не уводит стек и счёт в минус.
+    /// Проверяет, что подбор не удался, стек предмета остался пустым, а счёт бегуна не изменился.
+    /// </summary>
+    /// <param name="count">Количество подбираемых штук.</param>
+    [TestCase(0)]
+    [TestCase(-1)]
+    [TestCase(int.MinValue)]
+    public void NonPositivePickUpCountIsRejectedTest(int count)
+    {
+        var sand = Labyrinth.Runner.Inventory.AllItems.OfType<Sand>().Single();
+
+        var pickedUp = PickUp(sand, count);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(pickedUp, Is.False);
+            Assert.That(Labyrinth.Runner.Inventory.Stacks.Single(stack => stack.Item == sand).Count, Is.Zero);
+            Assert.That(Labyrinth.Runner.Score, Is.Zero);
+        });
+    }
+
     private bool PickUp(Item item, int count)
     {
         Tile tile = new(Labyrinth);

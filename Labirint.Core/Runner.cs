@@ -86,6 +86,11 @@ public class Runner
 
     internal void AddScore(int amount)
     {
+        if (amount <= 0)
+        {
+            return;
+        }
+
         Score = (int)Math.Min((long)Score + amount, int.MaxValue);
 
         ScoreIncreased?.Invoke(this, amount);

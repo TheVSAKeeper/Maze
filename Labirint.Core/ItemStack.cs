@@ -17,7 +17,7 @@ public class ItemStack(Item item)
 
     public bool TryAdd(int count)
     {
-        if (Count + count > MaxCount)
+        if (count <= 0 || (long)Count + count > MaxCount)
         {
             return false;
         }
