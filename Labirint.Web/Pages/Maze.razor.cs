@@ -61,10 +61,10 @@ public partial class Maze : IDisposable
     public string? Seed { get; set; }
 
     [SupplyParameterFromQuery(Name = RandomGenerator.SizeQueryName)]
-    public int? MazeSize { get; set; }
+    public string? MazeSize { get; set; }
 
     [SupplyParameterFromQuery(Name = RandomGenerator.DensityQueryName)]
-    public int? MazeDensity { get; set; }
+    public string? MazeDensity { get; set; }
 
     [Inject]
     private SoundService SoundService { get; set; } = null!;
@@ -119,14 +119,16 @@ public partial class Maze : IDisposable
 
     protected override void OnParametersSet()
     {
-        var isRouteChanged = Seed != _appliedSeed || MazeSize != _appliedSize || MazeDensity != _appliedDensity;
+        var size = RandomGenerator.ParseQueryNumber(MazeSize);
+        var density = RandomGenerator.ParseQueryNumber(MazeDensity);
+        var isRouteChanged = Seed != _appliedSeed || size != _appliedSize || density != _appliedDensity;
 
         _appliedSeed = Seed;
-        _appliedSize = MazeSize;
-        _appliedDensity = MazeDensity;
+        _appliedSize = size;
+        _appliedDensity = density;
 
-        _originalSize = MazeSize ?? DefaultSize;
-        _density = MazeDensity ?? DefaultDensity;
+        _originalSize = size ?? DefaultSize;
+        _density = density ?? DefaultDensity;
 
         if (isRouteChanged && _isInit)
         {

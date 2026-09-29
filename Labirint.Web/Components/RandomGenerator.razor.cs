@@ -1,4 +1,5 @@
-﻿using Labirint.Web.Common.Seeding;
+﻿using System.Globalization;
+using Labirint.Web.Common.Seeding;
 using Labirint.Web.Components.Dialogs;
 using Labirint.Web.Services.Dialogs;
 using Microsoft.AspNetCore.Components;
@@ -38,6 +39,11 @@ public partial class RandomGenerator
     private DialogService DialogService { get; set; } = null!;
 
     private bool IsGenerateRequired => _seed.IsGenerateRequired;
+
+    public static int? ParseQueryNumber(string? value)
+    {
+        return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var number) ? number : null;
+    }
 
     public void Repeat()
     {

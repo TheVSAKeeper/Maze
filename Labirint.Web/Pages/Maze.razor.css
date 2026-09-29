@@ -74,6 +74,18 @@
     text-align: right;
 }
 
+@media (min-width: 900px) {
+    .main-panel {
+        position: relative;
+    }
+
+    .ability-panel {
+        position: absolute;
+        top: var(--s-5);
+        left: 0;
+    }
+}
+
 @media (max-width: 480px) {
     .workspace {
         padding: var(--s-3) var(--s-2) var(--s-5);
