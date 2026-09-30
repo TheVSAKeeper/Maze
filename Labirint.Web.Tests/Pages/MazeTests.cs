@@ -15,7 +15,6 @@ using Labirint.Web.Services.Dialogs;
 using Labirint.Web.Services.Toasts;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.JSInterop;
 
 namespace Labirint.Web.Tests.Pages;
 
@@ -37,7 +36,6 @@ public class MazeTests
     {
         _context = new();
         _context.JSInterop.Mode = JSRuntimeMode.Loose;
-        _context.JSInterop.Setup<IJSInProcessObjectReference>("canvasHelper.getContext2D", _ => true).SetResult(new CanvasContextReference());
         _context.Services.AddLogging();
         _context.Services.AddSingleton<LocalStorageService>();
         _context.Services.AddSingleton<LabyrinthParametersService>();
@@ -766,32 +764,5 @@ public class MazeTests
         await rendered.InvokeAsync(() => { });
 
         return rendered;
-    }
-
-    private sealed class CanvasContextReference : IJSInProcessObjectReference
-    {
-        public TValue Invoke<TValue>(string identifier, params object?[]? args)
-        {
-            throw new NotSupportedException();
-        }
-
-        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-        {
-            throw new NotSupportedException();
-        }
-
-        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void Dispose()
-        {
-        }
-
-        public ValueTask DisposeAsync()
-        {
-            return ValueTask.CompletedTask;
-        }
     }
 }

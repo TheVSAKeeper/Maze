@@ -74,9 +74,9 @@ public abstract class MazeComponent : RenderComponent, IDisposable
     protected override Task OnFirstRenderAsyncInner()
     {
         var runtime = (IJSInProcessRuntime)JSRuntime;
-        var contextRef = runtime.Invoke<IJSInProcessObjectReference>("canvasHelper.getContext2D", CanvasRef);
+        var contextRef = runtime.Invoke<IJSInProcessObjectReference?>("canvasHelper.getContext2D", CanvasRef);
 
-        _context = new(contextRef, runtime);
+        _context = contextRef == null ? null : new(contextRef, runtime);
 
         return Task.CompletedTask;
     }
