@@ -143,4 +143,13 @@
     <BlazorWasmBrotliLoader.RecompressStaticFiles Files="@(_CspIndexHtmlItem)" />
   </Target>
 
+  <Target Name="RecompressServiceWorkerAssetsManifest"
+          AfterTargets="BlazorWasmBrotliLoader_Inject"
+          Condition="'$(ServiceWorkerAssetsManifest)' != '' AND '$(WasmBuildingForNestedPublish)' != 'true'">
+    <ItemGroup>
+      <_SwAssetsManifestItem Include="$([System.IO.Path]::GetFullPath(`$(PublishDir)wwwroot/$(ServiceWorkerAssetsManifest)`))" />
+    </ItemGroup>
+    <BlazorWasmBrotliLoader.RecompressStaticFiles Files="@(_SwAssetsManifestItem)" />
+  </Target>
+
 </Project>
