@@ -110,13 +110,18 @@ public class Labyrinth
     /// <param name="density">Плотность стен в лабиринте</param>
     /// <param name="placeableItems">Список предметов, которые нужно разместить в лабиринте</param>
     /// <param name="progress">Приёмник прогресса генерации в процентах</param>
-    public async Task InitAsync(int width, int height, int density, IEnumerable<Item>? placeableItems = null, IProgress<int>? progress = null)
+    /// <param name="cancellationToken">Токен отмены: после отдачи управления отменённая генерация бросает <see cref="OperationCanceledException"/> и оставляет лабиринт недостроенным – до новой генерации им пользоваться нельзя</param>
+    public async Task InitAsync(int width, int height, int density, IEnumerable<Item>? placeableItems = null, IProgress<int>? progress = null, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         foreach (var percent in Generate(width, height, density, placeableItems))
         {
             progress?.Report(percent);
 
             await Task.Yield();
+
+            cancellationToken.ThrowIfCancellationRequested();
         }
     }
 

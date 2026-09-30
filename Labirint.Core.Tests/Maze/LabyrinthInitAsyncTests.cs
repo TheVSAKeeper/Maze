@@ -59,6 +59,24 @@ public class LabyrinthInitAsyncTests
         Assert.That(progress.Values, Is.EqualTo(new[] { 100 }));
     }
 
+    /// <summary>
+    /// Тестирует, что Labyrinth.InitAsync прекращает генерацию на ближайшей отдаче управления после отмены токена.
+    /// Проверяет, что генерация, отменённая на первом отчёте о прогрессе, бросает OperationCanceledException и больше не сообщает прогресс.
+    /// </summary>
+    [Test]
+    public void CancelledInitStopsGenerationTest()
+    {
+        Labyrinth labyrinth = new(new SeedRandom(Seed));
+        using CancellationTokenSource cancellation = new();
+        ProgressCollector progress = new(cancellation.Cancel);
+
+        Assert.Multiple(() =>
+        {
+            Assert.ThrowsAsync<OperationCanceledException>(() => labyrinth.InitAsync(200, 200, 40, progress: progress, cancellationToken: cancellation.Token));
+            Assert.That(progress.Values, Has.Count.EqualTo(1));
+        });
+    }
+
     private static (Direction Walls, bool IsExit)[] Snapshot(Labyrinth labyrinth)
     {
         var tiles = new (Direction, bool)[labyrinth.Width * labyrinth.Height];
@@ -74,13 +92,14 @@ public class LabyrinthInitAsyncTests
         return tiles;
     }
 
-    private sealed class ProgressCollector : IProgress<int>
+    private sealed class ProgressCollector(Action? onReport = null) : IProgress<int>
     {
         public List<int> Values { get; } = [];
 
         public void Report(int value)
         {
             Values.Add(value);
+            onReport?.Invoke();
         }
     }
 }

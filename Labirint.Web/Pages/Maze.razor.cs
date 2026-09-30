@@ -34,8 +34,10 @@ public partial class Maze : IDisposable
     private bool _isRegenerationPending;
     private bool _isGenerating;
     private bool _isCasting;
+    private bool _isDisposed;
 
     private int _generation;
+    private CancellationTokenSource? _generationCancellation;
 
     private string? _appliedSeed;
     private int? _appliedSize;
@@ -91,6 +93,11 @@ public partial class Maze : IDisposable
 
     public void Dispose()
     {
+        _isDisposed = true;
+        _generationCancellation?.Cancel();
+        _generationCancellation?.Dispose();
+        _generationCancellation = null;
+
         ParametersService.Changed -= OnLabyrinthParametersChanged;
 
         if (_keyInterceptor != null)
@@ -130,8 +137,9 @@ public partial class Maze : IDisposable
         _originalSize = size ?? DefaultSize;
         _density = density ?? DefaultDensity;
 
-        if (isRouteChanged && _isInit)
+        if (isRouteChanged && _session != null)
         {
+            _generationCancellation?.Cancel();
             _isRegenerationPending = true;
         }
     }
@@ -183,7 +191,7 @@ public partial class Maze : IDisposable
 
     private void OnLabyrinthParametersChanged(object? sender, EventArgs args)
     {
-        if (IsInit == false)
+        if (IsInit == false || _isGenerating)
         {
             return;
         }
@@ -357,35 +365,60 @@ public partial class Maze : IDisposable
 
     private async Task GenerateAsync(bool isSeedRepeated)
     {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        _generationCancellation?.Cancel();
+        _generationCancellation?.Dispose();
+        _generationCancellation = new();
+
+        var cancellationToken = _generationCancellation.Token;
+
         AnimationService.StartRandomAnimationEffect();
 
         _generation++;
         _keyInterceptor?.ResetWaitItem();
+        _announcements.Clear();
 
         _isGenerating = true;
         _generationProgress = 0;
         StateHasChanged();
-        await Task.Delay(1);
 
-        if (isSeedRepeated)
+        try
         {
-            _seeder.Repeat();
+            await Task.Delay(1, cancellationToken);
+
+            if (isSeedRepeated)
+            {
+                _seeder.Repeat();
+            }
+            else
+            {
+                _seeder.Reload();
+            }
+
+            _displayScore = 0;
+
+            _originalSize = Math.Clamp(_originalSize, MinSize, MaxSize);
+            _density = Math.Clamp(_density, MinDensity, MaxDensity);
+
+            _generatedSize = _originalSize;
+            _generatedDensity = _density;
+
+            var progress = new Progress<int>(percent => OnGenerationProgress(percent, cancellationToken));
+            await _session.GenerateAsync(_generatedSize, _generatedDensity, progress, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
         }
-        else
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            _seeder.Reload();
+            return;
         }
 
-        _displayScore = 0;
-
-        _originalSize = Math.Clamp(_originalSize, MinSize, MaxSize);
-        _density = Math.Clamp(_density, MinDensity, MaxDensity);
-
-        _generatedSize = _originalSize;
-        _generatedDensity = _density;
-
-        await _session.GenerateAsync(_generatedSize, _generatedDensity, new Progress<int>(OnGenerationProgress));
         _isGenerating = false;
+
+        ReplaceRouteSeed();
 
         StateHasChanged();
 
@@ -393,6 +426,22 @@ public partial class Maze : IDisposable
 
         _isInit = true;
         StateHasChanged();
+    }
+
+    private void ReplaceRouteSeed()
+    {
+        var seed = _seeder.RouteSeed;
+
+        if (seed == _appliedSeed && _generatedSize == _appliedSize && _generatedDensity == _appliedDensity)
+        {
+            return;
+        }
+
+        _appliedSeed = seed;
+        _appliedSize = _generatedSize;
+        _appliedDensity = _generatedDensity;
+
+        _seeder.ReplaceRoute(seed, _generatedSize, _generatedDensity);
     }
 
     private async Task ForceRender()
@@ -409,9 +458,9 @@ public partial class Maze : IDisposable
         StateHasChanged();
     }
 
-    private void OnGenerationProgress(int percent)
+    private void OnGenerationProgress(int percent, CancellationToken cancellationToken)
     {
-        if (_isGenerating == false)
+        if (_isGenerating == false || cancellationToken.IsCancellationRequested)
         {
             return;
         }

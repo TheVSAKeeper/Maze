@@ -6,13 +6,4 @@
         <FocusOnNavigate RouteData="@routeData"
                          Selector="h1" />
     </Found>
-
-    <Navigating>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <div class="ui-row">
-                <Spinner />
-                <span class="t-body-s">Загрузка..</span>
-            </div>
-        </LayoutView>
-    </Navigating>
 </Router>

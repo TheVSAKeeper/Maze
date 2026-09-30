@@ -20,6 +20,12 @@ public partial class RandomGenerator
 
     public string Link => GetShareLink();
 
+    public string RouteSeed => string.IsNullOrWhiteSpace(_seed.UserSeed) == false
+                               && _seed.UserSeed.All(symbol => symbol == '.') == false
+                               && SeedSource.ParseSeed(_seed.UserSeed) == _seed.CurrentSeed
+        ? _seed.UserSeed
+        : _seed.CurrentSeed.ToString(CultureInfo.InvariantCulture);
+
     [Parameter]
     public string? Seed { get; set; }
 
@@ -74,14 +80,25 @@ public partial class RandomGenerator
         StateHasChanged();
     }
 
+    public void ReplaceRoute(string seed, int size, int density)
+    {
+        _appliedSeed = seed;
+        NavigationManager.NavigateTo(BuildLink(seed, size, density), replace: true);
+    }
+
     private string GetShareLink()
     {
-        var linkWithSeed = $"{NavigationManager.BaseUri}{MazePageUrl}/{_seed.CurrentSeed}";
+        return BuildLink(_seed.CurrentSeed.ToString(CultureInfo.InvariantCulture), Size, Density);
+    }
+
+    private string BuildLink(string seed, int size, int density)
+    {
+        var linkWithSeed = $"{NavigationManager.BaseUri}{MazePageUrl}/{Uri.EscapeDataString(seed)}";
 
         return NavigationManager.GetUriWithQueryParameters(linkWithSeed, new Dictionary<string, object?>
         {
-            [SizeQueryName] = Size,
-            [DensityQueryName] = Density,
+            [SizeQueryName] = size,
+            [DensityQueryName] = density,
         });
     }
 

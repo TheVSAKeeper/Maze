@@ -3,12 +3,15 @@ using Labirint.Web.Components.Dialogs;
 using Labirint.Web.Services;
 using Labirint.Web.Services.Dialogs;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 
 namespace Labirint.Web.Layout;
 
 public partial class MainLayout
 {
+    private ErrorBoundary? _errorBoundary;
+
     [Inject]
     public required ThemeService ThemeService { get; set; }
 
@@ -32,6 +35,11 @@ public partial class MainLayout
             Logger.LogError(exception, "Не удалось применить тему, остаётся тема по умолчанию");
         }
 
+    }
+
+    protected override void OnParametersSet()
+    {
+        _errorBoundary?.Recover();
     }
 
     private void Reload()

@@ -24,6 +24,13 @@ public sealed class SeedSource : IRandom
         return result == int.MinValue ? int.MaxValue : Math.Abs(result);
     }
 
+    public static int ParseSeed(string userSeed)
+    {
+        return userSeed.All(char.IsDigit) && int.TryParse(userSeed, out var parsedSeed)
+            ? parsedSeed
+            : GenerateSeed(userSeed);
+    }
+
     public void Repeat()
     {
         if (IsGenerateRequired)
@@ -43,10 +50,7 @@ public sealed class SeedSource : IRandom
             return;
         }
 
-        CurrentSeed = UserSeed.All(char.IsDigit) && int.TryParse(UserSeed, out var parsedSeed)
-            ? parsedSeed
-            : GenerateSeed(UserSeed);
-
+        CurrentSeed = ParseSeed(UserSeed);
         _random = new(CurrentSeed);
     }
 
