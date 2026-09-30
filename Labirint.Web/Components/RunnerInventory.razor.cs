@@ -34,6 +34,8 @@ public partial class RunnerInventory : RenderComponent, IDisposable
 
     public void Dispose()
     {
+        DialogService.CancelOwnedBy(this);
+
         Interceptor.ChangedWaitItem -= OnChangedWaitItem;
         Interceptor.DigitKeyDown -= OnDigitKeyDown;
         SchemeService.ControlSchemeChanged -= OnSchemeChanged;
@@ -158,7 +160,7 @@ public partial class RunnerInventory : RenderComponent, IDisposable
             [nameof(ItemLoreDialog.IsInfinite)] = animatedStack.Stack.IsInfinite,
         };
 
-        var result = await DialogService.ShowAsync<ItemLoreDialog>(item.DisplayName, parameters, new DialogOptions
+        var result = await DialogService.ShowAsync<ItemLoreDialog>(this, item.DisplayName, parameters, new DialogOptions
         {
             Width = DialogWidth.Medium,
         });

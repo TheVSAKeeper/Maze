@@ -15,6 +15,7 @@ using Labirint.Web.Services.Dialogs;
 using Labirint.Web.Services.Toasts;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 
 namespace Labirint.Web.Tests.Pages;
 
@@ -36,6 +37,7 @@ public class MazeTests
     {
         _context = new();
         _context.JSInterop.Mode = JSRuntimeMode.Loose;
+        _context.JSInterop.Setup<IJSInProcessObjectReference>("canvasHelper.getContext2D", _ => true).SetResult(new CanvasContextReference());
         _context.Services.AddLogging();
         _context.Services.AddSingleton<LocalStorageService>();
         _context.Services.AddSingleton<LabyrinthParametersService>();
@@ -412,28 +414,94 @@ public class MazeTests
     }
 
     /// <summary>
-    /// Тестирует, что диалог финала, переживший уход со страницы, не запускает новую партию на закрытой странице.
-    /// Проверяет, что «Вернуться в Лабиринт» после перехода на главную оставляет адрес главной и не открывает страницу Maze.
+    /// Тестирует, что уход со страницы Maze закрывает открытые ею диалоги – и диалог финала самой страницы, и диалог «Поделиться» её генератора зерна.
+    /// Проверяет, что после перехода на главную диалогов не осталось, ShowAsync завершился отменой, а его продолжение не вернуло игрока в лабиринт: адрес – главной, страницы Maze нет.
     /// </summary>
-    [Test]
-    public async Task FinaleAfterLeavingPageKeepsRouteTest()
+    /// <param name="isFinale">Открыт ли диалог финала, а не «Поделиться»</param>
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task LeavingPageClosesDialogsTest(bool isFinale)
     {
         var app = RenderApp(InitialSeed, 2);
-        var interceptor = app.FindComponent<KeyInterceptor>();
         var dialogs = _context.Services.GetRequiredService<DialogService>();
 
-        await interceptor.InvokeAsync(() => interceptor.Instance.OnKeyDown(Direction.Right));
-        await interceptor.InvokeAsync(() => interceptor.Instance.OnKeyDown(Direction.Bottom));
+        var opening = isFinale
+            ? ReachExitAsync(app)
+            : app.Find("button[title='Поделиться лабиринтом']").ClickAsync(new());
+
         app.WaitForState(() => dialogs.Instances.Count == 1, WaitTimeout);
+        var dialog = dialogs.Instances.Single();
 
         NavigateHome();
-        await app.FindAll("button").Single(button => button.TextContent.Contains("Вернуться в Лабиринт")).ClickAsync(new());
+        app.WaitForState(() => dialogs.Instances.Count == 0, WaitTimeout);
+        var result = await dialog.Result;
+        await opening.WaitAsync(WaitTimeout);
         await app.InvokeAsync(() => { });
 
         Assert.Multiple(() =>
         {
+            Assert.That(dialog.ContentType, Is.EqualTo(isFinale ? typeof(WinDialog) : typeof(ShareDialog)));
+            Assert.That(result.Canceled, Is.True);
+            Assert.That(app.FindAll(".ui-dialog-panel"), Is.Empty);
             Assert.That(GetUri(), Is.EqualTo(GetBaseUri()));
             Assert.That(app.FindComponents<Maze>(), Is.Empty);
+        });
+    }
+
+    /// <summary>
+    /// Тестирует, что смена зерна в адресе на открытой странице не закрывает диалог финала: страница та же, уход не состоялся.
+    /// Проверяет, что после перехода на другое зерно и перегенерации лабиринта экземпляр страницы прежний, а тот же диалог финала открыт и его ShowAsync не завершён.
+    /// </summary>
+    [Test]
+    public async Task RouteChangeKeepsDialogTest()
+    {
+        var app = RenderApp(InitialSeed, 2);
+        var rendered = app.FindComponent<Maze>();
+        var dialogs = _context.Services.GetRequiredService<DialogService>();
+
+        await ReachExitAsync(app);
+        app.WaitForState(() => dialogs.Instances.Count == 1, WaitTimeout);
+        var dialog = dialogs.Instances.Single();
+
+        Navigate("2", 2);
+        app.WaitForState(() => IsReady(rendered) && GetSeed(rendered) == "2", WaitTimeout);
+        await app.InvokeAsync(() => { });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(app.FindComponent<Maze>().Instance, Is.SameAs(rendered.Instance));
+            Assert.That(dialogs.Instances, Is.EqualTo(new[] { dialog }));
+            Assert.That(dialog.Result.IsCompleted, Is.False);
+        });
+    }
+
+    /// <summary>
+    /// Тестирует, что ссылка «Поделиться» ведёт через корень сайта и открывает ту же партию.
+    /// Проверяет, что ссылка – корень с зерном, размером и плотностью в параметрах, а переход по ней заменяет адрес на страницу лабиринта с теми же зерном, размером и плотностью и даёт те же стены.
+    /// </summary>
+    [Test]
+    public void ShareLinkOpensSameGameTest()
+    {
+        const int size = 8;
+        const int density = 30;
+
+        var app = RenderApp(InitialSeed, size, density);
+        var page = app.FindComponent<Maze>();
+        var pageInstance = page.Instance;
+        var walls = GetWalls(GetLabyrinth(page));
+        var link = page.FindComponent<RandomGenerator>().Instance.Link;
+
+        _context.Services.GetRequiredService<NavigationManager>().NavigateTo(link);
+
+        app.WaitForState(() => app.FindComponents<Maze>() is [{ } routed] && routed.Instance != pageInstance && IsReady(routed), WaitTimeout);
+        var opened = app.FindComponent<Maze>();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(link, Is.EqualTo($"{GetBaseUri()}?seed={InitialSeed}&s={size}&d={density}"));
+            Assert.That(GetUri(), Is.EqualTo(BuildUri(InitialSeed, size, density)));
+            Assert.That(GetSeed(opened), Is.EqualTo(InitialSeed));
+            Assert.That(GetWalls(GetLabyrinth(opened)), Is.EqualTo(walls));
         });
     }
 
@@ -547,6 +615,14 @@ public class MazeTests
     {
         var segments = new Uri(location).AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
         return segments.Length > 1 ? Uri.UnescapeDataString(segments[1]) : null;
+    }
+
+    private static async Task ReachExitAsync(IRenderedComponent<App> app)
+    {
+        var interceptor = app.FindComponent<KeyInterceptor>();
+
+        await interceptor.InvokeAsync(() => interceptor.Instance.OnKeyDown(Direction.Right));
+        await interceptor.InvokeAsync(() => interceptor.Instance.OnKeyDown(Direction.Bottom));
     }
 
     private static async Task ClickGenerateAsync(IRenderedComponent<Maze> rendered)
@@ -690,5 +766,32 @@ public class MazeTests
         await rendered.InvokeAsync(() => { });
 
         return rendered;
+    }
+
+    private sealed class CanvasContextReference : IJSInProcessObjectReference
+    {
+        public TValue Invoke<TValue>(string identifier, params object?[]? args)
+        {
+            throw new NotSupportedException();
+        }
+
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
+        {
+            throw new NotSupportedException();
+        }
+
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            return ValueTask.CompletedTask;
+        }
     }
 }

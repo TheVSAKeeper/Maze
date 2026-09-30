@@ -94,6 +94,7 @@ public partial class Maze : IDisposable
     public void Dispose()
     {
         _isDisposed = true;
+        DialogService.CancelOwnedBy(this);
         _generationCancellation?.Cancel();
         _generationCancellation?.Dispose();
         _generationCancellation = null;
@@ -228,7 +229,7 @@ public partial class Maze : IDisposable
             [nameof(WinDialog.Size)] = _generatedSize,
         };
 
-        var result = await DialogService.ShowAsync<WinDialog>("Финал Лабиринта", parameters, new DialogOptions
+        var result = await DialogService.ShowAsync<WinDialog>(this, "Финал Лабиринта", parameters, new DialogOptions
         {
             CloseButton = false,
             CloseOnBackdropClick = false,

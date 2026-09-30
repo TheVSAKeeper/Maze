@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Labirint.Web.Components;
+using Microsoft.AspNetCore.Components;
 
 namespace Labirint.Web.Pages;
 
@@ -25,8 +26,34 @@ public partial class Home
         "Мальчик сломал руку в шести местах когда показывал как пройти лабиринт!",
     ];
 
+    [SupplyParameterFromQuery(Name = RandomGenerator.SeedQueryName)]
+    public string? Seed { get; set; }
+
+    [SupplyParameterFromQuery(Name = RandomGenerator.SizeQueryName)]
+    public string? MazeSize { get; set; }
+
+    [SupplyParameterFromQuery(Name = RandomGenerator.DensityQueryName)]
+    public string? MazeDensity { get; set; }
+
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
+
+    private bool IsSharedGame => string.IsNullOrWhiteSpace(Seed) == false;
+
+    protected override void OnParametersSet()
+    {
+        if (IsSharedGame == false)
+        {
+            return;
+        }
+
+        var link = RandomGenerator.BuildRouteLink(NavigationManager,
+            Seed!,
+            RandomGenerator.ParseQueryNumber(MazeSize),
+            RandomGenerator.ParseQueryNumber(MazeDensity));
+
+        NavigationManager.NavigateTo(link, replace: true);
+    }
 
     private void StartGame()
     {

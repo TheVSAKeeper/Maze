@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Components;
 
 namespace Labirint.Web.Components;
 
-public partial class RandomGenerator
+public partial class RandomGenerator : IDisposable
 {
+    public const string SeedQueryName = "seed";
     public const string SizeQueryName = "s";
     public const string DensityQueryName = "d";
     private const string MazePageUrl = "labirint";
@@ -51,6 +52,23 @@ public partial class RandomGenerator
         return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var number) ? number : null;
     }
 
+    public static string BuildRouteLink(NavigationManager navigationManager, string seed, int? size, int? density)
+    {
+        var linkWithSeed = $"{navigationManager.BaseUri}{MazePageUrl}/{Uri.EscapeDataString(seed)}";
+
+        return navigationManager.GetUriWithQueryParameters(linkWithSeed, new Dictionary<string, object?>
+        {
+            [SizeQueryName] = size,
+            [DensityQueryName] = density,
+        });
+    }
+
+    public void Dispose()
+    {
+        DialogService.CancelOwnedBy(this);
+        GC.SuppressFinalize(this);
+    }
+
     public void Repeat()
     {
         _seed.Repeat();
@@ -83,28 +101,22 @@ public partial class RandomGenerator
     public void ReplaceRoute(string seed, int size, int density)
     {
         _appliedSeed = seed;
-        NavigationManager.NavigateTo(BuildLink(seed, size, density), replace: true);
+        NavigationManager.NavigateTo(BuildRouteLink(NavigationManager, seed, size, density), replace: true);
     }
 
     private string GetShareLink()
     {
-        return BuildLink(_seed.CurrentSeed.ToString(CultureInfo.InvariantCulture), Size, Density);
-    }
-
-    private string BuildLink(string seed, int size, int density)
-    {
-        var linkWithSeed = $"{NavigationManager.BaseUri}{MazePageUrl}/{Uri.EscapeDataString(seed)}";
-
-        return NavigationManager.GetUriWithQueryParameters(linkWithSeed, new Dictionary<string, object?>
+        return NavigationManager.GetUriWithQueryParameters(NavigationManager.BaseUri, new Dictionary<string, object?>
         {
-            [SizeQueryName] = size,
-            [DensityQueryName] = density,
+            [SeedQueryName] = _seed.CurrentSeed.ToString(CultureInfo.InvariantCulture),
+            [SizeQueryName] = Size,
+            [DensityQueryName] = Density,
         });
     }
 
     private async Task ShowShareDialogAsync()
     {
-        await DialogService.ShowAsync<ShareDialog>("Поделиться лабиринтом", new DialogParameters
+        await DialogService.ShowAsync<ShareDialog>(this, "Поделиться лабиринтом", new DialogParameters
         {
             [nameof(ShareDialog.Link)] = Link,
             [nameof(ShareDialog.UserSeed)] = _seed.UserSeed,

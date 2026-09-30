@@ -54,7 +54,7 @@ public partial class MainLayout
 
     private Task OpenParametersAsync()
     {
-        return DialogService.ShowAsync<OpenParametersDialog>("Настройки", options: new DialogOptions
+        return DialogService.ShowAsync<OpenParametersDialog>(this, "Настройки", options: new DialogOptions
         {
             CloseOnBackdropClick = false,
             Width = DialogWidth.Small,

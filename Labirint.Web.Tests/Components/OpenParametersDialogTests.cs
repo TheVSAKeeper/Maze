@@ -49,7 +49,7 @@ public class OpenParametersDialogTests
         var parametersService = _context.Services.GetRequiredService<LabyrinthParametersService>();
         var initialParameters = parametersService.Current;
         var dialogs = _context.Services.GetRequiredService<DialogService>();
-        var result = dialogs.ShowAsync<OpenParametersDialog>("Настройки");
+        var result = dialogs.ShowAsync<OpenParametersDialog>(this, "Настройки");
         var instance = dialogs.Instances.Single();
 
         var rendered = _context.Render<OpenParametersDialog>(parameters => parameters.AddCascadingValue(instance));
