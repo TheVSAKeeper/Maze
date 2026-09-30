@@ -32,23 +32,33 @@ public sealed class LabyrinthParametersService(LocalStorageService localStorage,
 
     private async Task<LabyrinthParameters?> LoadAsync()
     {
+        LabyrinthParameters? parameters;
+
         try
         {
-            LabyrinthParameters? parameters = await localStorage.GetItemAsync<LabyrinthParameters>(LabyrinthParameters.LocalStorageKey);
-
-            // TODO: разовая миграция без версии настроек – заводить версионирование, когда сменится следующий дефолт
-            if (parameters?.Color == LabyrinthParameters.LegacyDefaultColor)
-            {
-                parameters.Color = LabyrinthParameters.DefaultColor;
-                await localStorage.SetItemAsync(LabyrinthParameters.LocalStorageKey, parameters);
-            }
-
-            return parameters;
+            parameters = await localStorage.GetItemAsync<LabyrinthParameters>(LabyrinthParameters.LocalStorageKey);
         }
         catch (Exception exception)
         {
             logger.LogError(exception, "Не удалось прочитать параметры лабиринта, остаются значения по умолчанию");
             return null;
         }
+
+        // TODO: разовая миграция без версии настроек – заводить версионирование, когда сменится следующий дефолт
+        if (parameters?.Color == LabyrinthParameters.LegacyDefaultColor)
+        {
+            parameters.Color = LabyrinthParameters.DefaultColor;
+
+            try
+            {
+                await localStorage.SetItemAsync(LabyrinthParameters.LocalStorageKey, parameters);
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Не удалось сохранить исправленный цвет лабиринта, миграция повторится при следующем запуске");
+            }
+        }
+
+        return parameters;
     }
 }

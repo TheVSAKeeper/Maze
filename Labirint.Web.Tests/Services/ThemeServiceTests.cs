@@ -1,5 +1,7 @@
 ﻿using Bunit;
+using Labirint.Web.Common.Ui;
 using Labirint.Web.Services;
+using Labirint.Web.Services.Toasts;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
 
@@ -12,11 +14,13 @@ public class ThemeServiceTests
 
     private BunitContext _context = null!;
     private JSRuntimeInvocationHandler<string?> _readHandler = null!;
+    private ToastService _toastService = null!;
 
     [SetUp]
     public void SetUp()
     {
         _context = new();
+        _toastService = new();
         _context.JSInterop.Mode = JSRuntimeMode.Loose;
 
         _readHandler = _context.JSInterop.Setup<string?>("localStorage.getItem", StorageKey);
@@ -73,7 +77,7 @@ public class ThemeServiceTests
 
     /// <summary>
     /// Тестирует, что ThemeService.ToggleAsync переключает тему, сохраняет её в localStorage и применяет через JS.
-    /// Проверяет, что после переключения с тёмной темы IsDark становится false, в хранилище пишется "false", а применённая тема – "light".
+    /// Проверяет, что после переключения с тёмной темы IsDark становится false, в хранилище пишется "false", применённая тема – "light", а тостов нет.
     /// </summary>
     [Test]
     public async Task ToggleAsyncPersistsAndAppliesTest()
@@ -89,12 +93,13 @@ public class ThemeServiceTests
             Assert.That(service.IsDark, Is.False);
             Assert.That(GetStoredValue(), Is.EqualTo("false"));
             Assert.That(GetAppliedTheme(), Is.EqualTo("light"));
+            Assert.That(GetToasts(), Is.Empty);
         });
     }
 
     /// <summary>
-    /// Тестирует, что ThemeService.ToggleAsync переживает отказ localStorage.setItem и всё равно применяет новую тему к странице.
-    /// Проверяет, что при исключении JSException из записи в хранилище IsDark и применённая тема всё равно меняются на светлую.
+    /// Тестирует, что ThemeService.ToggleAsync переживает отказ localStorage.setItem, всё равно применяет новую тему к странице и сообщает игроку о сбое.
+    /// Проверяет, что при исключении JSException из записи в хранилище IsDark и применённая тема всё равно меняются на светлую, а игрок видит тост-предупреждение «Не удалось запомнить тему».
     /// </summary>
     [Test]
     public async Task WriteFailureStillAppliesThemeTest()
@@ -111,6 +116,7 @@ public class ThemeServiceTests
             Assert.That(service.IsDark, Is.False);
             Assert.That(GetStoredValue(), Is.EqualTo("false"));
             Assert.That(GetAppliedTheme(), Is.EqualTo("light"));
+            Assert.That(GetToasts(), Is.EqualTo(new[] { ("Не удалось запомнить тему", UiSeverity.Warning) }));
         });
     }
 
@@ -137,7 +143,12 @@ public class ThemeServiceTests
     private ThemeService CreateService()
     {
         LocalStorageService localStorage = new(_context.JSInterop.JSRuntime);
-        return new(_context.JSInterop.JSRuntime, localStorage, NullLogger<ThemeService>.Instance);
+        return new(_context.JSInterop.JSRuntime, localStorage, _toastService, NullLogger<ThemeService>.Instance);
+    }
+
+    private IEnumerable<(string Message, UiSeverity Severity)> GetToasts()
+    {
+        return _toastService.Toasts.Select(toast => (toast.Message, toast.Severity));
     }
 
     private string? GetAppliedTheme()

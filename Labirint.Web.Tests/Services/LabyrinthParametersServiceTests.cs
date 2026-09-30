@@ -118,6 +118,27 @@ public class LabyrinthParametersServiceTests
         });
     }
 
+    /// <summary>
+    /// Тестирует, что сбой записи при миграции устаревшего цвета не отбрасывает уже прочитанные параметры.
+    /// Проверяет, что при исключении JSException из localStorage.setItem Current получает новый цвет по умолчанию, а звук и громкость остаются прочитанными из хранилища.
+    /// </summary>
+    [Test]
+    public async Task MigrationWriteFailureKeepsReadParametersTest()
+    {
+        _readHandler.SetResult(BuildJson(LabyrinthParameters.LegacyDefaultColor, false, 0.5f));
+        _context.JSInterop.SetupVoid("localStorage.setItem", _ => true).SetException(new JSException("Хранилище переполнено"));
+
+        var service = CreateService();
+        await service.InitializeAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(service.Current.Color, Is.EqualTo(LabyrinthParameters.DefaultColor));
+            Assert.That(service.Current.IsSoundOn, Is.False);
+            Assert.That(service.Current.SoundVolume, Is.EqualTo(0.5f));
+        });
+    }
+
     private static string BuildJson(string color, bool isSoundOn = true, float soundVolume = 1.0f)
     {
         return $$"""{"Color":"{{color}}","IsSoundOn":{{(isSoundOn ? "true" : "false")}},"SoundVolume":{{soundVolume.ToString(CultureInfo.InvariantCulture)}}}""";

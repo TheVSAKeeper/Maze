@@ -37,12 +37,12 @@ public partial class OpenParametersDialog
 
         try
         {
-            await ParametersService.SaveAsync(_parameters);
-
             if (ControlSchemeService.CurrentScheme != _controlScheme)
             {
-                ControlSchemeService.CurrentScheme = _controlScheme;
+                await ControlSchemeService.SetSchemeAsync(_controlScheme);
             }
+
+            await ParametersService.SaveAsync(_parameters);
 
             ToastService.Show("Сохранено!", UiSeverity.Success);
             Instance.Close();

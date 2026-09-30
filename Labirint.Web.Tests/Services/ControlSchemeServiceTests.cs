@@ -1,4 +1,5 @@
-﻿using Bunit;
+﻿using System.Text.Json;
+using Bunit;
 using Labirint.Web.Common.Control.Schemes;
 using Labirint.Web.Services;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -95,7 +96,7 @@ public class ControlSchemeServiceTests
         var service = CreateService();
         var chosen = service.AvailableSchemes.OfType<AlternativeScheme>().Single();
 
-        service.CurrentScheme = chosen;
+        await service.SetSchemeAsync(chosen);
 
         var applied = await LoadAndWaitAsync(service, service.DefaultScheme.Name);
 
@@ -121,15 +122,68 @@ public class ControlSchemeServiceTests
     }
 
     /// <summary>
-    /// Тестирует, что сеттер ControlSchemeService.CurrentScheme отвергает экземпляр схемы, не входящий в AvailableSchemes.
-    /// Проверяет, что присвоение нового экземпляра AlternativeScheme, не зарегистрированного в сервисе, бросает ArgumentException.
+    /// Тестирует, что ControlSchemeService.SetSchemeAsync отвергает экземпляр схемы, не входящий в AvailableSchemes.
+    /// Проверяет, что передача нового экземпляра AlternativeScheme, не зарегистрированного в сервисе, бросает ArgumentException.
     /// </summary>
     [Test]
     public void UnregisteredSchemeThrowsTest()
     {
         var service = CreateService();
 
-        Assert.Throws<ArgumentException>(() => service.CurrentScheme = new AlternativeScheme());
+        Assert.ThrowsAsync<ArgumentException>(() => service.SetSchemeAsync(new AlternativeScheme()));
+    }
+
+    /// <summary>
+    /// Тестирует, что ControlSchemeService.SetSchemeAsync сохраняет выбранную схему в localStorage и применяет её.
+    /// Проверяет, что localStorage.setItem получил имя схемы, CurrentScheme сменился на неё, а ControlSchemeChanged пришёл с ней же.
+    /// </summary>
+    [Test]
+    public async Task ChosenSchemeIsSavedAndAppliedTest()
+    {
+        var service = CreateService();
+        var chosen = service.AvailableSchemes.OfType<AlternativeScheme>().Single();
+        IControlScheme? raised = null;
+        service.ControlSchemeChanged += (_, scheme) => raised = scheme;
+
+        await service.SetSchemeAsync(chosen);
+
+        var write = _context.JSInterop.VerifyInvoke("localStorage.setItem");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(write.Arguments, Is.EqualTo(new object[] { StorageKey, JsonSerializer.Serialize(chosen.Name) }));
+            Assert.That(service.CurrentScheme, Is.SameAs(chosen));
+            Assert.That(raised, Is.SameAs(chosen));
+        });
+    }
+
+    /// <summary>
+    /// Тестирует, что сбой записи в localStorage при смене схемы доходит до вызывающего, а не теряется молча.
+    /// Проверяет, что SetSchemeAsync бросает исключение хранилища, CurrentScheme остаётся DefaultScheme, ControlSchemeChanged не приходит, а запоздавшее чтение хранилища после сбоя по-прежнему применяет сохранённую схему.
+    /// </summary>
+    [Test]
+    public async Task SaveFailureIsRethrownAndSchemeKeptTest()
+    {
+        var service = CreateService();
+        var chosen = service.AvailableSchemes.OfType<AlternativeScheme>().Single();
+        IControlScheme? raised = null;
+        service.ControlSchemeChanged += (_, scheme) => raised = scheme;
+
+        _context.JSInterop.SetupVoid("localStorage.setItem", _ => true)
+            .SetException(new JSException("Хранилище переполнено"));
+
+        Assert.ThrowsAsync<JSException>(() => service.SetSchemeAsync(chosen));
+
+        var schemeAfterFailure = service.CurrentScheme;
+        var raisedAfterFailure = raised;
+        var applied = await LoadAndWaitAsync(service, chosen.Name);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(schemeAfterFailure, Is.SameAs(service.DefaultScheme));
+            Assert.That(raisedAfterFailure, Is.Null);
+            Assert.That(applied, Is.SameAs(chosen));
+        });
     }
 
     private static string Quote(string value)

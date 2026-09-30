@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Labirint.Web.Common.Ui;
+using Labirint.Web.Services.Toasts;
+using Microsoft.Extensions.Logging;
 
 namespace Labirint.Web.Services;
 
-public sealed class ThemeService(IJSRuntime jsRuntime, LocalStorageService localStorage, ILogger<ThemeService> logger)
+public sealed class ThemeService(IJSRuntime jsRuntime, LocalStorageService localStorage, ToastService toastService, ILogger<ThemeService> logger)
 {
     private const string StorageKey = "IsDarkMod";
 
@@ -36,6 +38,7 @@ public sealed class ThemeService(IJSRuntime jsRuntime, LocalStorageService local
         catch (Exception exception)
         {
             logger.LogError(exception, "Не удалось сохранить выбранную тему");
+            toastService.Show("Не удалось запомнить тему", UiSeverity.Warning);
         }
 
         await ApplyAsync();

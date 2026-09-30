@@ -184,7 +184,7 @@
     background: var(--bg-raised);
 }
 
-.keyboard-button {
+.keyboard-key {
     font-family: var(--font-mono);
     font-size: 0.9375rem;
     font-weight: 600;
@@ -195,17 +195,10 @@
     height: 32px;
     margin-top: var(--s-1);
     padding: 0;
-    cursor: pointer;
-    transition: transform var(--dur-2) var(--ease), background var(--dur-1) var(--ease);
     color: var(--text);
     border: 1px solid var(--border-strong);
     border-radius: var(--r-2);
     background: var(--bg-sunken);
-}
-
-.keyboard-button:hover {
-    transform: translateY(2px);
-    background: var(--bg-hover);
 }
 
 @keyframes pickupFlow {

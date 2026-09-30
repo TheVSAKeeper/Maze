@@ -30,28 +30,35 @@ public class ControlSchemeService
 
     public event EventHandler<IControlScheme>? ControlSchemeChanged;
 
-    public IControlScheme CurrentScheme
-    {
-        get => _currentScheme;
-        set
-        {
-            if (_controlSchemes.Contains(value))
-            {
-                _currentScheme = value;
-                _isChosenByUser = true;
-                _ = SaveCurrentSchemeAsync();
-                NotifySchemeChanged();
-            }
-            else
-            {
-                throw new ArgumentException($"Предоставленная схема управления «{value.Name}» не зарегистрирована.");
-            }
-        }
-    }
+    public IControlScheme CurrentScheme => _currentScheme;
 
     public IEnumerable<IControlScheme> AvailableSchemes => _controlSchemes;
 
     public IControlScheme DefaultScheme => _controlSchemes[0];
+
+    public async Task SetSchemeAsync(IControlScheme scheme)
+    {
+        if (_controlSchemes.Contains(scheme) == false)
+        {
+            throw new ArgumentException($"Предоставленная схема управления «{scheme.Name}» не зарегистрирована.", nameof(scheme));
+        }
+
+        var wasChosenByUser = _isChosenByUser;
+        _isChosenByUser = true;
+
+        try
+        {
+            await _localStorage.SetItemAsync(LocalStorageKey, scheme.Name);
+        }
+        catch
+        {
+            _isChosenByUser = wasChosenByUser;
+            throw;
+        }
+
+        _currentScheme = scheme;
+        NotifySchemeChanged();
+    }
 
     private void NotifySchemeChanged()
     {
@@ -86,17 +93,5 @@ public class ControlSchemeService
 
         _currentScheme = scheme;
         NotifySchemeChanged();
-    }
-
-    private async Task SaveCurrentSchemeAsync()
-    {
-        try
-        {
-            await _localStorage.SetItemAsync(LocalStorageKey, _currentScheme.Name);
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, "Не удалось сохранить схему управления");
-        }
     }
 }

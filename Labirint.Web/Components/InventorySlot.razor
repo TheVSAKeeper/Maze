@@ -47,16 +47,10 @@
 
     @if (string.IsNullOrEmpty(KeySymbol) == false)
     {
-        <button aria-hidden="true"
-                class="keyboard-button"
-                @onclick="() => OnUse.InvokeAsync(item)"
-                tabindex="-1"
-                title="Использовать предмет"
-                type="button">
-            <span>
-                @KeySymbol
-            </span>
-        </button>
+        <kbd aria-hidden="true"
+             class="keyboard-key">
+            @KeySymbol
+        </kbd>
     }
 </div>
 

@@ -10,18 +10,18 @@ const pools = {};
 
 const take = source => {
     const pool = pools[source] ??= [];
-    const free = pool.find(audio => audio.paused || audio.ended);
+    const freeIndex = pool.findIndex(audio => audio.paused || audio.ended);
 
-    if (free) {
-        return free;
-    }
-
-    const audio = new Audio(source);
-    audio.preload = 'auto';
-
-    if (pool.length < poolLimit) {
+    if (freeIndex === -1 && pool.length < poolLimit) {
+        const audio = new Audio(source);
+        audio.preload = 'auto';
         pool.push(audio);
+
+        return audio;
     }
+
+    const [audio] = pool.splice(freeIndex === -1 ? 0 : freeIndex, 1);
+    pool.push(audio);
 
     return audio;
 };
