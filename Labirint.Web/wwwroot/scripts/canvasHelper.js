@@ -57,7 +57,6 @@ const commandHandlers = {
 const imageCache = {};
 
 const drawGenerations = new WeakMap();
-const offScreenCanvases = new WeakMap();
 
 const loadImage = source =>
     new Promise(resolve => {
@@ -85,27 +84,6 @@ const collectMissingSources = drawCommands => {
     return [...missing];
 };
 
-const takeOffScreenContext = context => {
-    const { width, height } = context.canvas;
-
-    let canvas = offScreenCanvases.get(context);
-
-    if (canvas === undefined) {
-        canvas = document.createElement('canvas');
-        offScreenCanvases.set(context, canvas);
-    }
-
-    if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
-    }
-
-    const offScreenContext = canvas.getContext('2d');
-    offScreenContext.clearRect(0, 0, width, height);
-
-    return offScreenContext;
-};
-
 window.canvasHelper = {
     getContext2D(canvas) {
         return canvas.getContext('2d');
@@ -127,7 +105,7 @@ window.canvasHelper = {
                 }
             }
 
-            const offScreenContext = takeOffScreenContext(context);
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
             for (const command of drawCommands) {
                 const handler = commandHandlers[commandTypes[command.type]];
@@ -137,11 +115,8 @@ window.canvasHelper = {
                     continue;
                 }
 
-                handler(offScreenContext, command);
+                handler(context, command);
             }
-
-            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-            context.drawImage(offScreenContext.canvas, 0, 0);
         }
 
         requestAnimationFrame(draw);
