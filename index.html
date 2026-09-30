@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html data-theme="dark"
+      lang="ru">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-MJjeg6EKlHkbB0hkGLYNiVl0GbRKOaHY40TdOSTeJl8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; object-src 'none'; base-uri 'self'" />
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+          name="viewport" />
+    <meta content="#14110d"
+          name="theme-color" />
+    <meta content="Браузерная игра-лабиринт: ищите выход, собирайте предметы, делитесь зерном партии."
+          name="description" />
+    <meta content="yes"
+          name="mobile-web-app-capable" />
+    <meta content="yes"
+          name="apple-mobile-web-app-capable" />
+    <meta content="black"
+          name="apple-mobile-web-app-status-bar-style" />
+    <meta content="Лабиринт"
+          name="apple-mobile-web-app-title" />
+    <title>Лабиринт</title>
+    <base href="/Maze/" />
+
+    <meta content="website"
+          property="og:type" />
+    <meta content="Лабиринт"
+          property="og:title" />
+    <meta content="Браузерная игра-лабиринт: ищите выход, собирайте предметы, делитесь зерном партии."
+          property="og:description" />
+    <meta content="https://maze.keep2space.ru/icon-512.png" property="og:image" />
+    <meta content="https://maze.keep2space.ru/" property="og:url" />
+    <link href="https://maze.keep2space.ru/" rel="canonical" />
+    <meta content="summary"
+          name="twitter:card" />
+
+    <script type="importmap">{
+  "imports": {
+    "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.w3qd1tpl0e.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.kfl11m9vvg.js",
+    "./_framework/dotnet.native.js": "./_framework/dotnet.native.l0bx4ptjuh.js",
+    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.v06hirbjsv.js",
+    "./scripts/appUpdate.js": "./scripts/appUpdate.wdcsfcxiam.js",
+    "./scripts/canvasHelper.js": "./scripts/canvasHelper.dnosbd53tc.js",
+    "./scripts/dialogHost.js": "./scripts/dialogHost.bz6yovwvqi.js",
+    "./scripts/keyInterceptor.js": "./scripts/keyInterceptor.c330qbbbtw.js",
+    "./scripts/page.js": "./scripts/page.a207qmvn9w.js",
+    "./scripts/pickupFlight.js": "./scripts/pickupFlight.xdxaot7drp.js",
+    "./scripts/sounds.js": "./scripts/sounds.8pb5uy0iqi.js",
+    "./scripts/theme.js": "./scripts/theme.hjzr3savxc.js"
+  },
+  "scopes": {},
+  "integrity": {
+    "./_framework/blazor.webassembly.js": "sha256-lDXsDYFgm62F+YUvxES7IOTCXYpiHpU3uR45YdC6mq4=",
+    "./_framework/blazor.webassembly.w3qd1tpl0e.js": "sha256-lDXsDYFgm62F+YUvxES7IOTCXYpiHpU3uR45YdC6mq4=",
+    "./_framework/dotnet.js": "sha256-QNT6yfIkLbTOA8adNAezZmDGD853/NOFtJtrxUBMJ+Q=",
+    "./_framework/dotnet.kfl11m9vvg.js": "sha256-QNT6yfIkLbTOA8adNAezZmDGD853/NOFtJtrxUBMJ+Q=",
+    "./_framework/dotnet.native.js": "sha256-Bc49JELgpDUitkZvvxnugrhgpsUO+GtOPlwvm5cDKqE=",
+    "./_framework/dotnet.native.l0bx4ptjuh.js": "sha256-Bc49JELgpDUitkZvvxnugrhgpsUO+GtOPlwvm5cDKqE=",
+    "./_framework/dotnet.runtime.js": "sha256-QbnqrZGHtGq7wudS17/AYEPpH9JkphrsyVllD6JHmds=",
+    "./_framework/dotnet.runtime.v06hirbjsv.js": "sha256-QbnqrZGHtGq7wudS17/AYEPpH9JkphrsyVllD6JHmds=",
+    "./scripts/appUpdate.js": "sha256-TCOYMJo6cjCOdwnLUABIaqzoTalSqy5nwLo6JcPPv08=",
+    "./scripts/appUpdate.wdcsfcxiam.js": "sha256-TCOYMJo6cjCOdwnLUABIaqzoTalSqy5nwLo6JcPPv08=",
+    "./scripts/canvasHelper.dnosbd53tc.js": "sha256-N0W0023vOeGjHmQtv2KI9KEh7fZISnxD+mKr+hyxASY=",
+    "./scripts/canvasHelper.js": "sha256-N0W0023vOeGjHmQtv2KI9KEh7fZISnxD+mKr+hyxASY=",
+    "./scripts/dialogHost.bz6yovwvqi.js": "sha256-1wtXEiQTahQV8SmcAgSeCUjRpfMztbYRogSEQnbVwfY=",
+    "./scripts/dialogHost.js": "sha256-1wtXEiQTahQV8SmcAgSeCUjRpfMztbYRogSEQnbVwfY=",
+    "./scripts/keyInterceptor.c330qbbbtw.js": "sha256-WBrx0ixMoobojbhFO4HKl3OvLP8LQ+v8Ugnw0ZPX5Jw=",
+    "./scripts/keyInterceptor.js": "sha256-WBrx0ixMoobojbhFO4HKl3OvLP8LQ+v8Ugnw0ZPX5Jw=",
+    "./scripts/page.a207qmvn9w.js": "sha256-Eh6tWQCSr9FYvaFznQvjR6TdYe3ogKpt8sLUwHxJHds=",
+    "./scripts/page.js": "sha256-Eh6tWQCSr9FYvaFznQvjR6TdYe3ogKpt8sLUwHxJHds=",
+    "./scripts/pickupFlight.js": "sha256-e9yqiHyXhiq2+VT+r8UxvA9PMFAML/A5X7zx+LBxp44=",
+    "./scripts/pickupFlight.xdxaot7drp.js": "sha256-e9yqiHyXhiq2+VT+r8UxvA9PMFAML/A5X7zx+LBxp44=",
+    "./scripts/sounds.8pb5uy0iqi.js": "sha256-fPDQcgbZ85pev5Ray9kvCRxxVa22xyMjdwPXhyFUfuQ=",
+    "./scripts/sounds.js": "sha256-fPDQcgbZ85pev5Ray9kvCRxxVa22xyMjdwPXhyFUfuQ=",
+    "./scripts/theme.hjzr3savxc.js": "sha256-U+CT31A5BiuW85eO8GMj+HYMqQTYP2TVdaSGwK3fFMM=",
+    "./scripts/theme.js": "sha256-U+CT31A5BiuW85eO8GMj+HYMqQTYP2TVdaSGwK3fFMM="
+  }
+}</script>
+    <link href="_framework/dotnet.kfl11m9vvg.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-QNT6yfIkLbTOA8adNAezZmDGD853/NOFtJtrxUBMJ+Q=" />
+    <link as="font"
+          crossorigin
+          href="fonts/forum-cyrillic.woff2"
+          rel="preload"
+          type="font/woff2" />
+    <link as="font"
+          crossorigin
+          href="fonts/jetbrains-mono-cyrillic.woff2"
+          rel="preload"
+          type="font/woff2" />
+
+    <link href="css/fonts.css"
+          rel="stylesheet" />
+    <link href="css/theme.css"
+          rel="stylesheet" />
+    <link href="css/ui.css"
+          rel="stylesheet" />
+    <link href="css/app.css"
+          rel="stylesheet" />
+    <link href="Labirint.Web.styles.css"
+          rel="stylesheet" />
+
+    <link href="favicon.png"
+          rel="icon"
+          type="image/png" />
+    <link href="manifest.webmanifest"
+          rel="manifest" />
+    <link href="icon-180.png"
+          rel="apple-touch-icon"
+          sizes="180x180" />
+
+    <script src="scripts/theme.hjzr3savxc.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div class="boot">
+            <svg class="boot__thread"
+                 viewBox="0 0 200 200"
+                 aria-hidden="true">
+                <path d="M20 180 L20 20 L180 20 L180 180 L60 180 L60 60 L140 60 L140 140 L100 140" />
+            </svg>
+            <p class="boot__title">Лабиринт</p>
+            <p class="boot__progress"></p>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        Произошло необработанное исключение.
+        <a class="reload"
+           href="">Перезагрузить</a>
+        <button aria-label="Закрыть"
+                class="dismiss"
+                type="button">🗙</button>
+    </div>
+
+    <script defer
+            src="scripts/page.a207qmvn9w.js"></script>
+    <script defer
+            src="scripts/sounds.8pb5uy0iqi.js"></script>
+    <script defer
+            src="scripts/canvasHelper.dnosbd53tc.js"></script>
+    <script defer
+            src="scripts/keyInterceptor.c330qbbbtw.js"></script>
+    <script defer
+            src="scripts/dialogHost.bz6yovwvqi.js"></script>
+    <script defer
+            src="scripts/pickupFlight.xdxaot7drp.js"></script>
+    <script defer
+            src="scripts/appUpdate.wdcsfcxiam.js"></script>
+
+    <script defer
+            src="_framework/blazor.webassembly.w3qd1tpl0e.js"></script>
+</body>
+
+</html>
