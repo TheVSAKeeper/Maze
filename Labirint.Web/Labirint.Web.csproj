@@ -34,4 +34,35 @@
     <ProjectReference Include="..\Labirint.Items.Flame\Labirint.Items.Flame.csproj" />
   </ItemGroup>
 
+  <Target Name="ApplySiteUrl"
+          AfterTargets="Publish"
+          BeforeTargets="BlazorWasmBrotliLoader_Inject"
+          Condition="'$(SiteUrl)' != '' AND '$(WasmBuildingForNestedPublish)' != 'true'">
+    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch(`$(SiteUrl)`, `^https?://[\w.~/:-]+$`))"
+           Text="SiteUrl должен быть абсолютным адресом http(s) без пробелов и кавычек, получено: $(SiteUrl)" />
+
+    <PropertyGroup>
+      <_SiteUrl>$(SiteUrl.TrimEnd('/'))/</_SiteUrl>
+      <_SiteIndexHtml>$([System.IO.Path]::GetFullPath(`$(PublishDir)wwwroot/index.html`))</_SiteIndexHtml>
+      <_SiteNewLine>$([System.Environment]::NewLine)    </_SiteNewLine>
+      <_SiteHead>&lt;meta content="$(_SiteUrl)icon-512.png" property="og:image" /&gt;$(_SiteNewLine)&lt;meta content="$(_SiteUrl)" property="og:url" /&gt;$(_SiteNewLine)&lt;link href="$(_SiteUrl)" rel="canonical" /&gt;</_SiteHead>
+      <_SiteHtmlSource>$([MSBuild]::Escape($([System.IO.File]::ReadAllText(`$(_SiteIndexHtml)`))))</_SiteHtmlSource>
+      <_SiteHtml>$([System.Text.RegularExpressions.Regex]::Replace(`$(_SiteHtmlSource)`, `&lt;meta content="icon-512\.png"\s+property="og:image" /&gt;`, `$(_SiteHead)`))</_SiteHtml>
+      <_SiteApplied>$(_SiteHtmlSource.Contains(`&lt;meta content="$(_SiteUrl)" property="og:url" /&gt;`))</_SiteApplied>
+    </PropertyGroup>
+
+    <Error Condition="'$(_SiteHtml)' == '$(_SiteHtmlSource)' AND '$(_SiteApplied)' != 'True'"
+           Text="В $(_SiteIndexHtml) не найден тег &lt;meta content=&quot;icon-512.png&quot; property=&quot;og:image&quot; /&gt;: адрес $(_SiteUrl) не подставлен. Сверь разметку index.html с регуляркой таргета ApplySiteUrl или очисти каталог публикации, если он собран с другим SiteUrl." />
+
+    <WriteLinesToFile File="$(_SiteIndexHtml)"
+                      Lines="$(_SiteHtml)"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+
+    <ItemGroup>
+      <_SiteIndexHtmlItem Include="$(_SiteIndexHtml)" />
+    </ItemGroup>
+    <BlazorWasmBrotliLoader.RecompressStaticFiles Files="@(_SiteIndexHtmlItem)" />
+  </Target>
+
 </Project>
