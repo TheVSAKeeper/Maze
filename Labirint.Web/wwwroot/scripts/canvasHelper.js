@@ -7,8 +7,9 @@
     5: 'strokeStyle',
     6: 'lineWidth',
     7: 'clearRect',
-    8: 'strokeRect',
+    8: 'fillRect',
     9: 'drawSprites',
+    10: 'fillStyle',
 };
 
 const spriteStride = 8;
@@ -20,13 +21,15 @@ const commandHandlers = {
     stroke: context => context.stroke(),
     strokeStyle: (context, command) => {
         context.strokeStyle = command.color;
+    },
+    fillStyle: (context, command) => {
         context.fillStyle = command.color;
     },
     lineWidth: (context, command) => {
         context.lineWidth = command.width;
     },
     clearRect: (context, command) => context.clearRect(command.x, command.y, command.width, command.height),
-    strokeRect: (context, command) => context.fillRect(command.x, command.y, command.width, command.height),
+    fillRect: (context, command) => context.fillRect(command.x, command.y, command.width, command.height),
     drawImage: (context, command) => {
         const image = imageCache[command.source];
 

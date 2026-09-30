@@ -22,7 +22,7 @@ public abstract class MazeComponent : RenderComponent, IDisposable
     public int CanvasWidth { get; private set; }
     public int CanvasHeight { get; private set; }
 
-    protected virtual string StrokeStyle => ParametersService.Current.Color;
+    protected virtual string FillStyle => ParametersService.Current.Color;
 
     protected int BoxSize { get; private set; }
     protected int WallWidth { get; private set; }
@@ -56,7 +56,7 @@ public abstract class MazeComponent : RenderComponent, IDisposable
     {
         DrawSequence drawSequence = new();
         drawSequence.ClearRect(0, 0, CanvasWidth, CanvasHeight);
-        drawSequence.StrokeStyle(StrokeStyle);
+        drawSequence.FillStyle(FillStyle);
 
         for (var x = Vision.Start.X; x <= Vision.Finish.X; x++)
         {

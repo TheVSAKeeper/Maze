@@ -20,22 +20,22 @@ public partial class MazeWalls : MazeComponent
 
         if (Maze[x, y].ContainsWall(Direction.Left))
         {
-            sequence.DrawRect(topLeft.X, topLeft.Y, _width, _height);
+            sequence.FillRect(topLeft.X, topLeft.Y, _width, _height);
         }
 
         if (Maze[x, y].ContainsWall(Direction.Top))
         {
-            sequence.DrawRect(topLeft.X, topLeft.Y, _height, _width);
+            sequence.FillRect(topLeft.X, topLeft.Y, _height, _width);
         }
 
         if (Maze[x, y].ContainsWall(Direction.Right))
         {
-            sequence.DrawRect(bottomRight.X, topLeft.Y, _width, _height);
+            sequence.FillRect(bottomRight.X, topLeft.Y, _width, _height);
         }
 
         if (Maze[x, y].ContainsWall(Direction.Bottom))
         {
-            sequence.DrawRect(topLeft.X, bottomRight.Y, _height, _width);
+            sequence.FillRect(topLeft.X, bottomRight.Y, _height, _width);
         }
     }
 }

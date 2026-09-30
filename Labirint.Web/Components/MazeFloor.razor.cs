@@ -4,17 +4,18 @@ public partial class MazeFloor : MazeComponent
 {
     protected override string CanvasId => "mazeFloorCanvas";
 
-    protected override string StrokeStyle => "black";
+    protected override string FillStyle => "black";
 
     protected override void DrawInner(int x, int y, DrawSequence sequence)
     {
         var topLeft = Vision.GetDraw((x, y)) * BoxSize;
 
-        sequence.DrawRect(topLeft.X, topLeft.Y, BoxSize + WallWidth, BoxSize + WallWidth);
+        sequence.FillRect(topLeft.X, topLeft.Y, BoxSize + WallWidth, BoxSize + WallWidth);
 
         var tileSize = BoxSize / 2;
 
-        var tile = GetTile(x, y);
+        var quarters = GetTile(x, y);
+        ReadOnlySpan<int> tile = [quarters.TopLeft, quarters.BottomLeft, quarters.TopRight, quarters.BottomRight];
 
         for (var i = 0; i < 2; i++)
         {
@@ -22,13 +23,14 @@ public partial class MazeFloor : MazeComponent
             {
                 var left = topLeft.X + i * tileSize;
                 var top = topLeft.Y + j * tileSize;
+                var sprite = tile[i * 2 + j];
 
-                sequence.DrawSprite("images/tiles/floor.png", tile[i, j] / 6, tile[i, j] % 6, left, top, tileSize);
+                sequence.DrawSprite("images/tiles/floor.png", sprite / 6, sprite % 6, left, top, tileSize);
             }
         }
     }
 
-    private int[,] GetTile(int x, int y)
+    private (int TopLeft, int TopRight, int BottomLeft, int BottomRight) GetTile(int x, int y)
     {
         int? topLeft = null;
         int? bottomLeft = null;
@@ -118,13 +120,6 @@ public partial class MazeFloor : MazeComponent
             bottomLeft ??= bottomRight - 1;
         }
 
-        var tile = new int[2, 2];
-
-        tile[0, 0] = topLeft ?? 14;
-        tile[1, 0] = topRight ?? 15;
-        tile[0, 1] = bottomLeft ?? 20;
-        tile[1, 1] = bottomRight ?? 21;
-
-        return tile;
+        return (topLeft ?? 14, topRight ?? 15, bottomLeft ?? 20, bottomRight ?? 21);
     }
 }

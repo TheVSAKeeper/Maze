@@ -18,6 +18,14 @@ public class DrawSequence
         });
     }
 
+    public void FillStyle(string color)
+    {
+        Add(new(Command.FillStyle)
+        {
+            Color = color,
+        });
+    }
+
     public void LineWidth(double width)
     {
         Add(new(Command.LineWidth)
@@ -60,9 +68,9 @@ public class DrawSequence
         LineTo(bottomRightX, bottomRightY);
     }
 
-    public void DrawRect(double x, double y, double width, double height)
+    public void FillRect(double x, double y, double width, double height)
     {
-        Add(new(Command.StrokeRect)
+        Add(new(Command.FillRect)
         {
             X = x,
             Y = y,
@@ -102,7 +110,7 @@ public class DrawSequence
             _spriteSource = source;
         }
 
-        _sprites.AddRange([sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight]);
+        CollectionExtensions.AddRange(_sprites, [sX, sY, sWidth, sHeight, dX, dY, dWidth, dHeight]);
     }
 
     public void DrawSprite(string source, int row, int column, double sWidth, double sHeight, double dX, double dY, double dWidth, double dHeight)
@@ -157,8 +165,9 @@ public class DrawSequence
         public const int StrokeStyle = 5;
         public const int LineWidth = 6;
         public const int ClearRect = 7;
-        public const int StrokeRect = 8;
+        public const int FillRect = 8;
         public const int DrawSprites = 9;
+        public const int FillStyle = 10;
 
         public required int Type { get; init; } = type;
         public double X { get; init; }
