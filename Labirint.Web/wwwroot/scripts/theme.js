@@ -31,3 +31,5 @@
         },
     };
 })();
+
+window.labirintTheme.applyStored();

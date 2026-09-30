@@ -30,6 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <StaticWebAssetFingerprintPattern Include="LabirintScripts" Pattern="*.js" Expression="#[.{fingerprint}]!" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Labirint.Core\Labirint.Core.csproj" />
     <ProjectReference Include="..\Labirint.Items.Flame\Labirint.Items.Flame.csproj" />
   </ItemGroup>
@@ -63,6 +67,80 @@
       <_SiteIndexHtmlItem Include="$(_SiteIndexHtml)" />
     </ItemGroup>
     <BlazorWasmBrotliLoader.RecompressStaticFiles Files="@(_SiteIndexHtmlItem)" />
+  </Target>
+
+  <UsingTask TaskName="InjectContentSecurityPolicy"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <HtmlFile ParameterType="System.String" Required="true" />
+      <Policy ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.Security.Cryptography" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        const string HashesToken = " {inline-script-hashes}";
+
+        if (Policy.Contains(HashesToken) == false)
+        {
+            Log.LogError("В политике CSP нет метки" + HashesToken + " после пробела: некуда вписать хэши встроенных скриптов.");
+            return false;
+        }
+
+        var bytes = File.ReadAllBytes(HtmlFile);
+        var hasBom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+        var encoding = new UTF8Encoding(hasBom);
+        var html = encoding.GetString(bytes, hasBom ? 3 : 0, bytes.Length - (hasBom ? 3 : 0));
+
+        html = Regex.Replace(html, "[ \\t]*<meta http-equiv=\"Content-Security-Policy\"[^>]*>\\r?\\n", "");
+
+        var hashes = Regex.Matches(html, "<script(?<attributes>[^>]*)>(?<body>.*?)</script>", RegexOptions.Singleline)
+            .Cast<Match>()
+            .Where(match => Regex.IsMatch(match.Groups["attributes"].Value, "\\ssrc\\s*=") == false)
+            .Select(match => match.Groups["body"].Value.Replace("\r\n", "\n").Replace('\r', '\n'))
+            .Select(body =>
+            {
+                using (var sha256 = SHA256.Create())
+                {
+                    return "'sha256-" + Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(body))) + "'";
+                }
+            })
+            .Distinct();
+
+        var charset = Regex.Match(html, "(?<indent>[ \\t]*)<meta charset=\"utf-8\" />(?<newLine>\\r?\\n)");
+
+        if (charset.Success == false)
+        {
+            Log.LogError("В " + HtmlFile + " не найден тег <meta charset=\"utf-8\" />: политику CSP некуда вписать. Сверь разметку index.html с регуляркой задачи InjectContentSecurityPolicy.");
+            return false;
+        }
+
+        var content = Policy.Replace(HashesToken, string.Concat(hashes.Select(hash => " " + hash)));
+        var meta = charset.Groups["indent"].Value + "<meta http-equiv=\"Content-Security-Policy\" content=\"" + content + "\" />" + charset.Groups["newLine"].Value;
+
+        html = html.Insert(charset.Index + charset.Length, meta);
+        File.WriteAllText(HtmlFile, html, encoding);
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="ApplyContentSecurityPolicy"
+          AfterTargets="Publish"
+          BeforeTargets="BlazorWasmBrotliLoader_Inject"
+          Condition="'$(WasmBuildingForNestedPublish)' != 'true'">
+    <PropertyGroup>
+      <_CspIndexHtml>$([System.IO.Path]::GetFullPath(`$(PublishDir)wwwroot/index.html`))</_CspIndexHtml>
+      <_CspPolicy>default-src 'self'%3B script-src 'self' 'wasm-unsafe-eval' {inline-script-hashes}%3B style-src 'self' 'unsafe-inline'%3B img-src 'self' data: blob:%3B object-src 'none'%3B base-uri 'self'</_CspPolicy>
+    </PropertyGroup>
+
+    <InjectContentSecurityPolicy HtmlFile="$(_CspIndexHtml)"
+                                 Policy="$(_CspPolicy)" />
+
+    <ItemGroup>
+      <_CspIndexHtmlItem Include="$(_CspIndexHtml)" />
+    </ItemGroup>
+    <BlazorWasmBrotliLoader.RecompressStaticFiles Files="@(_CspIndexHtmlItem)" />
   </Target>
 
 </Project>

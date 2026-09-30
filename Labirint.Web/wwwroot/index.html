@@ -56,8 +56,7 @@
           rel="apple-touch-icon"
           sizes="180x180" />
 
-    <script src="scripts/theme.js"></script>
-    <script>labirintTheme.applyStored();</script>
+    <script src="scripts/theme#[.{fingerprint}].js"></script>
 </head>
 
 <body>
@@ -82,17 +81,23 @@
                 type="button">🗙</button>
     </div>
 
-    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+    <script defer
+            src="scripts/page#[.{fingerprint}].js"></script>
+    <script defer
+            src="scripts/sounds#[.{fingerprint}].js"></script>
+    <script defer
+            src="scripts/canvasHelper#[.{fingerprint}].js"></script>
+    <script defer
+            src="scripts/keyInterceptor#[.{fingerprint}].js"></script>
+    <script defer
+            src="scripts/dialogHost#[.{fingerprint}].js"></script>
+    <script defer
+            src="scripts/pickupFlight#[.{fingerprint}].js"></script>
+    <script defer
+            src="scripts/appUpdate#[.{fingerprint}].js"></script>
 
-    <script src="scripts/page.js"></script>
-    <script src="scripts/sounds.js"></script>
-    <script src="scripts/canvasHelper.js"></script>
-    <script src="scripts/keyInterceptor.js"></script>
-    <script src="scripts/dialogHost.js"></script>
-    <script src="scripts/pickupFlight.js"></script>
-    <script src="scripts/appUpdate.js"></script>
-
-    <script>labirintUpdate.register();</script>
+    <script defer
+            src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
 </body>
 
 </html>

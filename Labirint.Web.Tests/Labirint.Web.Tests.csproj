@@ -32,6 +32,9 @@
     <Content Include="..\Labirint.Web\wwwroot\scripts\canvasHelper.js"
              Link="canvasHelper.js"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\Labirint.Web\wwwroot\index.html"
+             Link="index.html"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
